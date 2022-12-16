@@ -1,0 +1,8 @@
+prime tmp: 2146043
+prime tmp bit:22
+pre_computing_bits:24
+rf_FRI: 20
+rf_sec: 25
+pre_computing:16394998
+DATA_FRI_RS_WIDTH:24
+DATA_MULT_PER_WIDTH:48

@@ -1,0 +1,178 @@
+# add -m64 to flags for 64-bit Intel
+
+#CXXFLAGS=-g -DDEBUG -I../include -I. -c
+#LDFLAGS=-g
+CXXFLAGS= -std=c++11 -O2 -I../../ntl-5.5.2/include -I. -DNO_DEBUG -DNO_TIMER
+LDFLAGS= -std=c++11  -O2 -L../..//msys/1.0/local/lib/
+
+##########################################################################
+#File Poistion
+FFTC_PATH     = /home/ldap-users/kuanyu/Desktop/BFFT_test/Compiler_cpp_code
+rodsd_path    = /usr/cad/synopsys/CBDK_TSMC90GUTM_Arm_f1.0/CIC/Memory/rodsd/bin/rodsd
+sram_path    = /usr/cad/synopsys/CBDK_TSMC90GUTM_Arm_f1.0/CIC/Memory/sram_sp_adv/bin/sram_sp_adv
+specname      = $(FFTC_PATH)/spec/SRAM_SP_4096_128.spec
+ROM_spec      = $(FFTC_PATH)/spec/ROM.spec
+ROMDATA_PATH  = $(FFTC_PATH)/ROM_Data
+##########################################################################
+#cpp parameter
+FFT_POINT = 16384
+RADIX = 16
+##########################################################################
+#ROM AND SRAM parameter
+Freq      = 200
+MUX       = 8
+#############################################################################
+#this parameter for synthesis , ROM Max word size = 8192 , Max bit size = 64 
+MUX_16    = 16
+sram_word_size = 512
+#rom word size
+#radix-4  rom word size = fft_point  / (radix * radix)
+#radix-16 rom word size = fft_point / 16
+rom_word_size  = 1024
+rom_word_size_N4D  = 4096
+rom_word_size_r8   = 2048
+#H2 ROM Word size
+#H2 ROM Word size = fft_point / (2 * radix)
+H2rom_word_size    = 512
+#Re order ROM WORD SIZE
+#H2 ROM word size = fft / (2 * radix)
+reROM_r8_bitsize   = 32
+reROM_word_size    = 512
+#Inverse reorder ROM Word size
+#chage with phi(m)
+IreROM_word_size   = 512
+half_bit_size      = 32
+bit_size           = 64
+double_bit_size    = 128
+instname           = SRAM_SP_$(sram_word_size)_$(double_bit_size)
+############################################################
+#radix-4 FFT twiddle factor
+instnamer4ROM0 = R4_FFTROM0.txt
+instnamer4ROM1 = R4_FFTROM1.txt
+Iinstnamer4ROM0 = R4_IFFTROM0.txt
+Iinstnamer4ROM1 = R4_IFFTROM1.txt
+############################################################
+#radix-8 FFT twiddle factor
+instnamer8ROM0  = R8_FFTROM0.txt
+instnamer8ROM1  = R8_FFTROM1.txt
+instnamer8ROM2  = R8_FFTROM2.txt
+instnamer8ROM3  = R8_FFTROM3.txt
+Iinstnamer8ROM0 = R8_IFFTROM0.txt
+Iinstnamer8ROM1 = R8_IFFTROM1.txt
+Iinstnamer8ROM2 = R8_IFFTROM2.txt
+Iinstnamer8ROM3 = R8_IFFTROM3.txt
+############################################################
+#radix-4 FFT twiddle factor divided into  4 bank 
+#ROM.txt file 
+instnamer0d0   = R4_FFTROM0_D0_4Bank.txt
+instnamer0d1   = R4_FFTROM0_D1_4Bank.txt
+instnamer0d2   = R4_FFTROM0_D2_4Bank.txt
+instnamer0d3   = R4_FFTROM0_D3_4Bank.txt
+instnamer1d0   = R4_FFTROM1_D0_4Bank.txt
+instnamer1d1   = R4_FFTROM1_D1_4Bank.txt
+instnamer1d2   = R4_FFTROM1_D2_4Bank.txt
+instnamer1d3   = R4_FFTROM1_D3_4Bank.txt
+############################################################
+#radix-16 FFT 
+#ROM.txt file 
+instnamerom0 = R16_FFTROM0.txt
+instnamerom1 = R16_FFTROM1.txt
+instnamerom2 = R16_FFTROM2.txt
+instnamerom3 = R16_FFTROM3.txt
+instnamerom4 = R16_FFTROM4.txt
+instnamerom5 = R16_FFTROM5.txt
+instnamerom6 = R16_FFTROM6.txt
+instnamerom7 = R16_FFTROM7.txt
+##############################################
+#radix-4 IFFT  
+###Inverse ROM 
+Iinstnamer0d0   = R4_IFFTROM0_D0_4Bank.txt
+Iinstnamer0d1   = R4_IFFTROM0_D1_4Bank.txt
+Iinstnamer0d2   = R4_IFFTROM0_D2_4Bank.txt
+Iinstnamer0d3   = R4_IFFTROM0_D3_4Bank.txt
+Iinstnamer1d0   = R4_IFFTROM1_D0_4Bank.txt
+Iinstnamer1d1   = R4_IFFTROM1_D1_4Bank.txt
+Iinstnamer1d2   = R4_IFFTROM1_D2_4Bank.txt
+Iinstnamer1d3   = R4_IFFTROM1_D3_4Bank.txt
+##############################################
+#radix-16 IFFT
+###Inverse ROM
+Iinstnamerom0 = R16_IFFTROM0.txt
+Iinstnamerom1 = R16_IFFTROM1.txt
+Iinstnamerom2 = R16_IFFTROM2.txt
+Iinstnamerom3 = R16_IFFTROM3.txt
+Iinstnamerom4 = R16_IFFTROM4.txt
+Iinstnamerom5 = R16_IFFTROM5.txt
+Iinstnamerom6 = R16_IFFTROM6.txt
+Iinstnamerom7 = R16_IFFTROM7.txt
+##############################################
+#raidx-4
+#reorder factor and inverse reorder rom
+reorderROM0   = reorder_ROM0.txt
+reorderROM1   = reorder_ROM1.txt
+ireorderROM0  = ireorder_ROM0.txt
+ireorderROM1  = ireorder_ROM1.txt
+IReROM1_BIT_SIZE = 32
+##############################################
+#raidx-8
+#reorder factor and inverse reorder rom
+reorderROM0_R8   = reorder_ROM0.txt
+reorderROM1_R8   = reorder_ROM1.txt
+reorderROM2_R8   = reorder_ROM2.txt
+reorderROM3_R8   = reorder_ROM3.txt
+ireorderROM0_R8  = ireorder_ROM0.txt
+ireorderROM1_R8  = ireorder_ROM1.txt
+ireorderROM2_R8  = ireorder_ROM2.txt
+ireorderROM3_R8  = ireorder_ROM3.txt
+##############################################
+#raidx-16
+#reorder factor and inverse reorder rom
+reorderROM0_R16   = reorder_ROM0.txt
+reorderROM1_R16   = reorder_ROM1.txt
+reorderROM2_R16   = reorder_ROM2.txt
+reorderROM3_R16   = reorder_ROM3.txt
+ireorderROM0_R16  = ireorder_ROM0.txt
+ireorderROM1_R16  = ireorder_ROM1.txt
+ireorderROM2_R16  = ireorder_ROM2.txt
+ireorderROM3_R16  = ireorder_ROM3.txt
+##############################################
+H_b0ROM0_r4        = H_b0ROM0.txt
+H_b0ROM1_r4        = H_b0ROM1.txt
+H_b1ROM0_r4        = H_b1ROM0.txt
+H_b1ROM1_r4        = H_b1ROM1.txt
+##############################################
+H_b0r0_r4_mux16        = H_b0r0.txt
+H_b0r1_r4_mux16        = H_b0r1.txt
+H_b0r2_r4_mux16        = H_b0r2.txt
+H_b0r3_r4_mux16        = H_b0r3.txt
+H_b1r0_r4_mux16        = H_b1r0.txt
+H_b1r1_r4_mux16        = H_b1r1.txt
+H_b1r2_r4_mux16        = H_b1r2.txt
+H_b1r3_r4_mux16        = H_b1r3.txt
+##############################################
+H_b0ROM0_r8        = H_b0ROM0.txt
+H_b0ROM1_r8        = H_b0ROM1.txt
+H_b0ROM2_r8        = H_b0ROM2.txt
+H_b0ROM3_r8        = H_b0ROM3.txt
+H_b1ROM0_r8        = H_b1ROM0.txt
+H_b1ROM1_r8        = H_b1ROM1.txt
+H_b1ROM2_r8        = H_b1ROM2.txt
+H_b1ROM3_r8        = H_b1ROM3.txt
+##############################################
+H_b0ROM0_r16        = H_b0ROM0.txt
+H_b0ROM1_r16        = H_b0ROM1.txt
+H_b0ROM2_r16        = H_b0ROM2.txt
+H_b0ROM3_r16        = H_b0ROM3.txt
+H_b0ROM4_r16        = H_b0ROM4.txt
+H_b0ROM5_r16        = H_b0ROM5.txt
+H_b0ROM6_r16        = H_b0ROM6.txt
+H_b0ROM7_r16        = H_b0ROM7.txt
+H_b1ROM0_r16        = H_b1ROM0.txt
+H_b1ROM1_r16        = H_b1ROM1.txt
+H_b1ROM2_r16        = H_b1ROM2.txt
+H_b1ROM3_r16        = H_b1ROM3.txt
+H_b1ROM4_r16        = H_b1ROM4.txt
+H_b1ROM5_r16        = H_b1ROM5.txt
+H_b1ROM6_r16        = H_b1ROM6.txt
+H_b1ROM7_r16        = H_b1ROM7.txt
+##############################################
