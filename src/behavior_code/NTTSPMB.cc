@@ -8311,8 +8311,12 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 	std::ofstream siang_ROM7_gen("./my_print_data/v_code_gen/ROM7_gen.txt");
 	std::ofstream siang_tw_diff("./my_print_data/tw_diff.txt");
 	std::ofstream siang_tw_diff_v_gen("./my_print_data/v_code_gen/tw_diff_v.txt");
-	//std::ofstream siang_DifRom_tf_const("./my_print_data/DifRom_tf_const.txt");
-	//std::ofstream siang_DifRom_tf_const_v_gen("./my_print_data/v_code_gen/DifRom_tf_const_v.txt");
+	std::ofstream siang_tw_diff_row1("./my_print_data/tw_diff_row1.txt");
+	std::ofstream siang_tw_diff_row1_v_gen("./my_print_data/v_code_gen/tw_diff_row1_v.txt");
+	std::ofstream siang_tw_diff_row2("./my_print_data/tw_diff_row2.txt");
+	std::ofstream siang_tw_diff_row2_v_gen("./my_print_data/v_code_gen/tw_diff_row2_v.txt");
+	std::ofstream siang_tw_diff_row3("./my_print_data/tw_diff_row3.txt");
+	std::ofstream siang_tw_diff_row3_v_gen("./my_print_data/v_code_gen/tw_diff_row3_v.txt");
 	//**********************************************************
 	//**********************************************************
 	display  = 1;
@@ -8833,41 +8837,6 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 			if(display == 1)siang_ROM7_gen << "buf_const[" << s << "] <= " << hex_siang_const_factor_14t << "_" << hex_siang_const_factor_15t << "\n";	// siang_record	
 		}
 
-		/*
-		ZZ DifRom_tf_const_1;
-		ZZ DifRom_tf_const_5;
-		ZZ DifRom_tf_const_9;
-		ZZ DifRom_tf_const_13;
-
-		std::string hex_DifRom_tf_const_1;
-		std::string hex_DifRom_tf_const_5;
-		std::string hex_DifRom_tf_const_9;
-		std::string hex_DifRom_tf_const_13;
-		
-
-		if(s == 0) {
-			PowerMod(DifRom_tf_const_1, factor, 1, p);
-			PowerMod(DifRom_tf_const_5, factor, 5, p);
-			PowerMod(DifRom_tf_const_9, factor, 9, p);
-			PowerMod(DifRom_tf_const_13, factor, 13, p);
-
-			siang_DifRom_tf_const << "BC_tmp = " << BC_tmp  << ", DifRom_tf_const_1  = " << DifRom_tf_const_1 << "\n";
-			siang_DifRom_tf_const << "BC_tmp = " << BC_tmp  << ", DifRom_tf_const_5  = " << DifRom_tf_const_5 << "\n";
-			siang_DifRom_tf_const << "BC_tmp = " << BC_tmp  << ", DifRom_tf_const_9  = " << DifRom_tf_const_9 << "\n";
-			siang_DifRom_tf_const << "BC_tmp = " << BC_tmp  << ", DifRom_tf_const_13  = " << DifRom_tf_const_13 << "\n";
-
-			hex_DifRom_tf_const_1 = spmb.ZZtohex(DifRom_tf_const_1);
-			hex_DifRom_tf_const_5 = spmb.ZZtohex(DifRom_tf_const_5);
-			hex_DifRom_tf_const_9 = spmb.ZZtohex(DifRom_tf_const_9);
-			hex_DifRom_tf_const_13 = spmb.ZZtohex(DifRom_tf_const_13);
-
-			siang_DifRom_tf_const_v_gen << "DifRom_tf_const[" << 0 << "] <= " << "64'h" << hex_DifRom_tf_const_1 << " ;" <<"\n";
-			siang_DifRom_tf_const_v_gen << "DifRom_tf_const[" << 1 << "] <= " << "64'h" << hex_DifRom_tf_const_5 << " ;" <<"\n";
-			siang_DifRom_tf_const_v_gen << "DifRom_tf_const[" << 2 << "] <= " << "64'h" << hex_DifRom_tf_const_9 << " ;" <<"\n";
-			siang_DifRom_tf_const_v_gen << "DifRom_tf_const[" << 3 << "] <= " << "64'h" << hex_DifRom_tf_const_13 << " ;" <<"\n";
-		}*/
-		
-
 		//*******************************************************
 		//------------------------------------------------------------------------------------------------------------
 		tw_modulus_tmp  = tw_modulus >> ( 4 * s);
@@ -8897,104 +8866,39 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 
 				//------------siang record--------------
 				ZZ  factor_diff_1t;
-				ZZ  factor_diff_2t;
-				ZZ  factor_diff_3t;
-				ZZ  factor_diff_4t;
 				ZZ  factor_diff_5t;
-				ZZ  factor_diff_6t;
-				ZZ  factor_diff_7t;
-				ZZ  factor_diff_8t;
 				ZZ  factor_diff_9t;
-				ZZ  factor_diff_10t;
-				ZZ  factor_diff_11t;
-				ZZ  factor_diff_12t;
 				ZZ  factor_diff_13t;
-				ZZ  factor_diff_14t;
-				ZZ  factor_diff_15t;
 
 				std::string hex_factor_diff_1t;
-				std::string hex_factor_diff_2t;
-				std::string hex_factor_diff_3t;
-				std::string hex_factor_diff_4t;
 				std::string hex_factor_diff_5t;
-				std::string hex_factor_diff_6t;
-				std::string hex_factor_diff_7t;
-				std::string hex_factor_diff_8t;
 				std::string hex_factor_diff_9t;
-				std::string hex_factor_diff_10t;
-				std::string hex_factor_diff_11t;
-				std::string hex_factor_diff_12t;
 				std::string hex_factor_diff_13t;
-				std::string hex_factor_diff_14t;
-				std::string hex_factor_diff_15t;
-				if(s == 0 && j == 0){ // siang_record
+
+				if(s == 0 && j == 0){ 
 					int tw_diff = BC_tmp - tw_record;
 
 					//siang_tw_diff << "--------------------------" << "\n";
-					PowerMod(factor_diff_1t, factor, 1*tw_diff, p);
-					PowerMod(factor_diff_2t, factor, 2*tw_diff, p);
-					PowerMod(factor_diff_3t, factor, 3*tw_diff, p);
-					PowerMod(factor_diff_4t, factor, 4*tw_diff, p);
+					PowerMod(factor_diff_1t, factor, tw_diff, p);
 					PowerMod(factor_diff_5t, factor, 5*tw_diff, p);
-					PowerMod(factor_diff_6t, factor, 6*tw_diff, p);
-					PowerMod(factor_diff_7t, factor, 7*tw_diff, p);
-					PowerMod(factor_diff_8t, factor, 8*tw_diff, p);
 					PowerMod(factor_diff_9t, factor, 9*tw_diff, p);
-					PowerMod(factor_diff_10t, factor, 10*tw_diff, p);
-					PowerMod(factor_diff_11t, factor, 11*tw_diff, p);
-					PowerMod(factor_diff_12t, factor, 12*tw_diff, p);
 					PowerMod(factor_diff_13t, factor, 13*tw_diff, p);
-					PowerMod(factor_diff_14t, factor, 14*tw_diff, p);
-					PowerMod(factor_diff_15t, factor, 15*tw_diff, p);
 
-					siang_tw_diff << "BC_tmp = " << BC_tmp << ", 1*tw_diff = " << 1*tw_diff << ", factor_diff_1t  = " << factor_diff_1t << "\n";
-					/*siang_tw_diff << "BC_tmp = " << BC_tmp << ", 2*tw_diff = " << 2*tw_diff << ", factor_diff_2t  = " << factor_diff_2t << "\n";
-					siang_tw_diff << "BC_tmp = " << BC_tmp << ", 3*tw_diff = " << 3*tw_diff << ", factor_diff_3t  = " << factor_diff_3t << "\n";
-					siang_tw_diff << "BC_tmp = " << BC_tmp << ", 4*tw_diff = " << 4*tw_diff << ", factor_diff_4t  = " << factor_diff_4t << "\n";
-					siang_tw_diff << "BC_tmp = " << BC_tmp << ", 5*tw_diff = " << 5*tw_diff << ", factor_diff_5t  = " << factor_diff_5t << "\n";
-					siang_tw_diff << "BC_tmp = " << BC_tmp << ", 6*tw_diff = " << 6*tw_diff << ", factor_diff_6t  = " << factor_diff_6t << "\n";
-					siang_tw_diff << "BC_tmp = " << BC_tmp << ", 7*tw_diff = " << 7*tw_diff << ", factor_diff_7t  = " << factor_diff_7t << "\n";
-					siang_tw_diff << "BC_tmp = " << BC_tmp << ", 8*tw_diff = " << 8*tw_diff << ", factor_diff_8t  = " << factor_diff_8t << "\n";
-					siang_tw_diff << "BC_tmp = " << BC_tmp << ", 9*tw_diff = " << 9*tw_diff << ", factor_diff_9t  = " << factor_diff_9t << "\n";
-					siang_tw_diff << "BC_tmp = " << BC_tmp << ", 10*tw_diff = " << 10*tw_diff << ", factor_diff_10t = " << factor_diff_10t << "\n";
-					siang_tw_diff << "BC_tmp = " << BC_tmp << ", 11*tw_diff = " << 11*tw_diff << ", factor_diff_11t = " << factor_diff_11t << "\n";
-					siang_tw_diff << "BC_tmp = " << BC_tmp << ", 12*tw_diff = " << 12*tw_diff << ", factor_diff_12t = " << factor_diff_12t << "\n";
-					siang_tw_diff << "BC_tmp = " << BC_tmp << ", 13*tw_diff = " << 13*tw_diff << ", factor_diff_13t = " << factor_diff_13t << "\n";
-					siang_tw_diff << "BC_tmp = " << BC_tmp << ", 14*tw_diff = " << 14*tw_diff << ", factor_diff_14t = " << factor_diff_14t << "\n";
-					siang_tw_diff << "BC_tmp = " << BC_tmp << ", 15*tw_diff = " << 15*tw_diff << ", factor_diff_15t = " << factor_diff_15t << "\n";*/
-					
+					siang_tw_diff << "BC_tmp = " << BC_tmp << ", tw_diff = " << tw_diff << ", factor_diff_1t  = " << factor_diff_1t << "\n";
+					siang_tw_diff_row1 << "BC_tmp = " << BC_tmp << ", 5*tw_diff = " << 5*tw_diff << ", factor_diff_5t  = " << factor_diff_5t << "\n";
+					siang_tw_diff_row2 << "BC_tmp = " << BC_tmp << ", 9*tw_diff = " << 9*tw_diff << ", factor_diff_9t  = " << factor_diff_9t << "\n";
+					siang_tw_diff_row3 << "BC_tmp = " << BC_tmp << ", 13*tw_diff = " << 13*tw_diff << ", factor_diff_13t  = " << factor_diff_13t << "\n";
+
 					//siang_tw_diff_v_gen << "--------------------------" << "\n";
 					hex_factor_diff_1t = spmb.ZZtohex(factor_diff_1t);
-					hex_factor_diff_2t = spmb.ZZtohex(factor_diff_2t);
-					hex_factor_diff_3t = spmb.ZZtohex(factor_diff_3t);
-					hex_factor_diff_4t = spmb.ZZtohex(factor_diff_4t);
 					hex_factor_diff_5t = spmb.ZZtohex(factor_diff_5t);
-					hex_factor_diff_6t = spmb.ZZtohex(factor_diff_6t);
-					hex_factor_diff_7t = spmb.ZZtohex(factor_diff_7t);
-					hex_factor_diff_8t = spmb.ZZtohex(factor_diff_8t);
 					hex_factor_diff_9t = spmb.ZZtohex(factor_diff_9t);
-					hex_factor_diff_10t = spmb.ZZtohex(factor_diff_10t);
-					hex_factor_diff_11t = spmb.ZZtohex(factor_diff_11t);
-					hex_factor_diff_12t = spmb.ZZtohex(factor_diff_12t);
 					hex_factor_diff_13t = spmb.ZZtohex(factor_diff_13t);
-					hex_factor_diff_14t = spmb.ZZtohex(factor_diff_14t);
-					hex_factor_diff_15t = spmb.ZZtohex(factor_diff_15t);
 
 					siang_tw_diff_v_gen << "factor_diff_1t[" << cnt << "] <= " << "64'h" << hex_factor_diff_1t << " ;" <<"\n";
-					/*siang_tw_diff_v_gen << "factor_diff_2t[" << cnt << "] <= " << "64'h" << hex_factor_diff_2t << " ;" <<"\n";
-					siang_tw_diff_v_gen << "factor_diff_3t[" << cnt << "] <= " << "64'h" << hex_factor_diff_3t << " ;" <<"\n";
-					siang_tw_diff_v_gen << "factor_diff_4t[" << cnt << "] <= " << "64'h" << hex_factor_diff_4t << " ;" <<"\n";
-					siang_tw_diff_v_gen << "factor_diff_5t[" << cnt << "] <= " << "64'h" << hex_factor_diff_5t << " ;" <<"\n";
-					siang_tw_diff_v_gen << "factor_diff_6t[" << cnt << "] <= " << "64'h" << hex_factor_diff_6t << " ;" <<"\n";
-					siang_tw_diff_v_gen << "factor_diff_7t[" << cnt << "] <= " << "64'h" << hex_factor_diff_7t << " ;" <<"\n";
-					siang_tw_diff_v_gen << "factor_diff_8t[" << cnt << "] <= " << "64'h" << hex_factor_diff_8t << " ;" <<"\n";
-					siang_tw_diff_v_gen << "factor_diff_9t[" << cnt << "] <= " << "64'h" << hex_factor_diff_9t << " ;" <<"\n";
-					siang_tw_diff_v_gen << "factor_diff_10t[" << cnt << "] <= " << "64'h" << hex_factor_diff_10t << " ;" <<"\n";
-					siang_tw_diff_v_gen << "factor_diff_11t[" << cnt << "] <= " << "64'h" << hex_factor_diff_11t << " ;" <<"\n";
-					siang_tw_diff_v_gen << "factor_diff_12t[" << cnt << "] <= " << "64'h" << hex_factor_diff_12t << " ;" <<"\n";
-					siang_tw_diff_v_gen << "factor_diff_13t[" << cnt << "] <= " << "64'h" << hex_factor_diff_13t << " ;" <<"\n";
-					siang_tw_diff_v_gen << "factor_diff_14t[" << cnt << "] <= " << "64'h" << hex_factor_diff_14t << " ;" <<"\n";
-					siang_tw_diff_v_gen << "factor_diff_15t[" << cnt << "] <= " << "64'h" << hex_factor_diff_15t << " ;" <<"\n";*/
+					siang_tw_diff_row1_v_gen << "factor_diff_5t[" << cnt << "] <= " << "64'h" << hex_factor_diff_5t << " ;" <<"\n";
+					siang_tw_diff_row2_v_gen << "factor_diff_9t[" << cnt << "] <= " << "64'h" << hex_factor_diff_9t << " ;" <<"\n";
+					siang_tw_diff_row3_v_gen << "factor_diff_13t[" << cnt << "] <= " << "64'h" << hex_factor_diff_13t << " ;" <<"\n";
 					tw_record = BC_tmp;
 					cnt = cnt + 1;
 				}
