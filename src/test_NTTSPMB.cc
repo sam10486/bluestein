@@ -35,7 +35,7 @@ void test_NTTSPMB()
   ZZ fft_IW;
   ZZ fft_twiddle_65536;
   
-  fft_point         = 16384;//16
+  fft_point         = 65536;//16
   difference_length = 65536 / fft_point;
   difference_16     = fft_point / 16;
   band_memory_size  = fft_point / 32;
@@ -107,15 +107,16 @@ void test_NTTSPMB()
   //                  A_1_NTT_B1R12,A_1_NTT_B1R13,A_1_NTT_B1R14,A_1_NTT_B1R15);
   NTT_test.NTT_t(A_1);
   
-  test.NTT_r16_r4(A,A_NTT_B0R0,A_NTT_B0R1,A_NTT_B0R2,A_NTT_B0R3,
+  /*test.NTT_r16_r4(A,A_NTT_B0R0,A_NTT_B0R1,A_NTT_B0R2,A_NTT_B0R3,
 				    A_NTT_B0R4,A_NTT_B0R5,A_NTT_B0R6,A_NTT_B0R7,
                     A_NTT_B0R8,A_NTT_B0R9,A_NTT_B0R10,A_NTT_B0R11,
                     A_NTT_B0R12,A_NTT_B0R13,A_NTT_B0R14,A_NTT_B0R15,
                     A_NTT_B1R0,A_NTT_B1R1,A_NTT_B1R2,A_NTT_B1R3,
 					A_NTT_B1R4,A_NTT_B1R5,A_NTT_B1R6,A_NTT_B1R7,
                     A_NTT_B1R8,A_NTT_B1R9,A_NTT_B1R10,A_NTT_B1R11,
-					A_NTT_B1R12,A_NTT_B1R13,A_NTT_B1R14,A_NTT_B1R15);
+					A_NTT_B1R12,A_NTT_B1R13,A_NTT_B1R14,A_NTT_B1R15);*/
 
+  test.NTT_radix16(A);
   
   std::ofstream A_o("./A_output.txt");
   std::ofstream A_1_o("./A_1_output.txt");
@@ -140,14 +141,16 @@ void test_NTTSPMB()
   std::cout << "------------------------------\n";
   std::cout << " INTT Start!!                 \n";
 
-  test.INTT_r16_r4(A,A_NTT_B0R0,A_NTT_B0R1,A_NTT_B0R2,A_NTT_B0R3,
+  /*test.INTT_r16_r4(A,A_NTT_B0R0,A_NTT_B0R1,A_NTT_B0R2,A_NTT_B0R3,
 				     A_NTT_B0R4,A_NTT_B0R5,A_NTT_B0R6,A_NTT_B0R7,
                      A_NTT_B0R8,A_NTT_B0R9,A_NTT_B0R10,A_NTT_B0R11,
                      A_NTT_B0R12,A_NTT_B0R13,A_NTT_B0R14,A_NTT_B0R15,
                      A_NTT_B1R0,A_NTT_B1R1,A_NTT_B1R2,A_NTT_B1R3,
 				     A_NTT_B1R4,A_NTT_B1R5,A_NTT_B1R6,A_NTT_B1R7,
                      A_NTT_B1R8,A_NTT_B1R9,A_NTT_B1R10,A_NTT_B1R11,
-				     A_NTT_B1R12,A_NTT_B1R13,A_NTT_B1R14,A_NTT_B1R15);
+				     A_NTT_B1R12,A_NTT_B1R13,A_NTT_B1R14,A_NTT_B1R15);*/
+  
+  //test.NTT_radix16(A);
   
   for(int i = 0; i < fft_point;i++){
 	A_INTT_o << A[i];  

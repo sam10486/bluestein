@@ -1420,7 +1420,6 @@ void SPMB::re_order_factor_r4(ZZ m_2_rou){
 //twiddle factor rom is divided into 4  banks
 void SPMB::r4_FFT_TW_ROM_D4(){
     //Bank0
-	
     std::ofstream  ROMB0R0("./ROM_Data/R4_FFTROM0_D0_4Bank.txt");
     std::ofstream  ROMB0R1("./ROM_Data/R4_FFTROM0_D1_4Bank.txt");
     std::ofstream  ROMB0R2("./ROM_Data/R4_FFTROM0_D2_4Bank.txt");
@@ -1459,7 +1458,7 @@ void SPMB::r4_FFT_TW_ROM_D4(){
        tw_Table[i] = PowerMod(twiddle_65536,exp,FFT_Prime);
        exp = exp + order;
     }
-    
+
     //radix 0
     for(int i=0;i<(addr_length/4);i++){
         R1_tmp = tw_Table[i];
@@ -1590,7 +1589,10 @@ void SPMB::r4_FFT_TW_ROM_D4(){
     ROMB1R3.close();
 }
 void SPMB::r4_FFT_TW_ROM(){
-    
+    //---------siang print data -----------
+    std::ofstream siang_ROM0("./my_print_data/siang_R4_FFTROM0.txt");
+    std::ofstream siang_ROM1("./my_print_data/siang_R4_FFTROM1.txt");
+    //----------
 	//ROM0 bitsize = 64 , ROM1 bitsize = 128
 	//word size = FFT_point / radix
 	//Bank0
@@ -1632,6 +1634,20 @@ void SPMB::r4_FFT_TW_ROM(){
         R1_tmp = tw_Table[i];
         R2_tmp = tw_Table[2*i];
         R3_tmp = tw_Table[3*i];
+
+        //siang twiddle print out
+        //i=128
+        siang_ROM0 << "exp = "  << i*order    << ", " << R1_tmp;
+        siang_ROM1 << "exp = "  << 2*i*order  << ", " << R2_tmp;
+
+        siang_ROM1 << " ,   ";
+
+        siang_ROM1 << "exp = "  << 3*i*order << ", " << R3_tmp;
+        
+        siang_ROM0 << "\n";
+        siang_ROM1 << "\n";
+        //------------------------  
+
         for(int bit_index=0; bit_index < 64 ;bit_index++){
             if(R1_tmp % 2 == 1) tobit_r1[bit_index] = 1;
             else tobit_r1[bit_index] = 0;
@@ -1659,6 +1675,10 @@ void SPMB::r4_FFT_TW_ROM(){
     }
     ROM0.close();
     ROM1.close();
+    //---------------
+    siang_ROM0.close();
+	siang_ROM1.close();
+    //----------------
 }
 //twiddle factor rom is divided into 4  banks
 void SPMB::r4_IFFT_TW_ROM_D4(){
@@ -2754,7 +2774,14 @@ void SPMB::H_freq_o_r8(std::vector<ZZ> H_NTT){
 	
 }
 void SPMB::r8_FFT_TW_ROM(){
-    
+
+    //---------siang print data -----------
+    std::ofstream siang_ROM0("./my_print_data/siang_R8_FFTROM0.txt");
+    std::ofstream siang_ROM1("./my_print_data/siang_R8_FFTROM1.txt");
+    std::ofstream siang_ROM2("./my_print_data/siang_R8_FFTROM2.txt");
+    std::ofstream siang_ROM3("./my_print_data/siang_R8_FFTROM3.txt");
+    //----------
+
 	//ROM0 bitsize = 64 , ROM1 bitsize = 128
 	//word size = FFT_point / radix
     std::ofstream  ROM0("./ROM_Data/R8_FFTROM0.txt");
@@ -2812,6 +2839,32 @@ void SPMB::r8_FFT_TW_ROM(){
         R5_tmp = tw_Table[5*i];
         R6_tmp = tw_Table[6*i];
         R7_tmp = tw_Table[7*i];
+
+
+        //siang twiddle print out
+        //i=128
+        siang_ROM0 << "exp = "  << i*order    << ", " << R1_tmp;
+        siang_ROM1 << "exp = "  << 2*i*order  << ", " << R2_tmp;
+        siang_ROM2 << "exp = "  << 4*i*order  << ", " << R4_tmp;
+        siang_ROM3 << "exp = "  << 6*i*order  << ", " << R6_tmp;
+
+        siang_ROM1 << " ,   ";
+        siang_ROM2 << " ,   ";
+        siang_ROM3 << " ,   ";
+
+        siang_ROM1 << "exp = "  << 3*i*order << ", " << R3_tmp;
+        siang_ROM2 << "exp = "  << 5*i*order << ", " << R5_tmp;
+        siang_ROM3 << "exp = "  << 7*i*order << ", " << R7_tmp;
+        
+        siang_ROM0 << "\n";
+        siang_ROM1 << "\n";
+        siang_ROM2 << "\n";
+        siang_ROM3 << "\n";
+        //------------------------  
+
+
+
+
         for(int bit_index=0; bit_index < 64 ;bit_index++){
             if(R1_tmp % 2 == 1) tobit_r1[bit_index] = 1;
             else tobit_r1[bit_index] = 0;
@@ -2858,6 +2911,13 @@ void SPMB::r8_FFT_TW_ROM(){
     ROM1.close();
     ROM2.close();
     ROM3.close();
+
+    //---------------
+    siang_ROM0.close();
+	siang_ROM1.close();
+	siang_ROM2.close();
+	siang_ROM3.close();
+    //----------------
 }
 void SPMB::r8_IFFT_TW_ROM(){
     
@@ -7415,7 +7475,7 @@ void SPMB::r16_FFT_TW_ROM(){
     tw_Table.resize(fft_point);
     
     exp = 0;
-    //std::cout << "siang twiddle_65536 = " << twiddle_65536 << ", FFT_Prime = " << FFT_Prime << ", order = " << order << endl;
+    std::cout << "siang twiddle_65536 = " << twiddle_65536 << ", FFT_Prime = " << FFT_Prime << ", order = " << order << endl;
     for(int i=0;i<fft_point;i++){
        tw_Table[i] = PowerMod(twiddle_65536,exp,FFT_Prime);
        //std::cout << "i = " << i << ", exp = " << exp << ", tw_Table[" << i << "] = " << tw_Table[i] << endl;

@@ -843,7 +843,9 @@ void NTTSPMB::NTT_radix16(std::vector<ZZ> &A){
     std::vector<int> bit_array_tmp;
 	
 	std::ofstream DATARECORD("./NTT_R16_SPMB.txt");
-	
+	std::ofstream siang_record("./my_print_data/single_radix16_SPMB.txt");
+	std::ofstream TF_record("./my_print_data/single_radix16_SPMB_TF_dg.txt");
+
     Stage = (unsigned long)ceil(log2(N));
 	Stage = (unsigned long)Stage / 4;
 	BC_WIDTH  = (int)ceil(log2(N/16));
@@ -852,6 +854,7 @@ void NTTSPMB::NTT_radix16(std::vector<ZZ> &A){
 	group     =  (int)N / (radix * radix);
 	bit_array_tmp.resize(BC_WIDTH);
 	DATARECORD <<"Stage: "<< Stage<<"\n";
+	siang_record <<"Stage: "<< Stage<<"\n";
 	//std::cout <<"BC_WIDTH: "<< BC_WIDTH<<"\n";
 	//std::cout <<"word_size: "<< word_size<<"\n";
 	//std::cout << "-------------------------------------\n";
@@ -1017,36 +1020,56 @@ void NTTSPMB::NTT_radix16(std::vector<ZZ> &A){
 	ma_tmp = 0;
 	bn_tmp = 0;
 	BC     = 0;
+	int tw_degree = 1; // siang
 	std::cout << "init load over! \n";
 	//need modify to mult by twiddle factor
 	for(int s = 0; s < Stage; s++){
-		if(s == 0)factor = W;
+		if(s == 0) {
+			factor = W;
+		}
 		else {
 			SqrMod(factor,factor,p);
 			SqrMod(factor,factor,p);
 			SqrMod(factor,factor,p);
 			SqrMod(factor,factor,p);
+			tw_degree = tw_degree * 16;
 		}
 		DATARECORD <<"---------------------------------\n";
 		DATARECORD <<"Now Stage: "<< s <<"\n";
 		DATARECORD <<"twiddle factor : "<< factor <<"\n";
-		//std::cout << "twiddle factor : "<< factor <<"\n";
+		siang_record <<"---------------------------------\n"; // siang
+		siang_record <<"Now Stage: "<< s <<"\n";				// siang
+		siang_record <<"twiddle factor : "<< factor <<"\n";	// siang
+		TF_record <<"---------------------------------\n";
+		TF_record <<"Now Stage: "<< s <<"\n";				// siang
+		std::cout << "twiddle factor : "<< factor <<"\n";
 	    DATARECORD << "********\n";
+		siang_record << "********\n";	// siang
 		for(int i = 0 ;i < group;i++){
 			bn0_bc_tmp  = 0;
 			bn1_bc_tmp  = 0;
+			TF_record << "----------------------------------" <<"\n";	// TF_record
+			TF_record <<"i: "<< i << "\n";	
 			for(int j = 0;j < radix;j++){
+				siang_record <<"twiddle factor : "<< factor <<"\n";	// siang
 				gray_i  = Gray(i,group);
 				BC_tmp  = j * group + gray_i;
 				DATARECORD << "i: " << i <<"\n";
+				siang_record << "i: " << i << ", j: " << j << "\n";
 				DATARECORD << "gray_i: " << gray_i <<"\n";
 				DATARECORD << "BC_tmp: " << BC_tmp <<"\n";
+				siang_record << "BC_tmp: " << BC_tmp <<"\n";	// siang
 				RR_R16(BC_tmp,s,BC);
 				DATARECORD << "BC: " << BC <<"\n";
+				siang_record << "BC: " << BC <<"\n";	// siang
 				length = BC_tmp >> (4*s);
 				DATARECORD << "length: " <<  length <<"\n";
+				siang_record << "length: " <<  length <<"\n";	// siang
+				TF_record << "length: " << length << ", tw_dg: " <<  tw_degree * length << " = " << tw_degree << " * " << length <<"\n";	// TF_record
+				
 				PowerMod(factor_t,factor,length,p);
 				DATARECORD << "factor_t: "<<factor_t<<"\n";
+				siang_record << "factor_t: "<<factor_t<<"\n";	// siang
 				AGU_R16(BC,bn_tmp,ma_tmp);
 				DATARECORD << "bn_tmp: "<<bn_tmp<<"\n";
 				if(bn_tmp == 0){
@@ -1116,6 +1139,20 @@ void NTTSPMB::NTT_radix16(std::vector<ZZ> &A){
 					DATARECORD <<"facotr_13 : " << factor_13t << " \n";
 					DATARECORD <<"facotr_14 : " << factor_14t << " \n";
 					DATARECORD <<"facotr_15 : " << factor_15t << " \n";
+
+					//-------------------siang record----------------------
+					//siang_record << "factor_t: "<< factor_t <<"\n";	// siang
+					siang_record << "p: "<< p <<"\n";	// siang
+					siang_record <<"facotr_1  : " << factor_t  << " \n";
+					siang_record <<"facotr_2_facotr_3 : " << factor_2t << "_" << factor_3t << " \n";
+					siang_record <<"facotr_4_facotr_5 : " << factor_4t << "_" << factor_5t << " \n";
+					siang_record <<"facotr_6_facotr_7 : " << factor_6t << "_" << factor_7t << " \n";
+					siang_record <<"facotr_8_facotr_9 : " << factor_8t << "_" << factor_9t << " \n";
+					siang_record <<"facotr_10_facotr_11 : " << factor_10t << "_" << factor_11t << " \n";
+					siang_record <<"facotr_12_facotr_13 : " << factor_12t << "_" << factor_13t << " \n";
+					siang_record <<"facotr_14_facotr_15 : " << factor_14t << "_" << factor_15t << " \n";
+					//-------------------------------------------------------
+
 				    DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp]<<"\n";
 				    DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp]<<"\n";
 					DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<<A_B0R2[ma_tmp]<<"\n";
@@ -1133,6 +1170,7 @@ void NTTSPMB::NTT_radix16(std::vector<ZZ> &A){
 					DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<<A_B0R14[ma_tmp]<<"\n";
 					DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<<A_B0R15[ma_tmp]<<"\n";
 					DATARECORD <<"--------------------------------------------------------------------\n";
+					siang_record <<"--------------------------------------------------------------------\n";
 					if(j <  2)bn0_ma_reg1 = ma_tmp;
 					if((j >= 2)  && (j < 4))bn0_ma_reg2 = ma_tmp;
 					if((j >= 4)  && (j < 6))bn0_ma_reg3 = ma_tmp;
@@ -1209,6 +1247,22 @@ void NTTSPMB::NTT_radix16(std::vector<ZZ> &A){
 					DATARECORD <<"facotr_13 : " << factor_13t << " \n";
 					DATARECORD <<"facotr_14 : " << factor_14t << " \n";
 					DATARECORD <<"facotr_15 : " << factor_15t << " \n";
+
+					//-------------------siang record----------------------.
+					//siang_record << "factor_t: "<< factor_t <<"\n";	// siang
+					siang_record << "p: "<< p <<"\n";	// siang
+					siang_record <<"facotr_1  : " << factor_t  << " \n";
+					siang_record <<"facotr_2_facotr_3 : " << factor_2t << "_" << factor_3t << " \n";
+					siang_record <<"facotr_4_facotr_5 : " << factor_4t << "_" << factor_5t << " \n";
+					siang_record <<"facotr_6_facotr_7 : " << factor_6t << "_" << factor_7t << " \n";
+					siang_record <<"facotr_8_facotr_9 : " << factor_8t << "_" << factor_9t << " \n";
+					siang_record <<"facotr_10_facotr_11 : " << factor_10t << "_" << factor_11t << " \n";
+					siang_record <<"facotr_12_facotr_13 : " << factor_12t << "_" << factor_13t << " \n";
+					siang_record <<"facotr_14_facotr_15 : " << factor_14t << "_" << factor_15t << " \n";
+					//-------------------------------------------------------
+
+
+
 				    DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<<"\n";
 				    DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<<"\n";
 					DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<<"\n";
@@ -1226,6 +1280,7 @@ void NTTSPMB::NTT_radix16(std::vector<ZZ> &A){
 					DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<<A_B1R14[ma_tmp]<<"\n";
 					DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<<A_B1R15[ma_tmp]<<"\n";
 					DATARECORD <<"--------------------------------------------------------------------\n";
+					siang_record <<"--------------------------------------------------------------------\n";
                     if(j <  2)bn1_ma_reg1 = ma_tmp;					
                     if((j >= 2)  && (j < 4))bn1_ma_reg2 = ma_tmp;
                     if((j >= 4)  && (j < 6))bn1_ma_reg3 = ma_tmp;
@@ -3437,7 +3492,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
     std::vector<int> bit_array_tmp;
 	
 	std::ofstream DATARECORD("./NTT_R16_R2_SPMB.txt");
-	
+	std::ofstream r16_r2_SPMB_TF_dg("./my_print_data/r16_r2_SPMB_TF_dg.txt");
 
 	//radix-16 Stage
     Stage_double  = log2(N);
@@ -3657,10 +3712,12 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 		}
 		DATARECORD <<"---------------------------------\n";
 		DATARECORD <<"Now Stage: "<< s <<"\n";
+		r16_r2_SPMB_TF_dg << "Now Stage: "<< s <<"\n";
 		tw_modulus_tmp  = tw_modulus >> ( 4 * s);
 		for(int i = 0 ;i < group;i++){
 			bn0_bc_tmp  = 0;
 			bn1_bc_tmp  = 0;
+			r16_r2_SPMB_TF_dg << "-------------------------------\n";
 			for(int j = 0;j < radix;j++){
 				gray_i  = Gray(i,group);
 				BC_tmp  = j * group + gray_i;
@@ -3670,6 +3727,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 				else RR_R16(BC_tmp,s,BC);
 				DATARECORD << "After RR_R16 , BC : " << BC << "\n";
 				length = BC % tw_modulus_tmp;
+				r16_r2_SPMB_TF_dg << "length: " << length << "\n";
 				PowerMod(factor_t,factor,length,p);
 				AGU_R16(BC,bn_tmp,ma_tmp);
 				DATARECORD << "BN : " << bn_tmp << "\n";
@@ -8300,7 +8358,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
     std::vector<int> bit_array_tmp;
 	
 	std::ofstream DATARECORD("./NTT_R16_R4_SPMB.txt");
-	std::ofstream siang_record("./my_print_data/SPMB_bank_record.txt");
+	std::ofstream siang_record("./my_print_data/r16_r4_SPMB.txt");
 	std::ofstream siang_ROM0_gen("./my_print_data/v_code_gen/ROM0_gen.txt");
 	std::ofstream siang_ROM1_gen("./my_print_data/v_code_gen/ROM1_gen.txt");
 	std::ofstream siang_ROM2_gen("./my_print_data/v_code_gen/ROM2_gen.txt");
@@ -8317,6 +8375,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 	std::ofstream siang_tw_diff_row2_v_gen("./my_print_data/v_code_gen/tw_diff_row2_v.txt");
 	std::ofstream siang_tw_diff_row3("./my_print_data/tw_diff_row3.txt");
 	std::ofstream siang_tw_diff_row3_v_gen("./my_print_data/v_code_gen/tw_diff_row3_v.txt");
+	std::ofstream r16_r4_SPMB_TF_dg("./my_print_data/r16_r4_SPMB_TF_dg.txt");
 	//**********************************************************
 	//**********************************************************
 	display  = 1;
@@ -8548,6 +8607,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 			SqrMod(factor,factor,p);
 			SqrMod(factor,factor,p);
 		}
+		std::cout << "factor = " << factor << std::endl;
 		if(display == 1)DATARECORD <<"---------------------------------\n";
 		if(display == 1)DATARECORD <<"Now Stage: "<< s <<"\n";		
 		if(display == 1)siang_record <<"---------------------------------\n";	// siang_record
@@ -8577,6 +8637,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 		if(display == 1)siang_ROM7_gen <<"---------------------------------\n";	// siang_record
 		if(display == 1)siang_ROM7_gen <<"Now Stage: "<< s <<"\n";	// siang_record
 		if(display == 1)siang_ROM7_gen <<"factor: "<< factor <<"\n";	// siang_record
+		r16_r4_SPMB_TF_dg << "Now Stage : " << s << "\n";
 		//-------------------------------siang record-------------------------------------------------------------
 		ZZ siang_factor_1;
 		ZZ siang_factor_2;
@@ -8745,9 +8806,6 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 			case 1:
 				W_degree = 16;
 				overall_deg = (W_const_Degree_Diff/W_degree);
-				std::cout << "stage = " << s << std::endl;
-				std::cout << "factor = " << factor << std::endl;
-				std::cout << "overall_deg = " << overall_deg << std::endl;
 			case 2:
 				break;
 			default:
@@ -8840,11 +8898,13 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 		//*******************************************************
 		//------------------------------------------------------------------------------------------------------------
 		tw_modulus_tmp  = tw_modulus >> ( 4 * s);
+		siang_record << "tw_modulus = " << tw_modulus << ", tw_modulus_tmp = " << tw_modulus_tmp << "\n";
 		int tw_record = 0; // siang_record
 		int cnt = 0;//siang
 		for(int i = 0 ;i < group;i++){
 			bn0_bc_tmp  = 0;
 			bn1_bc_tmp  = 0;
+			r16_r4_SPMB_TF_dg << "-----------------------" << "\n";
 			for(int j = 0;j < radix;j++){
 				gray_i  = Gray(i,group);
 			    BC_tmp  = j * group + gray_i;
@@ -8858,6 +8918,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 				if(display == 1)DATARECORD << "After RR_R16 , BC : " << BC << "\n";		
 				if(display == 1)siang_record << "After RR_R16 , BC : " << BC << "\n";	// siang_record	
 				length = BC % tw_modulus_tmp;
+				r16_r4_SPMB_TF_dg << "length : " << length << "\n";
 				PowerMod(factor_t,factor,length,p);
 				if(display == 1)siang_record << "factor = " << factor << ", length : " << length << "\n";	// siang_record	
 				AGU_R16(BC,bn_tmp,ma_tmp);
@@ -14361,7 +14422,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 	display = 1;
 	//--------------------------------------------
 	std::ofstream DATARECORD("./NTT_R16_R8_SPMB.txt");
-	
+	std::ofstream r16_r8_SPMB_TF_dg("./my_print_data/r16_r8_SPMB_TF_dg.txt");
 
 	//radix-16 Stage
     Stage_double  = log2(N);
@@ -14598,14 +14659,18 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 			SqrMod(factor,factor,p);
 			SqrMod(factor,factor,p);
 		}
+		std::cout << "factor = " << factor << "\n";
 		if(display == 1)DATARECORD <<"**************************************\n";					
-		if(display == 1)DATARECORD <<"NOW stage: " << s << "!!!!\n";					
+		if(display == 1)DATARECORD <<"NOW stage: " << s << "!!!!\n";	
+		r16_r8_SPMB_TF_dg << "NOW stage: " << s << "!!!!\n";					
 		tw_modulus_tmp  = tw_modulus >> ( 4 * s);
 		for(int i = 0 ;i < group;i++){
 			bn0_bc_tmp  = 0;
 			bn1_bc_tmp  = 0;
 			if(display == 1)DATARECORD <<"-------------------------------------\n";										
-			if(display == 1)DATARECORD <<"NOW stage: " << s << "!!!!\n";										
+			if(display == 1)DATARECORD <<"NOW stage: " << s << "!!!!\n";	
+	
+			r16_r8_SPMB_TF_dg <<"-------------------------------------\n";							
 			for(int j = 0;j < radix;j++){
 				gray_i  = Gray(i,group);
 			    BC_tmp  = j * group + gray_i;
@@ -14618,6 +14683,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 				if(display == 1)DATARECORD <<"BC: "<< BC <<"\n";
 				length = BC % tw_modulus_tmp;
 				if(display == 1)DATARECORD <<"length: "<< length <<"\n";
+				r16_r8_SPMB_TF_dg << "length : "<< length <<"\n";
 				PowerMod(factor_t,factor,length,p);
 				AGU_R16(BC,bn_tmp,ma_tmp);
 				if(display == 1)DATARECORD <<"bn_tmp: "<< bn_tmp <<"\n";

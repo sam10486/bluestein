@@ -4,6 +4,7 @@
 
 void test_NTTSPMB();
 void my_test(int argc, char *argv[]);
+void DTFAG();
 
 
 using namespace std;
@@ -19,9 +20,10 @@ int main(int argc, char *argv[]){
         cout << "+----------------------------+----------------------------+" << endl;
         cout << "| 1. test_NTTSPMB            | test-NTTSPMB.cc            |" << endl;
         cout << "| 2. my_test                 | my_test.cpp                |" << endl;
+        cout << "| 3. DTFAG                   | DTFAG.cpp                  |" << endl;
         cout << "+----------------------------+----------------------------+" << endl;
 
-        int input_parameter = 2;
+        int input_parameter = 3;
         int selection = 0;
         bool valid = true;
         do
@@ -49,6 +51,9 @@ int main(int argc, char *argv[]){
             break;
         case 2:
             my_test(argc, argv);
+            break;
+        case 3:
+            DTFAG();
             break;
         case 0:
             return 0;
