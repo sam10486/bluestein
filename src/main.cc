@@ -1,11 +1,10 @@
 #include <iostream>
 #include "NTT.h"
 #include "NTTSPMB.h"
+#include "DTFAG.h"
 
 void test_NTTSPMB();
 void my_test(int argc, char *argv[]);
-void DTFAG();
-
 
 using namespace std;
 
@@ -26,6 +25,12 @@ int main(int argc, char *argv[]){
         int input_parameter = 3;
         int selection = 0;
         bool valid = true;
+        //-------for DTFAG--------------
+        ZZ P ;
+        ZZ W ;
+        conv(P, "18446744069414584321"); // prime number
+        conv(W, "14603442835287214144"); // twiddle factor based setting by main.cc
+        //------------------------------
         do
         {
             cout << endl << "> Run example (1 ~ " << input_parameter << ") or exit (0): ";
@@ -53,7 +58,7 @@ int main(int argc, char *argv[]){
             my_test(argc, argv);
             break;
         case 3:
-            DTFAG();
+            DTFAG(P, W);
             break;
         case 0:
             return 0;
