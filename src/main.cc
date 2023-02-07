@@ -5,6 +5,7 @@
 
 void test_NTTSPMB();
 void my_test(int argc, char *argv[]);
+void DTFAG_verify();
 
 using namespace std;
 
@@ -20,9 +21,10 @@ int main(int argc, char *argv[]){
         cout << "| 1. test_NTTSPMB            | test-NTTSPMB.cc            |" << endl;
         cout << "| 2. my_test                 | my_test.cpp                |" << endl;
         cout << "| 3. DTFAG                   | DTFAG.cpp                  |" << endl;
+        cout << "| 4. DTFAG_verify            | DTFAG_verify.cpp           |" << endl;
         cout << "+----------------------------+----------------------------+" << endl;
 
-        int input_parameter = 3;
+        int input_parameter = 4;
         int selection = 0;
         bool valid = true;
         //-------for DTFAG--------------
@@ -51,17 +53,20 @@ int main(int argc, char *argv[]){
         } while (!valid);
 
         switch (selection) {
-        case 1:
-            test_NTTSPMB();
-            break;
-        case 2:
-            my_test(argc, argv);
-            break;
-        case 3:
-            DTFAG(P, W);
-            break;
-        case 0:
-            return 0;
+            case 1:
+                test_NTTSPMB();
+                break;
+            case 2:
+                my_test(argc, argv);
+                break;
+            case 3:
+                DTFAG(P, W);
+                break;
+            case 4:
+                DTFAG_verify();
+                break;
+            case 0:
+                return 0;
         }
     //}
     return 0;

@@ -39,6 +39,9 @@ void DTFAG (ZZ P, ZZ W) {
 
     NTTSPMB NTTSPMB;
     std::ofstream DTFAG("./my_print_data/DTFAG.txt");
+    std::ofstream DTFAG_pattern_Tw0("./my_print_data/DTFAG_pattern_Tw0.txt");
+    std::ofstream DTFAG_pattern_Tw1("./my_print_data/DTFAG_pattern_Tw1.txt");
+    std::ofstream DTFAG_pattern_Tw2("./my_print_data/DTFAG_pattern_Tw2.txt");
 
     int Tw2_display = false;
     int Tw1_display = false;
@@ -53,6 +56,45 @@ void DTFAG (ZZ P, ZZ W) {
     }
     ROM1.resize(arr_size);
     ROM2.resize(arr_size);
+
+    //-------------test pattern array-------------
+    vector<vector<vector<vector<ZZ > > > > Tw0_ROM;
+    vector<vector<vector<vector<ZZ > > > > Tw1_ROM;
+    vector<vector<vector<vector<ZZ > > > > Tw2_ROM;
+
+    Tw0_ROM.resize(radix_r);
+    for(int t=0; t<radix_r; t++){
+        Tw0_ROM[t].resize(radix_r);
+        for(int i=0; i<radix_r; i++){
+            Tw0_ROM[t][i].resize(radix_r);
+            for(int len_idx=0; len_idx<radix_r; len_idx++){
+                Tw0_ROM[t][i][len_idx].resize(radix_r);
+            }
+        }
+    }
+
+    Tw1_ROM.resize(radix_r);
+    for(int t=0; t<radix_r; t++){
+        Tw1_ROM[t].resize(radix_r);
+        for(int i=0; i<radix_r; i++){
+            Tw1_ROM[t][i].resize(radix_r);
+            for(int len_idx=0; len_idx<radix_r; len_idx++){
+                Tw1_ROM[t][i][len_idx].resize(radix_r);
+            }
+        }
+    }
+
+    Tw2_ROM.resize(radix_r);
+    for(int t=0; t<radix_r; t++){
+        Tw2_ROM[t].resize(radix_r);
+        for(int i=0; i<radix_r; i++){
+            Tw2_ROM[t][i].resize(radix_r);
+            for(int len_idx=0; len_idx<radix_r; len_idx++){
+                Tw2_ROM[t][i][len_idx].resize(radix_r);
+            }
+        }
+    }
+    //--------------------------------------------
 
 
     DTFAG << "****************initial ROM********************" << endl;
@@ -185,10 +227,30 @@ void DTFAG (ZZ P, ZZ W) {
                         MulMod(Tw2, v0[len_idx], tmp, P);
                         DTFAG << "Tw2: " << Tw2 << " = " << v0[len_idx] << " * " << v1 << " * " << v2 << endl;
                     }
+
+                    Tw0_ROM[t][i][len_idx][j] = Tw0[len_idx];
+                    Tw1_ROM[t][i][len_idx][j] = Tw1;
+                    Tw2_ROM[t][i][len_idx][j] = Tw2;
+
+                    //cout << "st0_ROM[" << t << "][" << i << "][" << len_idx << "][" << j << "] = " <<  st0_ROM[t][i][len_idx][j] << endl;
                 }          
             }
         }
     }
+
+    for(int t=0; t<radix_r; t++){
+        for(int i=0; i<radix_r; i++){
+            for(int len_idx=0; len_idx<radix_r; len_idx++){
+                for(int j=0; j<radix_r; j++){
+                    //cout << "st0_ROM[" << t << "][" << i << "][" << len_idx << "][" << j << "] = " <<  st0_ROM[t][i][len_idx][j] << endl;
+                    DTFAG_pattern_Tw0 << Tw0_ROM[t][i][len_idx][j] << "\n";
+                    DTFAG_pattern_Tw1 << Tw1_ROM[t][i][len_idx][j] << "\n";
+                    DTFAG_pattern_Tw2 << Tw2_ROM[t][i][len_idx][j] << "\n";
+                }
+            }
+        }
+    }
+
 }
 
 int number_complement(int i, int radix_r){

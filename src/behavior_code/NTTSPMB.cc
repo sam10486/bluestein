@@ -845,6 +845,9 @@ void NTTSPMB::NTT_radix16(std::vector<ZZ> &A){
 	std::ofstream DATARECORD("./NTT_R16_SPMB.txt");
 	std::ofstream siang_record("./my_print_data/single_radix16_SPMB.txt");
 	std::ofstream TF_record("./my_print_data/single_radix16_SPMB_TF_dg.txt");
+	std::ofstream DTFAG_golden_st0("./my_print_data/DTFAG_golden_st0.txt");
+	std::ofstream DTFAG_golden_st1("./my_print_data/DTFAG_golden_st1.txt");
+	std::ofstream DTFAG_golden_st2("./my_print_data/DTFAG_golden_st2.txt");
 
     Stage = (unsigned long)ceil(log2(N));
 	Stage = (unsigned long)Stage / 4;
@@ -1089,7 +1092,7 @@ void NTTSPMB::NTT_radix16(std::vector<ZZ> &A){
 					PowerMod(factor_14t,factor_t,14,p);
 					PowerMod(factor_15t,factor_t,15,p);
 					DATARECORD <<" Before butterfly unit operation! \n";
-					DATARECORD <<" A_B0R0["<<ma_tmp<<"]:  "<<A_B0R0[ma_tmp]<<"\n";
+					/*DATARECORD <<" A_B0R0["<<ma_tmp<<"]:  "<<A_B0R0[ma_tmp]<<"\n";
 				    DATARECORD <<" A_B0R1["<<ma_tmp<<"]:  "<<A_B0R1[ma_tmp]<<"\n";
 					DATARECORD <<" A_B0R2["<<ma_tmp<<"]:  "<<A_B0R2[ma_tmp]<<"\n";
 					DATARECORD <<" A_B0R3["<<ma_tmp<<"]:  "<<A_B0R3[ma_tmp]<<"\n";
@@ -1104,7 +1107,7 @@ void NTTSPMB::NTT_radix16(std::vector<ZZ> &A){
 					DATARECORD <<" A_B0R12["<<ma_tmp<<"]: "<<A_B0R12[ma_tmp]<<"\n";
 					DATARECORD <<" A_B0R13["<<ma_tmp<<"]: "<<A_B0R13[ma_tmp]<<"\n";
 					DATARECORD <<" A_B0R14["<<ma_tmp<<"]: "<<A_B0R14[ma_tmp]<<"\n";
-					DATARECORD <<" A_B0R15["<<ma_tmp<<"]: "<<A_B0R15[ma_tmp]<<"\n";
+					DATARECORD <<" A_B0R15["<<ma_tmp<<"]: "<<A_B0R15[ma_tmp]<<"\n";*/
 					Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 							   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 							   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
@@ -1140,6 +1143,67 @@ void NTTSPMB::NTT_radix16(std::vector<ZZ> &A){
 					DATARECORD <<"facotr_14 : " << factor_14t << " \n";
 					DATARECORD <<"facotr_15 : " << factor_15t << " \n";
 
+					//----------------DTFAG golden pattern------------------
+					switch(s){
+						case 0:
+							DTFAG_golden_st0 << 1 		  << " \n ";
+							DTFAG_golden_st0 << factor_t  << " \n ";
+							DTFAG_golden_st0 << factor_2t << " \n ";
+							DTFAG_golden_st0 << factor_3t << " \n ";
+							DTFAG_golden_st0 << factor_4t << " \n ";
+							DTFAG_golden_st0 << factor_5t << " \n ";
+							DTFAG_golden_st0 << factor_6t << " \n ";
+							DTFAG_golden_st0 << factor_7t << " \n ";
+							DTFAG_golden_st0 << factor_8t << " \n ";
+							DTFAG_golden_st0 << factor_9t << " \n ";
+							DTFAG_golden_st0 << factor_10t << " \n ";
+							DTFAG_golden_st0 << factor_11t << " \n ";
+							DTFAG_golden_st0 << factor_12t << " \n ";
+							DTFAG_golden_st0 << factor_13t << " \n ";
+							DTFAG_golden_st0 << factor_14t << " \n ";
+							DTFAG_golden_st0 << factor_15t << " \n ";
+							break;
+						case 1:
+							DTFAG_golden_st1 << 1 		  << " \n ";
+							DTFAG_golden_st1 << factor_t  << " \n ";
+							DTFAG_golden_st1 << factor_2t << " \n ";
+							DTFAG_golden_st1 << factor_3t << " \n ";
+							DTFAG_golden_st1 << factor_4t << " \n ";
+							DTFAG_golden_st1 << factor_5t << " \n ";
+							DTFAG_golden_st1 << factor_6t << " \n ";
+							DTFAG_golden_st1 << factor_7t << " \n ";
+							DTFAG_golden_st1 << factor_8t << " \n ";
+							DTFAG_golden_st1 << factor_9t << " \n ";
+							DTFAG_golden_st1 << factor_10t << " \n ";
+							DTFAG_golden_st1 << factor_11t << " \n ";
+							DTFAG_golden_st1 << factor_12t << " \n ";
+							DTFAG_golden_st1 << factor_13t << " \n ";
+							DTFAG_golden_st1 << factor_14t << " \n ";
+							DTFAG_golden_st1 << factor_15t << " \n ";
+							break;
+						case 2:
+							DTFAG_golden_st2 << 1 		  << " \n ";
+							DTFAG_golden_st2 << factor_t  << " \n ";
+							DTFAG_golden_st2 << factor_2t << " \n ";
+							DTFAG_golden_st2 << factor_3t << " \n ";
+							DTFAG_golden_st2 << factor_4t << " \n ";
+							DTFAG_golden_st2 << factor_5t << " \n ";
+							DTFAG_golden_st2 << factor_6t << " \n ";
+							DTFAG_golden_st2 << factor_7t << " \n ";
+							DTFAG_golden_st2 << factor_8t << " \n ";
+							DTFAG_golden_st2 << factor_9t << " \n ";
+							DTFAG_golden_st2 << factor_10t << " \n ";
+							DTFAG_golden_st2 << factor_11t << " \n ";
+							DTFAG_golden_st2 << factor_12t << " \n ";
+							DTFAG_golden_st2 << factor_13t << " \n ";
+							DTFAG_golden_st2 << factor_14t << " \n ";
+							DTFAG_golden_st2 << factor_15t << " \n ";
+							break;
+						default:
+							break;
+					}
+					//------------------------------------------------------
+
 					//-------------------siang record----------------------
 					//siang_record << "factor_t: "<< factor_t <<"\n";	// siang
 					siang_record << "p: "<< p <<"\n";	// siang
@@ -1153,7 +1217,7 @@ void NTTSPMB::NTT_radix16(std::vector<ZZ> &A){
 					siang_record <<"facotr_14_facotr_15 : " << factor_14t << "_" << factor_15t << " \n";
 					//-------------------------------------------------------
 
-				    DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp]<<"\n";
+				    /*DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp]<<"\n";
 				    DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp]<<"\n";
 					DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<<A_B0R2[ma_tmp]<<"\n";
 					DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<<A_B0R3[ma_tmp]<<"\n";
@@ -1168,7 +1232,7 @@ void NTTSPMB::NTT_radix16(std::vector<ZZ> &A){
 					DATARECORD <<"A_B0R12["<<ma_tmp<<"]: "<<A_B0R12[ma_tmp]<<"\n";
 					DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<<A_B0R13[ma_tmp]<<"\n";
 					DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<<A_B0R14[ma_tmp]<<"\n";
-					DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<<A_B0R15[ma_tmp]<<"\n";
+					DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<<A_B0R15[ma_tmp]<<"\n";*/
 					DATARECORD <<"--------------------------------------------------------------------\n";
 					siang_record <<"--------------------------------------------------------------------\n";
 					if(j <  2)bn0_ma_reg1 = ma_tmp;
@@ -1197,7 +1261,7 @@ void NTTSPMB::NTT_radix16(std::vector<ZZ> &A){
 					PowerMod(factor_14t,factor_t,14,p);
 					PowerMod(factor_15t,factor_t,15,p);
 					DATARECORD <<" Before butterfly unit operation! \n";
-					DATARECORD <<" A_B1R0["<<ma_tmp<<"]:  "<<A_B1R0[ma_tmp]<<"\n";
+					/*DATARECORD <<" A_B1R0["<<ma_tmp<<"]:  "<<A_B1R0[ma_tmp]<<"\n";
 				    DATARECORD <<" A_B1R1["<<ma_tmp<<"]:  "<<A_B1R1[ma_tmp]<<"\n";
 					DATARECORD <<" A_B1R2["<<ma_tmp<<"]:  "<<A_B1R2[ma_tmp]<<"\n";
 					DATARECORD <<" A_B1R3["<<ma_tmp<<"]:  "<<A_B1R3[ma_tmp]<<"\n";
@@ -1212,7 +1276,7 @@ void NTTSPMB::NTT_radix16(std::vector<ZZ> &A){
 					DATARECORD <<" A_B1R12["<<ma_tmp<<"]: "<<A_B1R12[ma_tmp]<<"\n";
 					DATARECORD <<" A_B1R13["<<ma_tmp<<"]: "<<A_B1R13[ma_tmp]<<"\n";
 					DATARECORD <<" A_B1R14["<<ma_tmp<<"]: "<<A_B1R14[ma_tmp]<<"\n";
-					DATARECORD <<" A_B1R15["<<ma_tmp<<"]: "<<A_B1R15[ma_tmp]<<"\n";
+					DATARECORD <<" A_B1R15["<<ma_tmp<<"]: "<<A_B1R15[ma_tmp]<<"\n";*/
 					Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 							   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 							   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
@@ -1248,6 +1312,67 @@ void NTTSPMB::NTT_radix16(std::vector<ZZ> &A){
 					DATARECORD <<"facotr_14 : " << factor_14t << " \n";
 					DATARECORD <<"facotr_15 : " << factor_15t << " \n";
 
+					//----------------DTFAG golden pattern------------------
+					switch(s){
+						case 0:
+							DTFAG_golden_st0 << 1 		  << " \n ";
+							DTFAG_golden_st0 << factor_t  << " \n ";
+							DTFAG_golden_st0 << factor_2t << " \n ";
+							DTFAG_golden_st0 << factor_3t << " \n ";
+							DTFAG_golden_st0 << factor_4t << " \n ";
+							DTFAG_golden_st0 << factor_5t << " \n ";
+							DTFAG_golden_st0 << factor_6t << " \n ";
+							DTFAG_golden_st0 << factor_7t << " \n ";
+							DTFAG_golden_st0 << factor_8t << " \n ";
+							DTFAG_golden_st0 << factor_9t << " \n ";
+							DTFAG_golden_st0 << factor_10t << " \n ";
+							DTFAG_golden_st0 << factor_11t << " \n ";
+							DTFAG_golden_st0 << factor_12t << " \n ";
+							DTFAG_golden_st0 << factor_13t << " \n ";
+							DTFAG_golden_st0 << factor_14t << " \n ";
+							DTFAG_golden_st0 << factor_15t << " \n ";
+							break;
+						case 1:
+							DTFAG_golden_st1 << 1 		  << " \n ";
+							DTFAG_golden_st1 << factor_t  << " \n ";
+							DTFAG_golden_st1 << factor_2t << " \n ";
+							DTFAG_golden_st1 << factor_3t << " \n ";
+							DTFAG_golden_st1 << factor_4t << " \n ";
+							DTFAG_golden_st1 << factor_5t << " \n ";
+							DTFAG_golden_st1 << factor_6t << " \n ";
+							DTFAG_golden_st1 << factor_7t << " \n ";
+							DTFAG_golden_st1 << factor_8t << " \n ";
+							DTFAG_golden_st1 << factor_9t << " \n ";
+							DTFAG_golden_st1 << factor_10t << " \n ";
+							DTFAG_golden_st1 << factor_11t << " \n ";
+							DTFAG_golden_st1 << factor_12t << " \n ";
+							DTFAG_golden_st1 << factor_13t << " \n ";
+							DTFAG_golden_st1 << factor_14t << " \n ";
+							DTFAG_golden_st1 << factor_15t << " \n ";
+							break;
+						case 2:
+							DTFAG_golden_st2 << 1 		  << " \n ";
+							DTFAG_golden_st2 << factor_t  << " \n ";
+							DTFAG_golden_st2 << factor_2t << " \n ";
+							DTFAG_golden_st2 << factor_3t << " \n ";
+							DTFAG_golden_st2 << factor_4t << " \n ";
+							DTFAG_golden_st2 << factor_5t << " \n ";
+							DTFAG_golden_st2 << factor_6t << " \n ";
+							DTFAG_golden_st2 << factor_7t << " \n ";
+							DTFAG_golden_st2 << factor_8t << " \n ";
+							DTFAG_golden_st2 << factor_9t << " \n ";
+							DTFAG_golden_st2 << factor_10t << " \n ";
+							DTFAG_golden_st2 << factor_11t << " \n ";
+							DTFAG_golden_st2 << factor_12t << " \n ";
+							DTFAG_golden_st2 << factor_13t << " \n ";
+							DTFAG_golden_st2 << factor_14t << " \n ";
+							DTFAG_golden_st2 << factor_15t << " \n ";
+							break;
+						default:
+							break;
+					}
+					//------------------------------------------------------
+
 					//-------------------siang record----------------------.
 					//siang_record << "factor_t: "<< factor_t <<"\n";	// siang
 					siang_record << "p: "<< p <<"\n";	// siang
@@ -1263,7 +1388,7 @@ void NTTSPMB::NTT_radix16(std::vector<ZZ> &A){
 
 
 
-				    DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<<"\n";
+				    /*DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<<"\n";
 				    DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<<"\n";
 					DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<<"\n";
 					DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<<"\n";
@@ -1278,7 +1403,7 @@ void NTTSPMB::NTT_radix16(std::vector<ZZ> &A){
 					DATARECORD <<"A_B1R12["<<ma_tmp<<"]: "<<A_B1R12[ma_tmp]<<"\n";
 					DATARECORD <<"A_B1R13["<<ma_tmp<<"]: "<<A_B1R13[ma_tmp]<<"\n";
 					DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<<A_B1R14[ma_tmp]<<"\n";
-					DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<<A_B1R15[ma_tmp]<<"\n";
+					DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<<A_B1R15[ma_tmp]<<"\n";*/
 					DATARECORD <<"--------------------------------------------------------------------\n";
 					siang_record <<"--------------------------------------------------------------------\n";
                     if(j <  2)bn1_ma_reg1 = ma_tmp;					
