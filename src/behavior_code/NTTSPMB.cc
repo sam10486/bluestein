@@ -8712,6 +8712,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 	ma_tmp = 0;
 	bn_tmp = 0;
 	BC     = 0;
+	int tw_degree = 1;
 	std::cout << "init load over! \n";
 	if(display == 1)DATARECORD <<"radix-16 computing stage:  "<< Stage <<"\n";
 	if(display == 1)siang_record <<"radix-16 computing stage:  "<< Stage <<"\n"; // siang_record
@@ -8731,6 +8732,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 			SqrMod(factor,factor,p);
 			SqrMod(factor,factor,p);
 			SqrMod(factor,factor,p);
+			tw_degree = tw_degree * 16;
 		}
 		std::cout << "factor = " << factor << std::endl;
 		if(display == 1)DATARECORD <<"---------------------------------\n";
@@ -8869,23 +8871,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 		hex_siang_factor_15 = spmb.ZZtohex(siang_factor_15);
 
 	
-		if(display == 1)siang_record << "p : " << p << "\n";								// siang_record	
-		if(display == 1)siang_record <<"siang_factor_1: " << siang_factor_1		<<"\n"	;	// siang_record		
-		if(display == 1)siang_record <<"siang_factor_2: " << siang_factor_2		<<"\n"	;	// siang_record	
-		if(display == 1)siang_record <<"siang_factor_3: " << siang_factor_3		<<"\n"	;	// siang_record	
-		if(display == 1)siang_record <<"siang_factor_4: " << siang_factor_4		<<"\n"	;	// siang_record	
-		if(display == 1)siang_record <<"siang_factor_5: " << siang_factor_5		<<"\n"	;	// siang_record	
-		if(display == 1)siang_record <<"siang_factor_6: " << siang_factor_6		<<"\n"	;	// siang_record	
-		if(display == 1)siang_record <<"siang_factor_7: " << siang_factor_7		<<"\n"	;	// siang_record	
-		if(display == 1)siang_record <<"siang_factor_8: " << siang_factor_8		<<"\n"	;	// siang_record	
-		if(display == 1)siang_record <<"siang_factor_9: " << siang_factor_9		<<"\n"	;	// siang_record	
-		if(display == 1)siang_record <<"siang_factor_10: "<< siang_factor_10 	<<"\n"	;	// siang_record	
-		if(display == 1)siang_record <<"siang_factor_11: "<< siang_factor_11 	<<"\n"	;	// siang_record	
-		if(display == 1)siang_record <<"siang_factor_12: "<< siang_factor_12 	<<"\n"	;	// siang_record	
-		if(display == 1)siang_record <<"siang_factor_13: "<< siang_factor_13 	<<"\n"	;	// siang_record	
-		if(display == 1)siang_record <<"siang_factor_14: "<< siang_factor_14 	<<"\n"	;	// siang_record	
-		if(display == 1)siang_record <<"siang_factor_15: "<< siang_factor_15 	<<"\n"	;	// siang_record
-
+		if(display == 1)siang_record << "p : " << p << "\n";	// siang_record	
 		//**************gen const factor v code*****************
 		ZZ siang_const_factor_t;
 		ZZ siang_const_factor_2t;
@@ -9030,20 +9016,22 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 			bn0_bc_tmp  = 0;
 			bn1_bc_tmp  = 0;
 			r16_r4_SPMB_TF_dg << "-----------------------" << "\n";
+			//r16_r4_SPMB_TF_dg << "i = " << i << std::endl;
 			for(int j = 0;j < radix;j++){
 				gray_i  = Gray(i,group);
 			    BC_tmp  = j * group + gray_i;
 				if(display == 1)DATARECORD <<"---------------------------------\n";
 				if(display == 1)DATARECORD << "BC_tmp: " << BC_tmp << "\n";	
 				if(display == 1)siang_record <<"---------------------------------\n"; // siang_record	
-				if(display == 1)siang_record << "j: " << j << ", group: " << group << ", gray_i: " << gray_i << "\n";	 // siang_record		
+				if(display == 1)siang_record << "i = " << i << ", j: " << j << ", group: " << "\n";	 // siang_record		
 				if(display == 1)siang_record << "BC_tmp: " << BC_tmp << "\n";	 // siang_record
 				if(s == Stage - 1) RR_R16_R4(BC_tmp,(4 * s - 2),BC);
 				else RR_R16(BC_tmp,s,BC);
 				if(display == 1)DATARECORD << "After RR_R16 , BC : " << BC << "\n";		
 				if(display == 1)siang_record << "After RR_R16 , BC : " << BC << "\n";	// siang_record	
 				length = BC % tw_modulus_tmp;
-				r16_r4_SPMB_TF_dg << "length : " << length << "\n";
+				siang_record << "length : " << length << "\n" ;
+				r16_r4_SPMB_TF_dg << "length : " << length << ", tw_dg: " <<  tw_degree * length << " = " << tw_degree << " * " << length <<"\n";
 				PowerMod(factor_t,factor,length,p);
 				if(display == 1)siang_record << "factor = " << factor << ", length : " << length << "\n";	// siang_record	
 				AGU_R16(BC,bn_tmp,ma_tmp);

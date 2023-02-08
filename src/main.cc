@@ -28,10 +28,16 @@ int main(int argc, char *argv[]){
         int selection = 0;
         bool valid = true;
         //-------for DTFAG--------------
-        ZZ P ;
-        ZZ W ;
-        conv(P, "18446744069414584321"); // prime number
-        conv(W, "14603442835287214144"); // twiddle factor based setting by main.cc
+        unsigned long fft_point = 65536;
+        ZZ fft_prime ;
+        ZZ fft_twiddle_65536 ;
+        ZZ fft_twiddle ;
+        long difference_length = 65536 / fft_point ;
+        conv(fft_prime, "18446744069414584321"); // prime number
+        conv(fft_twiddle_65536, "14603442835287214144"); // twiddle factor based setting by main.cc
+       
+        PowerMod(fft_twiddle,fft_twiddle_65536,difference_length,fft_prime);
+        
         //------------------------------
         do
         {
@@ -60,7 +66,7 @@ int main(int argc, char *argv[]){
                 my_test(argc, argv);
                 break;
             case 3:
-                DTFAG(P, W);
+                DTFAG(fft_prime, fft_twiddle);
                 break;
             case 4:
                 DTFAG_verify();
