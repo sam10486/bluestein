@@ -9015,7 +9015,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 		for(int i = 0 ;i < group;i++){
 			bn0_bc_tmp  = 0;
 			bn1_bc_tmp  = 0;
-			r16_r4_SPMB_TF_dg << "-----------------------" << "\n";
+			r16_r4_SPMB_TF_dg << "-------------i = "<< i <<"-------------" << "\n";
 			//r16_r4_SPMB_TF_dg << "i = " << i << std::endl;
 			for(int j = 0;j < radix;j++){
 				gray_i  = Gray(i,group);
@@ -9031,7 +9031,8 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 				if(display == 1)siang_record << "After RR_R16 , BC : " << BC << "\n";	// siang_record	
 				length = BC % tw_modulus_tmp;
 				siang_record << "length : " << length << "\n" ;
-				r16_r4_SPMB_TF_dg << "length : " << length << ", tw_dg: " <<  tw_degree * length << " = " << tw_degree << " * " << length <<"\n";
+				r16_r4_SPMB_TF_dg << "BC = " << BC << ", tw_modulus_tmp = " << tw_modulus_tmp << ", tw_modulus = " << tw_modulus
+				<< ", length : " << length << ", tw_dg: " <<  tw_degree * length << " = " << tw_degree << " * " << length <<"\n";
 				PowerMod(factor_t,factor,length,p);
 				if(display == 1)siang_record << "factor = " << factor << ", length : " << length << "\n";	// siang_record	
 				AGU_R16(BC,bn_tmp,ma_tmp);
@@ -14535,6 +14536,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 	display = 1;
 	//--------------------------------------------
 	std::ofstream DATARECORD("./NTT_R16_R8_SPMB.txt");
+	std::ofstream siang_record("./my_print_data/r16_r8_SPMB.txt");
 	std::ofstream r16_r8_SPMB_TF_dg("./my_print_data/r16_r8_SPMB_TF_dg.txt");
 
 	//radix-16 Stage
@@ -14549,6 +14551,8 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 
     if(display == 1)DATARECORD << "group: "    << group << "\n";
     if(display == 1)DATARECORD << "BC_WIDTH: " << BC_WIDTH << "\n";
+	siang_record << "group: "    << group << "\n";	// siang record
+    siang_record << "BC_WIDTH: " << BC_WIDTH << "\n";	// siagn record
 	
 	ZZ               data_tmp_1;
 	ZZ               data_tmp_2;
@@ -14762,7 +14766,9 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 	bn_tmp = 0;
 	BC     = 0;
 	std::cout << "init load over! \n";
-	if(display == 1)DATARECORD <<"Stage: " << Stage << "\n";		
+	int tw_degree = 1;
+	if(display == 1)DATARECORD <<"Stage: " << Stage << "\n";	
+	if(display == 1)siang_record <<"radix-16 computing stage:  "<< Stage <<"\n"; // siang_record	
 	//need modify to mult by twiddle factor
 	for(int s = 0; s < Stage; s++){
 		if(s == 0)factor = W;
@@ -14771,10 +14777,14 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 			SqrMod(factor,factor,p);
 			SqrMod(factor,factor,p);
 			SqrMod(factor,factor,p);
+			tw_degree = tw_degree * 16;
 		}
 		std::cout << "factor = " << factor << "\n";
 		if(display == 1)DATARECORD <<"**************************************\n";					
-		if(display == 1)DATARECORD <<"NOW stage: " << s << "!!!!\n";	
+		if(display == 1)DATARECORD <<"NOW stage: " << s << "!!!!\n";
+		if(display == 1)siang_record <<"---------------------------------\n";	// siang_record
+		if(display == 1)siang_record <<"Now Stage: "<< s <<"\n";	// siang_record
+		if(display == 1)siang_record <<"factor: "<< factor <<"\n";	// siang_record	
 		r16_r8_SPMB_TF_dg << "NOW stage: " << s << "!!!!\n";					
 		tw_modulus_tmp  = tw_modulus >> ( 4 * s);
 		for(int i = 0 ;i < group;i++){
@@ -14782,9 +14792,10 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 			bn1_bc_tmp  = 0;
 			if(display == 1)DATARECORD <<"-------------------------------------\n";										
 			if(display == 1)DATARECORD <<"NOW stage: " << s << "!!!!\n";	
-	
 			r16_r8_SPMB_TF_dg <<"-------------------------------------\n";							
 			for(int j = 0;j < radix;j++){
+				siang_record << "---------------------------------------" << std::endl;
+				siang_record << "s = " << s << ", i = " << i << ", j = " << j << std::endl;
 				gray_i  = Gray(i,group);
 			    BC_tmp  = j * group + gray_i;
 				if(display == 1)DATARECORD <<"i :      "<< i <<"\n";					
@@ -14796,30 +14807,32 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 				if(display == 1)DATARECORD <<"BC: "<< BC <<"\n";
 				length = BC % tw_modulus_tmp;
 				if(display == 1)DATARECORD <<"length: "<< length <<"\n";
-				r16_r8_SPMB_TF_dg << "length : "<< length <<"\n";
+				siang_record << "length: " << length << std::endl;
+				r16_r8_SPMB_TF_dg << "BC = " << BC << ", tw_modulus_tmp = " << tw_modulus_tmp << ", tw_modulus = " << tw_modulus
+				<< ", length : "<< length << ", tw_dg: " <<  tw_degree * length << " = " << tw_degree << " * " << length <<"\n";
 				PowerMod(factor_t,factor,length,p);
 				AGU_R16(BC,bn_tmp,ma_tmp);
 				if(display == 1)DATARECORD <<"bn_tmp: "<< bn_tmp <<"\n";
 				if(display == 1)DATARECORD <<"ma_tmp: "<< ma_tmp <<"\n";
 				if(bn_tmp == 0){
 					if(j < 2)bn0_bc_tmp = BC_tmp;
-                    if(display == 1)DATARECORD <<" Before radix-16 BU operation!! \n";					
-                    if(display == 1)DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<< A_B0R0[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<< A_B0R1[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<< A_B0R2[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<< A_B0R3[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R4["<<ma_tmp<<"]: "<< A_B0R4[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R5["<<ma_tmp<<"]: "<< A_B0R5[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R6["<<ma_tmp<<"]: "<< A_B0R6[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R7["<<ma_tmp<<"]: "<< A_B0R7[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R8["<<ma_tmp<<"]: "<< A_B0R8[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R9["<<ma_tmp<<"]: "<< A_B0R9[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R10["<<ma_tmp<<"]: "<< A_B0R10[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R11["<<ma_tmp<<"]: "<< A_B0R11[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R12["<<ma_tmp<<"]: "<< A_B0R12[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<< A_B0R13[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<< A_B0R14[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<< A_B0R15[ma_tmp]<<"\n";						
+                    //if(display == 1)DATARECORD <<" Before radix-16 BU operation!! \n";					
+                    //if(display == 1)DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<< A_B0R0[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<< A_B0R1[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<< A_B0R2[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<< A_B0R3[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R4["<<ma_tmp<<"]: "<< A_B0R4[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R5["<<ma_tmp<<"]: "<< A_B0R5[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R6["<<ma_tmp<<"]: "<< A_B0R6[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R7["<<ma_tmp<<"]: "<< A_B0R7[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R8["<<ma_tmp<<"]: "<< A_B0R8[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R9["<<ma_tmp<<"]: "<< A_B0R9[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R10["<<ma_tmp<<"]: "<< A_B0R10[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R11["<<ma_tmp<<"]: "<< A_B0R11[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R12["<<ma_tmp<<"]: "<< A_B0R12[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<< A_B0R13[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<< A_B0R14[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<< A_B0R15[ma_tmp]<<"\n";				
 					PowerMod(factor_2t,factor_t,2,p);
 					PowerMod(factor_3t,factor_t,3,p);
 					PowerMod(factor_4t,factor_t,4,p);
@@ -14834,27 +14847,40 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					PowerMod(factor_13t,factor_t,13,p);
 					PowerMod(factor_14t,factor_t,14,p);
 					PowerMod(factor_15t,factor_t,15,p);
+
+					//----------------------siang-------------
+					if(display == 1)siang_record << "p : " << p << "\n";	// siang_record
+					if(display == 1)siang_record << "factor_t : "   		   << factor_t << "\n";	// siang_record	
+					if(display == 1)siang_record << "factor_2t_factor_3t : "   << factor_2t  << "_" << factor_3t << "\n";	// siang_record	
+					if(display == 1)siang_record << "factor_4t_factor_5t : "   << factor_4t  << "_" << factor_5t << "\n";	// siang_record	
+					if(display == 1)siang_record << "factor_6t_factor_7t : "   << factor_6t  << "_" << factor_7t << "\n";	// siang_record	
+					if(display == 1)siang_record << "factor_8t_factor_9t : "   << factor_8t  << "_" << factor_9t << "\n";	// siang_record	
+					if(display == 1)siang_record << "factor_10t_factor_11t : " << factor_10t << "_" << factor_11t << "\n";	// siang_record	
+					if(display == 1)siang_record << "factor_12t_factor_13t : " << factor_12t << "_" << factor_13t << "\n";	// siang_record	
+					if(display == 1)siang_record << "factor_14t_factor_15t : " << factor_14t << "_" << factor_15t << "\n";	// siang_record	
+
+					//----------------------------------------
 					Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 							   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 							   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 							   A_B0R15[ma_tmp]);
-                    if(display == 1)DATARECORD <<" After radix-16 BU Operation!!!\n";												   
-                    if(display == 1)DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<< A_B0R0[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<< A_B0R1[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<< A_B0R2[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<< A_B0R3[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R4["<<ma_tmp<<"]: "<< A_B0R4[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R5["<<ma_tmp<<"]: "<< A_B0R5[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R6["<<ma_tmp<<"]: "<< A_B0R6[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R7["<<ma_tmp<<"]: "<< A_B0R7[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R8["<<ma_tmp<<"]: "<< A_B0R8[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R9["<<ma_tmp<<"]: "<< A_B0R9[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R10["<<ma_tmp<<"]: "<< A_B0R10[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R11["<<ma_tmp<<"]: "<< A_B0R11[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R12["<<ma_tmp<<"]: "<< A_B0R12[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<< A_B0R13[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<< A_B0R14[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<< A_B0R15[ma_tmp]<<"\n";													   
+                    //if(display == 1)DATARECORD <<" After radix-16 BU Operation!!!\n";												   
+                    //if(display == 1)DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<< A_B0R0[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<< A_B0R1[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<< A_B0R2[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<< A_B0R3[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R4["<<ma_tmp<<"]: "<< A_B0R4[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R5["<<ma_tmp<<"]: "<< A_B0R5[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R6["<<ma_tmp<<"]: "<< A_B0R6[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R7["<<ma_tmp<<"]: "<< A_B0R7[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R8["<<ma_tmp<<"]: "<< A_B0R8[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R9["<<ma_tmp<<"]: "<< A_B0R9[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R10["<<ma_tmp<<"]: "<< A_B0R10[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R11["<<ma_tmp<<"]: "<< A_B0R11[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R12["<<ma_tmp<<"]: "<< A_B0R12[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<< A_B0R13[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<< A_B0R14[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<< A_B0R15[ma_tmp]<<"\n";												   
 					MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],factor_t,p);
 					MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],factor_2t,p);
 					MulMod(A_B0R3[ma_tmp],A_B0R3[ma_tmp],factor_3t,p);
@@ -14871,22 +14897,22 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					MulMod(A_B0R14[ma_tmp],A_B0R14[ma_tmp],factor_14t,p);
 					MulMod(A_B0R15[ma_tmp],A_B0R15[ma_tmp],factor_15t,p);
                     if(display == 1)DATARECORD <<" After multiplication!!!\n";					
-                    if(display == 1)DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<< A_B0R0[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<< A_B0R1[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<< A_B0R2[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<< A_B0R3[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R4["<<ma_tmp<<"]: "<< A_B0R4[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R5["<<ma_tmp<<"]: "<< A_B0R5[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R6["<<ma_tmp<<"]: "<< A_B0R6[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R7["<<ma_tmp<<"]: "<< A_B0R7[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R8["<<ma_tmp<<"]: "<< A_B0R8[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R9["<<ma_tmp<<"]: "<< A_B0R9[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R10["<<ma_tmp<<"]: "<< A_B0R10[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R11["<<ma_tmp<<"]: "<< A_B0R11[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R12["<<ma_tmp<<"]: "<< A_B0R12[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<< A_B0R13[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<< A_B0R14[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<< A_B0R15[ma_tmp]<<"\n";											
+                    //if(display == 1)DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<< A_B0R0[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<< A_B0R1[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<< A_B0R2[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<< A_B0R3[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R4["<<ma_tmp<<"]: "<< A_B0R4[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R5["<<ma_tmp<<"]: "<< A_B0R5[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R6["<<ma_tmp<<"]: "<< A_B0R6[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R7["<<ma_tmp<<"]: "<< A_B0R7[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R8["<<ma_tmp<<"]: "<< A_B0R8[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R9["<<ma_tmp<<"]: "<< A_B0R9[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R10["<<ma_tmp<<"]: "<< A_B0R10[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R11["<<ma_tmp<<"]: "<< A_B0R11[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R12["<<ma_tmp<<"]: "<< A_B0R12[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<< A_B0R13[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<< A_B0R14[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<< A_B0R15[ma_tmp]<<"\n";											
 					if(j <  2)bn0_ma_reg1 = ma_tmp;
 					if((j >= 2)  && (j < 4))bn0_ma_reg2 = ma_tmp;
 					if((j >= 4)  && (j < 6))bn0_ma_reg3 = ma_tmp;
@@ -14899,22 +14925,22 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 			    else {
 					if(j < 2)bn1_bc_tmp = BC_tmp;
                     if(display == 1)DATARECORD <<" Before radix-16 BU operation!! \n";					
-                    if(display == 1)DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<< A_B1R0[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<< A_B1R1[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<< A_B1R2[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<< A_B1R3[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R4["<<ma_tmp<<"]: "<< A_B1R4[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R5["<<ma_tmp<<"]: "<< A_B1R5[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R6["<<ma_tmp<<"]: "<< A_B1R6[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R7["<<ma_tmp<<"]: "<< A_B1R7[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R8["<<ma_tmp<<"]: "<< A_B1R8[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R9["<<ma_tmp<<"]: "<< A_B1R9[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R10["<<ma_tmp<<"]: "<< A_B1R10[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R11["<<ma_tmp<<"]: "<< A_B1R11[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R12["<<ma_tmp<<"]: "<< A_B1R12[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R13["<<ma_tmp<<"]: "<< A_B1R13[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<< A_B1R14[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<< A_B1R15[ma_tmp]<<"\n";						
+                    //if(display == 1)DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<< A_B1R0[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<< A_B1R1[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<< A_B1R2[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<< A_B1R3[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R4["<<ma_tmp<<"]: "<< A_B1R4[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R5["<<ma_tmp<<"]: "<< A_B1R5[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R6["<<ma_tmp<<"]: "<< A_B1R6[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R7["<<ma_tmp<<"]: "<< A_B1R7[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R8["<<ma_tmp<<"]: "<< A_B1R8[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R9["<<ma_tmp<<"]: "<< A_B1R9[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R10["<<ma_tmp<<"]: "<< A_B1R10[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R11["<<ma_tmp<<"]: "<< A_B1R11[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R12["<<ma_tmp<<"]: "<< A_B1R12[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R13["<<ma_tmp<<"]: "<< A_B1R13[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<< A_B1R14[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<< A_B1R15[ma_tmp]<<"\n";						
 					PowerMod(factor_2t,factor_t,2,p);
 					PowerMod(factor_3t,factor_t,3,p);
 					PowerMod(factor_4t,factor_t,4,p);
@@ -14928,28 +14954,39 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					PowerMod(factor_12t,factor_t,12,p);
 					PowerMod(factor_13t,factor_t,13,p);
 					PowerMod(factor_14t,factor_t,14,p);
-					PowerMod(factor_15t,factor_t,15,p);					
+					PowerMod(factor_15t,factor_t,15,p);	
+					//------------------siang record-----------------------
+					if(display == 1)siang_record << "p : " << p << "\n";	// siang_record
+					if(display == 1)siang_record << "factor_t : "   		   << factor_t << "\n";	// siang_record	
+					if(display == 1)siang_record << "factor_2t_factor_3t : "   << factor_2t  << "_" << factor_3t << "\n";	// siang_record	
+					if(display == 1)siang_record << "factor_4t_factor_5t : "   << factor_4t  << "_" << factor_5t << "\n";	// siang_record	
+					if(display == 1)siang_record << "factor_6t_factor_7t : "   << factor_6t  << "_" << factor_7t << "\n";	// siang_record	
+					if(display == 1)siang_record << "factor_8t_factor_9t : "   << factor_8t  << "_" << factor_9t << "\n";	// siang_record	
+					if(display == 1)siang_record << "factor_10t_factor_11t : " << factor_10t << "_" << factor_11t << "\n";	// siang_record	
+					if(display == 1)siang_record << "factor_12t_factor_13t : " << factor_12t << "_" << factor_13t << "\n";	// siang_record	
+					if(display == 1)siang_record << "factor_14t_factor_15t : " << factor_14t << "_" << factor_15t << "\n";	// siang_record	
+					//-----------------------------------------------------				
 					Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 							   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 							   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 							   A_B1R15[ma_tmp]);
                     if(display == 1)DATARECORD <<" After radix-16 BU Operation!!!\n";												   
-                    if(display == 1)DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<< A_B1R0[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<< A_B1R1[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<< A_B1R2[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<< A_B1R3[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R4["<<ma_tmp<<"]: "<< A_B1R4[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R5["<<ma_tmp<<"]: "<< A_B1R5[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R6["<<ma_tmp<<"]: "<< A_B1R6[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R7["<<ma_tmp<<"]: "<< A_B1R7[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R8["<<ma_tmp<<"]: "<< A_B1R8[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R9["<<ma_tmp<<"]: "<< A_B1R9[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R10["<<ma_tmp<<"]: "<< A_B1R10[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R11["<<ma_tmp<<"]: "<< A_B1R11[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R12["<<ma_tmp<<"]: "<< A_B1R12[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R13["<<ma_tmp<<"]: "<< A_B1R13[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<< A_B1R14[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<< A_B1R15[ma_tmp]<<"\n";								   
+                    //if(display == 1)DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<< A_B1R0[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<< A_B1R1[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<< A_B1R2[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<< A_B1R3[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R4["<<ma_tmp<<"]: "<< A_B1R4[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R5["<<ma_tmp<<"]: "<< A_B1R5[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R6["<<ma_tmp<<"]: "<< A_B1R6[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R7["<<ma_tmp<<"]: "<< A_B1R7[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R8["<<ma_tmp<<"]: "<< A_B1R8[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R9["<<ma_tmp<<"]: "<< A_B1R9[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R10["<<ma_tmp<<"]: "<< A_B1R10[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R11["<<ma_tmp<<"]: "<< A_B1R11[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R12["<<ma_tmp<<"]: "<< A_B1R12[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R13["<<ma_tmp<<"]: "<< A_B1R13[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<< A_B1R14[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<< A_B1R15[ma_tmp]<<"\n";								   
 					MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],factor_t,p);
 					MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],factor_2t,p);
 					MulMod(A_B1R3[ma_tmp],A_B1R3[ma_tmp],factor_3t,p);
@@ -14966,22 +15003,22 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					MulMod(A_B1R14[ma_tmp],A_B1R14[ma_tmp],factor_14t,p);
 					MulMod(A_B1R15[ma_tmp],A_B1R15[ma_tmp],factor_15t,p);
                     if(display == 1)DATARECORD <<" After multiplication!!!\n";					
-                    if(display == 1)DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<< A_B1R0[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<< A_B1R1[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<< A_B1R2[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<< A_B1R3[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R4["<<ma_tmp<<"]: "<< A_B1R4[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R5["<<ma_tmp<<"]: "<< A_B1R5[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R6["<<ma_tmp<<"]: "<< A_B1R6[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R7["<<ma_tmp<<"]: "<< A_B1R7[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R8["<<ma_tmp<<"]: "<< A_B1R8[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R9["<<ma_tmp<<"]: "<< A_B1R9[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R10["<<ma_tmp<<"]: "<< A_B1R10[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R11["<<ma_tmp<<"]: "<< A_B1R11[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R12["<<ma_tmp<<"]: "<< A_B1R12[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R13["<<ma_tmp<<"]: "<< A_B1R13[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<< A_B1R14[ma_tmp]<<"\n";					
-                    if(display == 1)DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<< A_B1R15[ma_tmp]<<"\n";						
+                    //if(display == 1)DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<< A_B1R0[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<< A_B1R1[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<< A_B1R2[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<< A_B1R3[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R4["<<ma_tmp<<"]: "<< A_B1R4[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R5["<<ma_tmp<<"]: "<< A_B1R5[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R6["<<ma_tmp<<"]: "<< A_B1R6[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R7["<<ma_tmp<<"]: "<< A_B1R7[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R8["<<ma_tmp<<"]: "<< A_B1R8[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R9["<<ma_tmp<<"]: "<< A_B1R9[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R10["<<ma_tmp<<"]: "<< A_B1R10[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R11["<<ma_tmp<<"]: "<< A_B1R11[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R12["<<ma_tmp<<"]: "<< A_B1R12[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R13["<<ma_tmp<<"]: "<< A_B1R13[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<< A_B1R14[ma_tmp]<<"\n";					
+                    //if(display == 1)DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<< A_B1R15[ma_tmp]<<"\n";						
                     if(j <  2)bn1_ma_reg1 = ma_tmp;					
                     if((j >= 2)  && (j < 4))bn1_ma_reg2 = ma_tmp;
                     if((j >= 4)  && (j < 6))bn1_ma_reg3 = ma_tmp;
