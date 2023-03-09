@@ -11,8 +11,8 @@ int number_complement(int i, int radix_r1);
 
 void DTFAG (ZZ P, ZZ W) {
     //------- radix sel-----
-    int radix_r1 = 16;
-    int radix_r2 = 16;
+    int radix_r1 = 4;
+    int radix_r2 = 4;
     //-----------------------
 
     int MA0 = 0;
@@ -42,7 +42,7 @@ void DTFAG (ZZ P, ZZ W) {
     int Tw1_display = 0;
     int Tw0_display = 0;
 
-    int Addr_display = 0;
+    int Addr_display = 1;
     int Tw_th = 1;
 
     vector<vector<ZZ > > ROM0;
@@ -237,9 +237,9 @@ void DTFAG (ZZ P, ZZ W) {
                     }else {
                         if(Addr_display){
                             //----------------addr---------------------
-                            DTFAG << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
+                            //DTFAG << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
                             Tw1 = v0[len_idx] + v1;
-                            DTFAG << "Tw1: " << Tw1 << " = " << v0[len_idx] << " + " << v1 << endl;
+                            //DTFAG << "Tw1: " << Tw1 << " = " << v0[len_idx] << " + " << v1 << endl;
                             //-----------------------------------------
                         }else{
                             //DTFAG << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
@@ -267,9 +267,9 @@ void DTFAG (ZZ P, ZZ W) {
                     }else{
                         if(Addr_display){
                             //----------------addr---------------------
-                            //DTFAG << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
+                            DTFAG << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
                             Tw2 = v0[len_idx] + v1 + v2;
-                            //DTFAG << "Tw2: " << Tw2 << " = " << v0[len_idx] << " + " << v1 << " + " << v2 << endl;
+                            DTFAG << "Tw2: " << Tw2 << " = " << v0[len_idx] << " + " << v1 << " + " << v2 << endl;
                             //-----------------------------------------
                         }else{
                             //DTFAG << "(TF" << j << "): "  << "len_idx = " << len_idx << ", ";

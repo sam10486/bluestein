@@ -11,7 +11,7 @@ int number_complement_test(int i, int radix_r);
 
 void DTFAG_test () {
     //------- radix sel-----
-    int radix_r = 16;
+    int radix_r = 4;
     ZZ P ;
     ZZ W ;
     conv(P, "18446744069414584321");
@@ -59,14 +59,14 @@ void DTFAG_test () {
 
 
     DTFAG << "****************initial ROM********************" << endl;
-    for(int k=0; k<radix_r; k++){
-        DTFAG << "ROM0[" << k <<  "] = [";
-        for(int n=0; n<radix_r; n++){
-            ROM0[k][n] = (radix_r * radix_r) * k * n;
+    for(int n=0; n<radix_r; n++){
+        DTFAG << "ROM0[" << n <<  "] = [";
+        for(int k=0; k<radix_r; k++){
+            ROM0[n][k] = (radix_r * radix_r) * k * n;
             ZZ ROM0_dg; 
             ROM0_dg = (radix_r * radix_r) * k * n;
             //PowerMod(ROM0[k][n], W, ROM0_dg, P);
-            DTFAG << ROM0[k][n] << ", ";
+            DTFAG << ROM0[n][k] << ", ";
         }
         DTFAG << "]\n";
     }
@@ -114,11 +114,13 @@ void DTFAG_test () {
                 DTFAG << "     MA0 = " << MA0 << endl;
                 if(t % 2 == 0){
                     MA1 = radix_r * NTTSPMB.Gray(i,radix_r) + j;
+                    //MA1 = radix_r * i + j;
                     DTFAG << "t = " << t << ", G(i) = " << NTTSPMB.Gray(i,radix_r) << ", MA1 : " << MA1 << " = " << radix_r << " * " << 
                                     NTTSPMB.Gray(i,radix_r) << " + " << j << endl;
                 }else{
                     int i_complement = number_complement_test(i, radix_r);
                     MA1 = radix_r * NTTSPMB.Gray(i_complement,radix_r) + j; 
+                    //MA1 = radix_r * i_complement + j;
                     DTFAG << "t = " << t << ", G(~i) = " << NTTSPMB.Gray(i_complement,radix_r) << ", MA1 : " << MA1 << " = " << radix_r << " * " << 
                                     NTTSPMB.Gray(i_complement,radix_r) << " + " << j << endl;
                 }

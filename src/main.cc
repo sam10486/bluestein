@@ -7,6 +7,7 @@ void test_NTTSPMB();
 void my_test(int argc, char *argv[]);
 void DTFAG_verify();
 void DTFAG_test();
+void DTFAG_DIF();
 
 using namespace std;
 
@@ -24,9 +25,10 @@ int main(int argc, char *argv[]){
         cout << "| 3. DTFAG                   | DTFAG.cpp                  |" << endl;
         cout << "| 4. DTFAG_verify            | DTFAG_verify.cpp           |" << endl;
         cout << "| 5. DTFAG_test              | DTFAG_test.cpp             |" << endl;
+        cout << "| 6. DTFAG_DIF               | DTFAG_DIF.cpp              |" << endl;
         cout << "+----------------------------+----------------------------+" << endl;
 
-        int input_parameter = 5;
+        int input_parameter = 6;
         int selection = 0;
         bool valid = true;
         //-------for DTFAG--------------
@@ -75,6 +77,9 @@ int main(int argc, char *argv[]){
                 break;
             case 5:
                 DTFAG_test();
+                break;
+            case 6:
+                DTFAG_DIF();
                 break;
             case 0:
                 return 0;
