@@ -8,6 +8,7 @@ void my_test(int argc, char *argv[]);
 void DTFAG_verify();
 void DTFAG_test();
 void DTFAG_DIF();
+void DTFAG_MixedRadix();
 
 using namespace std;
 
@@ -26,9 +27,10 @@ int main(int argc, char *argv[]){
         cout << "| 4. DTFAG_verify            | DTFAG_verify.cpp           |" << endl;
         cout << "| 5. DTFAG_test              | DTFAG_test.cpp             |" << endl;
         cout << "| 6. DTFAG_DIF               | DTFAG_DIF.cpp              |" << endl;
+        cout << "| 7. DTFAG_MixedRadix        | DTFAG_MixedRadix.cpp       |" << endl;
         cout << "+----------------------------+----------------------------+" << endl;
 
-        int input_parameter = 6;
+        int input_parameter = 7;
         int selection = 0;
         bool valid = true;
         //-------for DTFAG--------------
@@ -81,6 +83,9 @@ int main(int argc, char *argv[]){
             case 6:
                 DTFAG_DIF();
                 break;
+            case 7:
+                DTFAG_MixedRadix();
+                break;    
             case 0:
                 return 0;
         }

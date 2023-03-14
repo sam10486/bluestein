@@ -55,6 +55,12 @@ void NTTSPMB::Radix4_BU(ZZ &a,ZZ &b,ZZ &c,ZZ &d){
 	SubMod(tmp_d,b,d,p);
 	MulMod(tmp_d,tmp_d,twiddle_1_4,p);
 	
+	//std::cout << "tmp_a = " << tmp_a << ", a = " << a << ", c = " << c << std::endl;
+	//std::cout << "tmp_c = " << tmp_c << ", a = " << a << ", c = " << c << std::endl;
+	//std::cout << "tmp_b = " << tmp_b << ", b = " << b << ", d = " << d << std::endl;
+	//std::cout << "tmp_a = " << tmp_d << ", b = " << b << ", d = " << d << std::endl;
+
+	
 	
 	ZZ tmp_a_1;
 	ZZ tmp_b_1;
@@ -66,6 +72,11 @@ void NTTSPMB::Radix4_BU(ZZ &a,ZZ &b,ZZ &c,ZZ &d){
 	SubMod(tmp_b_1,tmp_a,tmp_b,p);
 	AddMod(tmp_c_1,tmp_c,tmp_d,p);
 	SubMod(tmp_d_1,tmp_c,tmp_d,p);
+
+	//std::cout << "tmp_a_1 = " << tmp_a_1 << ", mp_a = " << tmp_a << ", tmp_b = " << tmp_b << std::endl;
+	//std::cout << "tmp_b_1 = " << tmp_b_1 << ", mp_a = " << tmp_a << ", tmp_b = " << tmp_b << std::endl;
+	//std::cout << "tmp_c_1 = " << tmp_c_1 << ", mp_c = " << tmp_c << ", tmp_d = " << tmp_d << std::endl;
+	//std::cout << "tmp_d_1 = " << tmp_d_1 << ", mp_c = " << tmp_c << ", tmp_d = " << tmp_d << std::endl;
 	
 	//data relocation  
 	//bit-reverse
@@ -2498,6 +2509,17 @@ std::vector<ZZ> &B1R0,std::vector<ZZ> &B1R1,std::vector<ZZ> &B1R2,std::vector<ZZ
 	//std::cout << "NTT_R4_R2 Start calculate!\n";
 	
 	std::ofstream DATARECORD("./NTT_R4_R2_SPMB.txt");
+	std::ofstream spmb_r4_r2("./SPMB_tw/spmb_r4_r2.txt");
+	std::ofstream DTFAG_golden_st0("./SPMB_tw/DTFAG_golden_st0_128.txt");
+	std::ofstream DTFAG_golden_st1("./SPMB_tw/DTFAG_golden_st1_128.txt");
+	std::ofstream DTFAG_golden_st2("./SPMB_tw/DTFAG_golden_st2_128.txt");
+	//-------------Bit Reverse--------------
+	BitOperate RR, IntToVec, VecToInt;
+	long long bit_width = log2(N);
+	long long bit_width_s = log(radix)/log(2);
+	vector<long long> bit_array;
+	//----------------------------------------
+
     Stage = (unsigned long)ceil(log2(N));
 	if((Stage % 2) == 1) Stage = Stage - 1;
 	Stage = (unsigned long)Stage / 2;
@@ -2584,19 +2606,33 @@ std::vector<ZZ> &B1R0,std::vector<ZZ> &B1R1,std::vector<ZZ> &B1R2,std::vector<ZZ
 	ma_tmp = 0;
 	bn_tmp = 0;
 	BC     = 0;
-	std::cout << "init load over! \n";
+	DATARECORD << "init load over! \n";
+	int tw_degree = 1; // siang
 	//need modify to mult by twiddle factor
 	for(int s = 0; s < Stage; s++){
+		DATARECORD <<"----------------------------"<<"\n";
+		DATARECORD <<"Stage: "<< s<<"\n";
+		std::cout <<"----------------------------"<<"\n";
+		std::cout <<"Stage: "<< s<<"\n";
+		spmb_r4_r2 <<"----------------------------"<<"\n";
+		spmb_r4_r2 <<"Stage: "<< s<<"\n";
 		if(s == 0)factor = W;
 		else {
 			SqrMod(factor,factor,p);
 			SqrMod(factor,factor,p);
+			tw_degree = tw_degree * 4;
 		}
 		tw_modulus_tmp = tw_modulus >> (2 * s);
 		for(int i = 0 ;i < group;i++){
 			bn0_bc_tmp  = 0;
 			bn1_bc_tmp  = 0;
+			spmb_r4_r2 <<"---------------i = " << i << "-----------------"<<"\n";
 			for(int j = 0;j < radix;j++){
+				DATARECORD <<"----------------------------"<<"\n";
+				DATARECORD <<"i: "<< i << ", j = " << j <<"\n";
+				std::cout <<"----------------------------"<<"\n";
+				std::cout <<"i: "<< i << ", j = " << j <<"\n";
+				DATARECORD <<"twiddle factor =  " << factor << std::endl;
 				gray_i  = Gray(i,group);
 				BC_tmp  = j * group + gray_i;
 				if(s == Stage-1)RR_R4_R2(BC_tmp,(2*s - 1),BC);
@@ -2604,27 +2640,130 @@ std::vector<ZZ> &B1R0,std::vector<ZZ> &B1R1,std::vector<ZZ> &B1R2,std::vector<ZZ
 				length = BC % tw_modulus_tmp;
 				PowerMod(factor_t,factor,length,p);
 				AGU_R4(BC,bn_tmp,ma_tmp);
+
+				//-----------compute data idx-------------
+				spmb_r4_r2 /*<< "BC = " << BC */<< "BC_tmp = " << BC_tmp << std::endl;
+				
+				IntToVec.IntToVec(BC_tmp, N, bit_array);
+				rotate(bit_array.begin(), bit_array.begin()+ bit_width_s*s , bit_array.end());
+				long long Data = VecToInt.VecToInt(bit_array, N);
+				spmb_r4_r2 << "Data_index = ";
+                spmb_r4_r2 << "( " ;					
+				for(int k = 0; k < radix ; k++ ){
+					spmb_r4_r2 << Data + k*(1<<(bit_width-bit_width_s-bit_width_s*s)) <<" ";	
+				}
+				spmb_r4_r2 << ") " ;
+				spmb_r4_r2 << ", (w^" << 0 << ", w^" << tw_degree * length 
+				<< ", w^" << tw_degree * length * 2 << ", w^" << tw_degree * length * 3
+				<< ")" << std::endl;
+				//-----------------------------------------
+
+				DATARECORD << "BC_tmp = " << BC_tmp << ", length: " << length <<
+				", tw_dg: " <<  tw_degree * length << " = " << tw_degree << " * " << length <<"\n";	// TF_record
+				//DATARECORD <<"length =  " << length <<"\n";
+				DATARECORD <<"factor_t =  " << factor_t << ", p = " <<  p <<"\n";
+
 				if(bn_tmp == 0){
+					
 					if(j < 2)bn0_bc_tmp = BC_tmp;
 					PowerMod(factor_2t,factor_t,2,p);
 					PowerMod(factor_3t,factor_t,3,p);
+					DATARECORD << "*****before BU*****" << std::endl;
+					DATARECORD <<"A_B0R0[" << ma_tmp << "] = " << A_B0R0[ma_tmp] << std::endl;
+					DATARECORD <<"A_B0R1[" << ma_tmp << "] = " << A_B0R1[ma_tmp] << std::endl;
+					DATARECORD <<"A_B0R2[" << ma_tmp << "] = " << A_B0R2[ma_tmp] << std::endl;
+					DATARECORD <<"A_B0R3[" << ma_tmp << "] = " << A_B0R3[ma_tmp] << std::endl;
 					Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
+					DATARECORD << "*****after BU*****" << std::endl;
+					DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp] << ", factor_0 : w^" << tw_degree*0<<"\n";
+					DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", facotr_1 : w^" << tw_degree*length  <<"\n";
+					DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<<A_B0R2[ma_tmp] << ", facotr_2 : w^" << tw_degree*length*2 <<"\n";
+					DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<<A_B0R3[ma_tmp] << ", facotr_3 : w^" << tw_degree*length*3 <<"\n";
 					MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],factor_t,p);
 					MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],factor_2t,p);
 					MulMod(A_B0R3[ma_tmp],A_B0R3[ma_tmp],factor_3t,p);
+					DATARECORD << "*****after Mul*****" << std::endl;
+					DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<< A_B0R0[ma_tmp] << std::endl;
+					DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<< A_B0R1[ma_tmp] << ", facotr_1 : " << factor_t  << ", length = " << length * 1 << std::endl;
+					DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<< A_B0R2[ma_tmp] << ", facotr_2 : " << factor_2t << ", length = " << length * 2 << std::endl;
+					DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<< A_B0R3[ma_tmp] << ", facotr_3 : " << factor_3t << ", length = " << length * 3 << std::endl;
+
 					if(j <  2)bn0_ma_reg1 = ma_tmp;
 					if(j >= 2)bn0_ma_reg2 = ma_tmp;
+					//----------------DTFAG golden pattern------------------
+					switch(s){
+						case 0:
+							DTFAG_golden_st0 << 1 		  << " \n ";
+							DTFAG_golden_st0 << factor_t  << " \n ";
+							DTFAG_golden_st0 << factor_2t << " \n ";
+							DTFAG_golden_st0 << factor_3t << " \n ";
+							break;
+						case 1:
+							DTFAG_golden_st1 << 1 		  << " \n ";
+							DTFAG_golden_st1 << factor_t  << " \n ";
+							DTFAG_golden_st1 << factor_2t << " \n ";
+							DTFAG_golden_st1 << factor_3t << " \n ";
+							break;
+						case 2:
+							DTFAG_golden_st2 << 1 		  << " \n ";
+							DTFAG_golden_st2 << factor_t  << " \n ";
+							DTFAG_golden_st2 << factor_2t << " \n ";
+							DTFAG_golden_st2 << factor_3t << " \n ";
+							break;
+						default:
+							break;
+					}
+					//--------------------------------------------------
 				}
 			    else {
 					if(j < 2)bn1_bc_tmp = BC_tmp;
 					PowerMod(factor_2t,factor_t,2,p);
 					PowerMod(factor_3t,factor_t,3,p);
+					DATARECORD << "*****before BU*****" << std::endl;
+					DATARECORD <<"A_B1R0[" << ma_tmp << "] = " << A_B1R0[ma_tmp] << std::endl;
+					DATARECORD <<"A_B1R1[" << ma_tmp << "] = " << A_B1R1[ma_tmp] << std::endl;
+					DATARECORD <<"A_B1R2[" << ma_tmp << "] = " << A_B1R2[ma_tmp] << std::endl;
+					DATARECORD <<"A_B1R3[" << ma_tmp << "] = " << A_B1R3[ma_tmp] << std::endl;
 					Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
+					DATARECORD << "*****after BU*****" << std::endl;
+					DATARECORD << "A_B1R1[" << ma_tmp << "] = " << A_B1R1[ma_tmp] <<", facotr_1 : " << factor_t  << ", length = " << length * 1 << std::endl;
+					DATARECORD << "A_B1R2[" << ma_tmp << "] = " << A_B1R2[ma_tmp] <<", facotr_2 : " << factor_2t << ", length = " << length * 2 << std::endl;
+					DATARECORD << "A_B1R3[" << ma_tmp << "] = " << A_B1R3[ma_tmp] <<", facotr_3 : " << factor_3t << ", length = " << length * 3 << std::endl;
 					MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],factor_t,p);
 					MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],factor_2t,p);
 					MulMod(A_B1R3[ma_tmp],A_B1R3[ma_tmp],factor_3t,p);
+					DATARECORD << "*****after mul*****" << std::endl;
+					DATARECORD << "A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp] << std::endl;
+					DATARECORD << "A_B1R1[" << ma_tmp << "] = " << A_B1R1[ma_tmp] <<", facotr_1 : " << factor_t  << ", length = " << length * 1 << std::endl;
+					DATARECORD << "A_B1R2[" << ma_tmp << "] = " << A_B1R2[ma_tmp] <<", facotr_2 : " << factor_2t << ", length = " << length * 2 << std::endl;
+					DATARECORD << "A_B1R3[" << ma_tmp << "] = " << A_B1R3[ma_tmp] <<", facotr_3 : " << factor_3t << ", length = " << length * 3 << std::endl;
 					if(j < 2) bn1_ma_reg1 = ma_tmp;
 					if(j >= 2)bn1_ma_reg2 = ma_tmp;
+
+					//----------------DTFAG golden pattern------------------
+					switch(s){
+						case 0:
+							DTFAG_golden_st0 << 1 		  << " \n ";
+							DTFAG_golden_st0 << factor_t  << " \n ";
+							DTFAG_golden_st0 << factor_2t << " \n ";
+							DTFAG_golden_st0 << factor_3t << " \n ";
+							break;
+						case 1:
+							DTFAG_golden_st1 << 1 		  << " \n ";
+							DTFAG_golden_st1 << factor_t  << " \n ";
+							DTFAG_golden_st1 << factor_2t << " \n ";
+							DTFAG_golden_st1 << factor_3t << " \n ";
+							break;
+						case 2:
+							DTFAG_golden_st2 << 1 		  << " \n ";
+							DTFAG_golden_st2 << factor_t  << " \n ";
+							DTFAG_golden_st2 << factor_2t << " \n ";
+							DTFAG_golden_st2 << factor_3t << " \n ";
+							break;
+						default:
+							break;
+					}
+					//--------------------------------------------------
 				}
 			}
 		//data relocation
@@ -2772,155 +2911,33 @@ std::vector<ZZ> &B1R0,std::vector<ZZ> &B1R1,std::vector<ZZ> &B1R2,std::vector<ZZ
 		    } 
 	    }
 	}
-		
+	DATARECORD <<"------------radix_2 part----------------"<< std::endl;	
 	// radix-2 FFT compute
 	for(int i = 0; i < group ; i++){
 		for(int j=0; j < radix; j++){
+			DATARECORD <<"------------------"<< std::endl;	
 			gray_i  = Gray(i,group);
 			BC_tmp  = j * group + gray_i;
 			BC = BC_tmp;
 			AGU_R4(BC,bn_tmp,ma_tmp);
 			if(bn_tmp == 0){
 				if(j < 2)bn0_bc_tmp = BC_tmp;
+				DATARECORD <<"A_B0R0[" << ma_tmp << "] = " << A_B0R0[ma_tmp] <<", A_B0R1[" << ma_tmp << "] = " << A_B0R1[ma_tmp] << std::endl;
+				DATARECORD <<"A_B0R2[" << ma_tmp << "] = " << A_B0R2[ma_tmp] <<", A_B0R3[" << ma_tmp << "] = " << A_B0R3[ma_tmp] << std::endl;
 				Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
 				Radix2_BU(A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
 				if(j <  2)bn0_ma_reg1 = ma_tmp;
 				if(j >= 2)bn0_ma_reg2 = ma_tmp;
 			}else {
 			    if(j < 2)bn1_bc_tmp = BC_tmp;
+				DATARECORD <<"A_B1R0[" << ma_tmp << "] = " << A_B1R0[ma_tmp] <<", A_B1R1[" << ma_tmp << "] = " << A_B1R1[ma_tmp] << std::endl;
+				DATARECORD <<"A_B1R2[" << ma_tmp << "] = " << A_B1R2[ma_tmp] <<", A_B1R3[" << ma_tmp << "] = " << A_B1R3[ma_tmp] << std::endl;
 			    Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
 			    Radix2_BU(A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
 				if(j < 2) bn1_ma_reg1 = ma_tmp;
 				if(j >= 2)bn1_ma_reg2 = ma_tmp;
 			}			
 		}
-	/*
-    if(bn1_bc_tmp > bn0_bc_tmp){
-        if(bn0_ma_reg1 > bn0_ma_reg2){
-	   	 ma_tmp = bn0_ma_reg1;
-	   	 bn0_ma_reg1 = bn0_ma_reg2;
-	   	 bn0_ma_reg2 = ma_tmp;
-	    }
-	    if(bn1_ma_reg1 > bn1_ma_reg2){
-	   	 ma_tmp = bn1_ma_reg1;
-	   	 bn1_ma_reg1 = bn1_ma_reg2;
-	   	 bn1_ma_reg2 = ma_tmp;
-	    } 
-	    //bn: 0 1 1 0
-		//For example N = 32 point!
-		//--------------------------------
-		//BN0 , MA: 0 , r0 r16 r4 r20
-		//BN1 , MA: 1 , r1 r17 r5 r21
-		//BN1 , MA: 2 , r2 r18 r6 r22
-		//BN0 , MA: 3 , r3 r19 r7 r23
-	    //--------------------------------
-		//-----After Relocation!----------
-		//--------------------------------
-		//BN0 , MA: 0 ,  r0   r1   r2   r3
-		//BN1 , MA: 1 , r16  r17  r18  r19
-		//BN1 , MA: 2 , r4   r5   r6   r7
-		//BN0 , MA: 3 , r20  r21  r22  r23
-		//--------------------------------
-	    data_tmp   = A_B0R1[bn0_ma_reg1]; //r2
-	    data_tmp_1 = A_B0R2[bn0_ma_reg1]; //r4
-	    data_tmp_2 = A_B0R3[bn0_ma_reg1]; //r6
-		A_B0R1[bn0_ma_reg1] = A_B1R0[bn1_ma_reg1];
-		A_B0R2[bn0_ma_reg1] = A_B1R0[bn1_ma_reg2];
-		A_B0R3[bn0_ma_reg1] = A_B0R0[bn0_ma_reg2];
-		A_B1R0[bn1_ma_reg1] = data_tmp;
-		A_B1R0[bn1_ma_reg2] = data_tmp_1;
-		A_B0R0[bn0_ma_reg2] = data_tmp_2;
-		//--------------------------------
-		//BN0 , MA: 0 ,  r0   r1   r2   r3
-		//BN1 , MA: 1 , r16   r17  r5  r21
-		//BN1 , MA: 2 , r4    r18  r6  r22
-		//BN0 , MA: 3 , r20   r19  r7  r23
-		//--------------------------------
-		data_tmp    = A_B1R1[bn1_ma_reg2];
-		data_tmp_1  = A_B0R1[bn0_ma_reg2];
-		A_B1R1[bn1_ma_reg2] = A_B1R2[bn1_ma_reg1];
-		A_B0R1[bn0_ma_reg2] = A_B1R3[bn1_ma_reg1];
-		A_B1R2[bn1_ma_reg1] = data_tmp;
-		A_B1R3[bn1_ma_reg1] = data_tmp_1;
-		//--------------------------------
-		//BN0 , MA: 0 ,  r0   r1   r2   r3
-        //BN1 , MA: 1 , r16   r17  r18 r19
-        //BN1 , MA: 2 , r4     r5  r6  r22
-        //BN0 , MA: 3 , r20   r21  r7  r23
-        //--------------------------------
-		data_tmp   =  A_B0R2[bn0_ma_reg2];
-		A_B0R2[bn0_ma_reg2]  = A_B1R3[bn1_ma_reg2];
-		A_B1R3[bn1_ma_reg2]  = data_tmp;
-		//--------------------------------
-		//BN0 , MA: 0 ,  r0   r1   r2   r3
-		//BN1 , MA: 1 , r16   r17  r18 r19
-		//BN1 , MA: 2 , r4     r5  r6   r7
-		//BN0 , MA: 3 , r20   r21  r22 r23
-        //--------------------------------
-    }else {
-        if(bn0_ma_reg1 > bn0_ma_reg2){
-	     ma_tmp = bn0_ma_reg1;
-	     bn0_ma_reg1 = bn0_ma_reg2;
-	     bn0_ma_reg2 = ma_tmp;
-	    }
-	    if(bn1_ma_reg1 > bn1_ma_reg2){
-	     ma_tmp = bn1_ma_reg1;
-	     bn1_ma_reg1 = bn1_ma_reg2;
-	     bn1_ma_reg2 = ma_tmp;
-	    } 				  
-	    //bn: 1 0 0 1
-		//For example N = 32 point!
-		//--------------------------------
-		//BN1 , MA: 0 , r8  r24 r12 r28
-		//BN0 , MA: 1 , r9  r25 r13 r29
-		//BN0 , MA: 2 , r10 r26 r14 r30
-		//BN1 , MA: 3 , r11 r27 r15 r31
-	    //--------------------------------
-		//-----After Relocation!----------
-		//--------------------------------
-		//BN1 , MA: 0 ,  r8  r9   r10  r11
-		//BN0 , MA: 1 , r24  r25  r26  r27
-		//BN0 , MA: 2 , r12  r13  r14  r15
-		//BN1 , MA: 3 , r28  r29  r30  r31
-		//--------------------------------
-        data_tmp   = A_B1R1[bn1_ma_reg1];
-        data_tmp_1 = A_B1R2[bn1_ma_reg1];
-        data_tmp_2 = A_B1R3[bn1_ma_reg1];
-		A_B1R1[bn1_ma_reg1] = A_B0R0[bn0_ma_reg1];
-		A_B1R2[bn1_ma_reg1] = A_B0R0[bn0_ma_reg2];
-        A_B1R3[bn1_ma_reg1] = A_B1R0[bn1_ma_reg2];
-        A_B0R0[bn0_ma_reg1] = data_tmp;
-        A_B0R0[bn0_ma_reg2] = data_tmp_1;
-        A_B1R0[bn1_ma_reg2] = data_tmp_2;
-		//--------------------------------
-        //BN1 , MA: 0 , r8  r9  r10 r11
-        //BN0 , MA: 1 , r24 r25 r13 r29
-        //BN0 , MA: 2 , r12 r26 r14 r30
-        //BN1 , MA: 3 , r28 r27 r15 r31
-        //--------------------------------
-        data_tmp   = A_B0R1[bn0_ma_reg2];
-        data_tmp_1 = A_B1R1[bn1_ma_reg2];
-        A_B0R1[bn0_ma_reg2] = A_B0R2[bn0_ma_reg1];
-        A_B1R1[bn1_ma_reg2] = A_B0R3[bn0_ma_reg1];
-        A_B0R2[bn0_ma_reg1] = data_tmp;
-        A_B0R3[bn0_ma_reg1] = data_tmp_1;
-        //--------------------------------
-        //BN1 , MA: 0 , r8  r9  r10 r11
-        //BN0 , MA: 1 , r24 r25 r26 r27
-        //BN0 , MA: 2 , r12 r13 r14 r30
-        //BN1 , MA: 3 , r28 r29 r15 r31
-        //--------------------------------
-        data_tmp = A_B0R3[bn0_ma_reg2];
-        A_B0R3[bn0_ma_reg2] = A_B1R2[bn1_ma_reg2];
-        A_B1R2[bn1_ma_reg2] = data_tmp;
-        //--------------------------------
-        //BN1 , MA: 0 , r8  r9  r10 r11
-        //BN0 , MA: 1 , r24 r25 r26 r27
-        //BN0 , MA: 2 , r12 r13 r14 r15
-        //BN1 , MA: 3 , r28 r29 r30 r31
-        //--------------------------------  
-     }
-	 */
 	}
 	
 	//*****************************************************************
@@ -3011,13 +3028,7 @@ std::vector<ZZ> &B1R0,std::vector<ZZ> &B1R1,std::vector<ZZ> &B1R2,std::vector<ZZ
 		
      }		
 	}
-	//DATARECORD << "---------------------------------------------------------\n";
-	//DATARECORD << "*********************************************************\n";
-	//DATARECORD << "                  DATA RELOCATION!!!!                    \n";
-	//DATARECORD << "*********************************************************\n";
-	//DATARECORD << "---------------------------------------------------------\n";
-	
-	
+
     DATARECORD << "---------------------------------------------------------\n";
 	DATARECORD << "*********************************************************\n";
 	DATARECORD << "                  FINAL!!!!                              \n";
@@ -3030,6 +3041,7 @@ std::vector<ZZ> &B1R0,std::vector<ZZ> &B1R1,std::vector<ZZ> &B1R2,std::vector<ZZ
 	int index_out;
 	for(int i = 0; i < group; i++){
     	for(int j = 0;j < radix;j++){
+			DATARECORD << "-------------------------" << std::endl;
 			gray_i  = Gray(i,group);
     		BC_tmp  = j * group + gray_i;
 			REORDERBC_R4_R2_OUT(BC_tmp,BC);
@@ -3040,6 +3052,7 @@ std::vector<ZZ> &B1R0,std::vector<ZZ> &B1R1,std::vector<ZZ> &B1R2,std::vector<ZZ
 			DATARECORD << "bn_tmp: " << bn_tmp <<"\n";
 			DATARECORD << "ma_tmp: " << ma_tmp <<"\n";
 			index_out = (int)i * ( N / group) + 4 * j ;
+			DATARECORD << "index_out: " << index_out << std::endl;
     		if(bn_tmp == 0){
      		   A[index_out+0] = A_B0R0[ma_tmp];
     		   A[index_out+1] = A_B0R1[ma_tmp];
@@ -3807,6 +3820,17 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 	
 	std::ofstream DATARECORD("./NTT_R16_R2_SPMB.txt");
 	std::ofstream r16_r2_SPMB_TF_dg("./my_print_data/r16_r2_SPMB_TF_dg.txt");
+	std::ofstream spmb_r16_r2("./SPMB_tw/spmb_r16_r2.txt");
+	std::ofstream DTFAG_golden_st0("./SPMB_tw/DTFAG_golden_st0_8192.txt");
+	std::ofstream DTFAG_golden_st1("./SPMB_tw/DTFAG_golden_st1_8192.txt");
+	std::ofstream DTFAG_golden_st2("./SPMB_tw/DTFAG_golden_st2_8192.txt");
+
+	//-------------Bit Reverse--------------
+	BitOperate RR, IntToVec, VecToInt;
+	long long bit_width = log2(N);
+	long long bit_width_s = log(radix)/log(2);
+	vector<long long> bit_array;
+	//----------------------------------------
 
 	//radix-16 Stage
     Stage_double  = log2(N);
@@ -4013,6 +4037,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 	ma_tmp = 0;
 	bn_tmp = 0;
 	BC     = 0;
+	int tw_degree = 1; // siang
 	std::cout << "init load over! \n";
 	DATARECORD <<"radix-16 computing stage:  "<< Stage <<"\n";
 	//need modify to mult by twiddle factor
@@ -4023,19 +4048,24 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 			SqrMod(factor,factor,p);
 			SqrMod(factor,factor,p);
 			SqrMod(factor,factor,p);
+			tw_degree = tw_degree * 16;
 		}
 		DATARECORD <<"---------------------------------\n";
 		DATARECORD <<"Now Stage: "<< s <<"\n";
 		r16_r2_SPMB_TF_dg << "Now Stage: "<< s <<"\n";
+		spmb_r16_r2 <<"Now Stage: "<< s <<"\n";
+		spmb_r16_r2 <<"twiddle factor : "<< factor <<"\n";
 		tw_modulus_tmp  = tw_modulus >> ( 4 * s);
 		for(int i = 0 ;i < group;i++){
 			bn0_bc_tmp  = 0;
 			bn1_bc_tmp  = 0;
+			spmb_r16_r2 << "-----------------i = " << i << "-------------------" << std::endl;
 			r16_r2_SPMB_TF_dg << "-------------------------------\n";
 			for(int j = 0;j < radix;j++){
+				DATARECORD << "-------------------------------------"<< std::endl;
+				DATARECORD << "i = " << i << ", j = " << j << std::endl;
 				gray_i  = Gray(i,group);
 				BC_tmp  = j * group + gray_i;
-				DATARECORD <<"---------------------------------\n";
 				DATARECORD << "BC_tmp: " << BC_tmp << "\n";
 				if(s == Stage - 1) RR_R16_R2(BC_tmp,(4 * s - 3),BC);
 				else RR_R16(BC_tmp,s,BC);
@@ -4044,6 +4074,28 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 				r16_r2_SPMB_TF_dg << "length: " << length << "\n";
 				PowerMod(factor_t,factor,length,p);
 				AGU_R16(BC,bn_tmp,ma_tmp);
+
+				//-----------compute data idx-------------
+				spmb_r16_r2 /*<< "BC = " << BC */<< "BC_tmp = " << BC_tmp << std::endl;
+				
+				IntToVec.IntToVec(BC_tmp, N, bit_array);
+				rotate(bit_array.begin(), bit_array.begin()+ bit_width_s*s , bit_array.end());
+				long long Data = VecToInt.VecToInt(bit_array, N);
+				spmb_r16_r2 << "Data_index = ";
+                spmb_r16_r2 << "( " ;					
+				for(int k = 0; k < radix ; k++ ){
+					spmb_r16_r2 << Data + k*(1<<(bit_width-bit_width_s-bit_width_s*s)) <<" ";	
+				}
+				spmb_r16_r2 << ") " << std::endl;
+				spmb_r16_r2 << ", (w^" << 0 << ", w^" << tw_degree * length << ", w^" << tw_degree * length * 2 
+				<< ", w^" << tw_degree * length * 3  << ", w^" << tw_degree * length * 4 << ", w^" << tw_degree * length * 5 
+				<< ", w^" << tw_degree * length * 6  << ", w^" << tw_degree * length * 7 << ", w^" << tw_degree * length * 8 
+				<< ", w^" << tw_degree * length * 9  << ", w^" << tw_degree * length * 10 << ", w^" << tw_degree * length * 11 
+				<< ", w^" << tw_degree * length * 12  << ", w^" << tw_degree * length * 13 << ", w^" << tw_degree * length * 14 
+				<< ", w^" << tw_degree * length * 15
+				<< ")" <<std::endl;
+				//-----------------------------------------
+
 				DATARECORD << "BN : " << bn_tmp << "\n";
 				DATARECORD << "MA : " << ma_tmp << "\n";
 				if(bn_tmp == 0){
@@ -4062,44 +4114,59 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					PowerMod(factor_13t,factor_t,13,p);
 					PowerMod(factor_14t,factor_t,14,p);
 					PowerMod(factor_15t,factor_t,15,p);
+					DATARECORD <<"facotr_t : " << factor_t  << ", length = " << length * 1 << " \n";
+					DATARECORD <<"facotr_2t : " << factor_2t << ", length = " << length * 2 << " \n";
+					DATARECORD <<"facotr_3t : " << factor_3t << ", length = " << length * 3 << " \n";
+					DATARECORD <<"facotr_4t : " << factor_4t << ", length = " << length * 4 << " \n";
+					DATARECORD <<"facotr_5t : " << factor_5t << ", length = " << length * 5 << " \n";
+					DATARECORD <<"facotr_6t : " << factor_6t << ", length = " << length * 6 << " \n";
+					DATARECORD <<"facotr_7t : " << factor_7t << ", length = " << length * 7 << " \n";
+					DATARECORD <<"facotr_8t : " << factor_8t << ", length = " << length * 8 << " \n";
+					DATARECORD <<"facotr_9t : " << factor_9t << ", length = " << length * 9 << " \n";
+					DATARECORD <<"facotr_10t : " << factor_10t << ", length = " << length * 10 << " \n";
+					DATARECORD <<"facotr_11t : " << factor_11t << ", length = " << length * 11 << " \n";
+					DATARECORD <<"facotr_12t : " << factor_12t << ", length = " << length * 12 << " \n";
+					DATARECORD <<"facotr_13t : " << factor_13t << ", length = " << length * 13 << " \n";
+					DATARECORD <<"facotr_14t : " << factor_14t << ", length = " << length * 14 << " \n";
+					DATARECORD <<"facotr_15t : " << factor_15t << ", length = " << length * 15 << " \n";
 					DATARECORD << "Before Radix-16 butterfly unit operation!!! \n";
-				    DATARECORD << "A_B0R0["<< ma_tmp <<"]: " << A_B0R0[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R1["<< ma_tmp <<"]: " << A_B0R1[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R2["<< ma_tmp <<"]: " << A_B0R2[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R3["<< ma_tmp <<"]: " << A_B0R3[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R4["<< ma_tmp <<"]: " << A_B0R4[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R5["<< ma_tmp <<"]: " << A_B0R5[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R6["<< ma_tmp <<"]: " << A_B0R6[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R7["<< ma_tmp <<"]: " << A_B0R7[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R8["<< ma_tmp <<"]: " << A_B0R8[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R9["<< ma_tmp <<"]: " << A_B0R9[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R10["<< ma_tmp <<"]: "<< A_B0R10[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R11["<< ma_tmp <<"]: "<< A_B0R11[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R12["<< ma_tmp <<"]: "<< A_B0R12[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R13["<< ma_tmp <<"]: "<< A_B0R13[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R14["<< ma_tmp <<"]: "<< A_B0R14[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R15["<< ma_tmp <<"]: "<< A_B0R15[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R0["<< ma_tmp <<"]: " << A_B0R0[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R1["<< ma_tmp <<"]: " << A_B0R1[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R2["<< ma_tmp <<"]: " << A_B0R2[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R3["<< ma_tmp <<"]: " << A_B0R3[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R4["<< ma_tmp <<"]: " << A_B0R4[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R5["<< ma_tmp <<"]: " << A_B0R5[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R6["<< ma_tmp <<"]: " << A_B0R6[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R7["<< ma_tmp <<"]: " << A_B0R7[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R8["<< ma_tmp <<"]: " << A_B0R8[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R9["<< ma_tmp <<"]: " << A_B0R9[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R10["<< ma_tmp <<"]: "<< A_B0R10[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R11["<< ma_tmp <<"]: "<< A_B0R11[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R12["<< ma_tmp <<"]: "<< A_B0R12[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R13["<< ma_tmp <<"]: "<< A_B0R13[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R14["<< ma_tmp <<"]: "<< A_B0R14[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R15["<< ma_tmp <<"]: "<< A_B0R15[ma_tmp]<<"\n";
 					Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 							   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 							   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 							   A_B0R15[ma_tmp]);
 					DATARECORD << "After Radix-16 butterfly unit operation!!! \n";
-				    DATARECORD << "A_B0R0["<< ma_tmp <<"]: " << A_B0R0[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R1["<< ma_tmp <<"]: " << A_B0R1[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R2["<< ma_tmp <<"]: " << A_B0R2[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R3["<< ma_tmp <<"]: " << A_B0R3[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R4["<< ma_tmp <<"]: " << A_B0R4[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R5["<< ma_tmp <<"]: " << A_B0R5[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R6["<< ma_tmp <<"]: " << A_B0R6[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R7["<< ma_tmp <<"]: " << A_B0R7[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R8["<< ma_tmp <<"]: " << A_B0R8[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R9["<< ma_tmp <<"]: " << A_B0R9[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R10["<< ma_tmp <<"]: "<< A_B0R10[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R11["<< ma_tmp <<"]: "<< A_B0R11[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R12["<< ma_tmp <<"]: "<< A_B0R12[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R13["<< ma_tmp <<"]: "<< A_B0R13[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R14["<< ma_tmp <<"]: "<< A_B0R14[ma_tmp]<<"\n";
-				    DATARECORD << "A_B0R15["<< ma_tmp <<"]: "<< A_B0R15[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R0["<< ma_tmp <<"]: " << A_B0R0[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R1["<< ma_tmp <<"]: " << A_B0R1[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R2["<< ma_tmp <<"]: " << A_B0R2[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R3["<< ma_tmp <<"]: " << A_B0R3[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R4["<< ma_tmp <<"]: " << A_B0R4[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R5["<< ma_tmp <<"]: " << A_B0R5[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R6["<< ma_tmp <<"]: " << A_B0R6[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R7["<< ma_tmp <<"]: " << A_B0R7[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R8["<< ma_tmp <<"]: " << A_B0R8[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R9["<< ma_tmp <<"]: " << A_B0R9[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R10["<< ma_tmp <<"]: "<< A_B0R10[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R11["<< ma_tmp <<"]: "<< A_B0R11[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R12["<< ma_tmp <<"]: "<< A_B0R12[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R13["<< ma_tmp <<"]: "<< A_B0R13[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R14["<< ma_tmp <<"]: "<< A_B0R14[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B0R15["<< ma_tmp <<"]: "<< A_B0R15[ma_tmp]<<"\n";
                     MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],factor_t,p);
 					MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],factor_2t,p);
 					MulMod(A_B0R3[ma_tmp],A_B0R3[ma_tmp],factor_3t,p);
@@ -4123,6 +4190,66 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					if((j >= 10) && (j < 12))bn0_ma_reg6 = ma_tmp;
 					if((j >= 12) && (j < 14))bn0_ma_reg7 = ma_tmp;
 					if((j >= 14) && (j < 16))bn0_ma_reg8 = ma_tmp;
+					//----------------DTFAG golden pattern------------------
+					switch(s){
+						case 0:
+							DTFAG_golden_st0 << 1 		  << " \n ";
+							DTFAG_golden_st0 << factor_t  << " \n ";
+							DTFAG_golden_st0 << factor_2t << " \n ";
+							DTFAG_golden_st0 << factor_3t << " \n ";
+							DTFAG_golden_st0 << factor_4t << " \n ";
+							DTFAG_golden_st0 << factor_5t  << " \n ";
+							DTFAG_golden_st0 << factor_6t << " \n ";
+							DTFAG_golden_st0 << factor_7t << " \n ";
+							DTFAG_golden_st0 << factor_8t << " \n ";
+							DTFAG_golden_st0 << factor_9t  << " \n ";
+							DTFAG_golden_st0 << factor_10t << " \n ";
+							DTFAG_golden_st0 << factor_11t << " \n ";
+							DTFAG_golden_st0 << factor_12t << " \n ";
+							DTFAG_golden_st0 << factor_13t  << " \n ";
+							DTFAG_golden_st0 << factor_14t << " \n ";
+							DTFAG_golden_st0 << factor_15t << " \n ";
+							break;
+						case 1:
+							DTFAG_golden_st1 << 1 		  << " \n ";
+							DTFAG_golden_st1 << factor_t  << " \n ";
+							DTFAG_golden_st1 << factor_2t << " \n ";
+							DTFAG_golden_st1 << factor_3t << " \n ";
+							DTFAG_golden_st1 << factor_4t << " \n ";
+							DTFAG_golden_st1 << factor_5t  << " \n ";
+							DTFAG_golden_st1 << factor_6t << " \n ";
+							DTFAG_golden_st1 << factor_7t << " \n ";
+							DTFAG_golden_st1 << factor_8t << " \n ";
+							DTFAG_golden_st1 << factor_9t  << " \n ";
+							DTFAG_golden_st1 << factor_10t << " \n ";
+							DTFAG_golden_st1 << factor_11t << " \n ";
+							DTFAG_golden_st1 << factor_12t << " \n ";
+							DTFAG_golden_st1 << factor_13t  << " \n ";
+							DTFAG_golden_st1 << factor_14t << " \n ";
+							DTFAG_golden_st1 << factor_15t << " \n ";
+							break;
+						case 2:
+							DTFAG_golden_st2 << 1 		  << " \n ";
+							DTFAG_golden_st2 << factor_t  << " \n ";
+							DTFAG_golden_st2 << factor_2t << " \n ";
+							DTFAG_golden_st2 << factor_3t << " \n ";
+							DTFAG_golden_st2 << factor_4t << " \n ";
+							DTFAG_golden_st2 << factor_5t  << " \n ";
+							DTFAG_golden_st2 << factor_6t << " \n ";
+							DTFAG_golden_st2 << factor_7t << " \n ";
+							DTFAG_golden_st2 << factor_8t << " \n ";
+							DTFAG_golden_st2 << factor_9t  << " \n ";
+							DTFAG_golden_st2 << factor_10t << " \n ";
+							DTFAG_golden_st2 << factor_11t << " \n ";
+							DTFAG_golden_st2 << factor_12t << " \n ";
+							DTFAG_golden_st2 << factor_13t  << " \n ";
+							DTFAG_golden_st2 << factor_14t << " \n ";
+							DTFAG_golden_st2 << factor_15t << " \n ";
+							break;
+						default:
+							break;
+					}
+					//--------------------------------------------------
 				}
 			    else {
 					if(j < 2)bn1_bc_tmp = BC_tmp;
@@ -4140,44 +4267,59 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					PowerMod(factor_13t,factor_t,13,p);
 					PowerMod(factor_14t,factor_t,14,p);
 					PowerMod(factor_15t,factor_t,15,p);
+					DATARECORD <<"facotr_t : " << factor_t  << ", length = " << length * 1 << " \n";
+					DATARECORD <<"facotr_2t : " << factor_2t << ", length = " << length * 2 << " \n";
+					DATARECORD <<"facotr_3t : " << factor_3t << ", length = " << length * 3 << " \n";
+					DATARECORD <<"facotr_4t : " << factor_4t  << ", length = " << length * 4 << " \n";
+					DATARECORD <<"facotr_5t : " << factor_5t << ", length = " << length * 5 << " \n";
+					DATARECORD <<"facotr_6t : " << factor_6t << ", length = " << length * 6 << " \n";
+					DATARECORD <<"facotr_7t : " << factor_7t  << ", length = " << length * 7 << " \n";
+					DATARECORD <<"facotr_8t : " << factor_8t << ", length = " << length * 8 << " \n";
+					DATARECORD <<"facotr_9t : " << factor_9t << ", length = " << length * 9 << " \n";
+					DATARECORD <<"facotr_10t : " << factor_10t  << ", length = " << length * 10 << " \n";
+					DATARECORD <<"facotr_11t : " << factor_11t << ", length = " << length * 11 << " \n";
+					DATARECORD <<"facotr_12t : " << factor_12t << ", length = " << length * 12 << " \n";
+					DATARECORD <<"facotr_13t : " << factor_13t  << ", length = " << length * 13 << " \n";
+					DATARECORD <<"facotr_14t : " << factor_14t << ", length = " << length * 14 << " \n";
+					DATARECORD <<"facotr_15t : " << factor_15t << ", length = " << length * 15 << " \n";
 					DATARECORD << "Before Radix-16 butterfly unit operation!!! \n";
-				    DATARECORD << "A_B1R0["<< ma_tmp <<"]: " << A_B1R0[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R1["<< ma_tmp <<"]: " << A_B1R1[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R2["<< ma_tmp <<"]: " << A_B1R2[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R3["<< ma_tmp <<"]: " << A_B1R3[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R4["<< ma_tmp <<"]: " << A_B1R4[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R5["<< ma_tmp <<"]: " << A_B1R5[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R6["<< ma_tmp <<"]: " << A_B1R6[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R7["<< ma_tmp <<"]: " << A_B1R7[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R8["<< ma_tmp <<"]: " << A_B1R8[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R9["<< ma_tmp <<"]: " << A_B1R9[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R10["<< ma_tmp <<"]: "<< A_B1R10[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R11["<< ma_tmp <<"]: "<< A_B1R11[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R12["<< ma_tmp <<"]: "<< A_B1R12[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R13["<< ma_tmp <<"]: "<< A_B1R13[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R14["<< ma_tmp <<"]: "<< A_B1R14[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R15["<< ma_tmp <<"]: "<< A_B1R15[ma_tmp]<<"\n";					
+				    //DATARECORD << "A_B1R0["<< ma_tmp <<"]: " << A_B1R0[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R1["<< ma_tmp <<"]: " << A_B1R1[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R2["<< ma_tmp <<"]: " << A_B1R2[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R3["<< ma_tmp <<"]: " << A_B1R3[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R4["<< ma_tmp <<"]: " << A_B1R4[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R5["<< ma_tmp <<"]: " << A_B1R5[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R6["<< ma_tmp <<"]: " << A_B1R6[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R7["<< ma_tmp <<"]: " << A_B1R7[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R8["<< ma_tmp <<"]: " << A_B1R8[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R9["<< ma_tmp <<"]: " << A_B1R9[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R10["<< ma_tmp <<"]: "<< A_B1R10[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R11["<< ma_tmp <<"]: "<< A_B1R11[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R12["<< ma_tmp <<"]: "<< A_B1R12[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R13["<< ma_tmp <<"]: "<< A_B1R13[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R14["<< ma_tmp <<"]: "<< A_B1R14[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R15["<< ma_tmp <<"]: "<< A_B1R15[ma_tmp]<<"\n";					
 					Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 							   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 							   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 							   A_B1R15[ma_tmp]);
 					DATARECORD << "After Radix-16 butterfly unit operation!!! \n";
-				    DATARECORD << "A_B1R0["<< ma_tmp <<"]: " << A_B1R0[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R1["<< ma_tmp <<"]: " << A_B1R1[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R2["<< ma_tmp <<"]: " << A_B1R2[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R3["<< ma_tmp <<"]: " << A_B1R3[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R4["<< ma_tmp <<"]: " << A_B1R4[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R5["<< ma_tmp <<"]: " << A_B1R5[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R6["<< ma_tmp <<"]: " << A_B1R6[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R7["<< ma_tmp <<"]: " << A_B1R7[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R8["<< ma_tmp <<"]: " << A_B1R8[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R9["<< ma_tmp <<"]: " << A_B1R9[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R10["<< ma_tmp <<"]: "<< A_B1R10[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R11["<< ma_tmp <<"]: "<< A_B1R11[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R12["<< ma_tmp <<"]: "<< A_B1R12[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R13["<< ma_tmp <<"]: "<< A_B1R13[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R14["<< ma_tmp <<"]: "<< A_B1R14[ma_tmp]<<"\n";
-				    DATARECORD << "A_B1R15["<< ma_tmp <<"]: "<< A_B1R15[ma_tmp]<<"\n";							   
+				    //DATARECORD << "A_B1R0["<< ma_tmp <<"]: " << A_B1R0[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R1["<< ma_tmp <<"]: " << A_B1R1[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R2["<< ma_tmp <<"]: " << A_B1R2[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R3["<< ma_tmp <<"]: " << A_B1R3[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R4["<< ma_tmp <<"]: " << A_B1R4[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R5["<< ma_tmp <<"]: " << A_B1R5[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R6["<< ma_tmp <<"]: " << A_B1R6[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R7["<< ma_tmp <<"]: " << A_B1R7[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R8["<< ma_tmp <<"]: " << A_B1R8[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R9["<< ma_tmp <<"]: " << A_B1R9[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R10["<< ma_tmp <<"]: "<< A_B1R10[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R11["<< ma_tmp <<"]: "<< A_B1R11[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R12["<< ma_tmp <<"]: "<< A_B1R12[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R13["<< ma_tmp <<"]: "<< A_B1R13[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R14["<< ma_tmp <<"]: "<< A_B1R14[ma_tmp]<<"\n";
+				    //DATARECORD << "A_B1R15["<< ma_tmp <<"]: "<< A_B1R15[ma_tmp]<<"\n";							   
 					MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],factor_t,p);
 					MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],factor_2t,p);
 					MulMod(A_B1R3[ma_tmp],A_B1R3[ma_tmp],factor_3t,p);
@@ -4200,7 +4342,67 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
                     if((j >= 8)  && (j < 10))bn1_ma_reg5 = ma_tmp;
                     if((j >= 10) && (j < 12))bn1_ma_reg6 = ma_tmp;
                     if((j >= 12) && (j < 14))bn1_ma_reg7 = ma_tmp;
-                    if((j >= 14) && (j < 16))bn1_ma_reg8 = ma_tmp;					
+                    if((j >= 14) && (j < 16))bn1_ma_reg8 = ma_tmp;	
+					//----------------DTFAG golden pattern------------------
+					switch(s){
+						case 0:
+							DTFAG_golden_st0 << 1 		  << " \n ";
+							DTFAG_golden_st0 << factor_t  << " \n ";
+							DTFAG_golden_st0 << factor_2t << " \n ";
+							DTFAG_golden_st0 << factor_3t << " \n ";
+							DTFAG_golden_st0 << factor_4t << " \n ";
+							DTFAG_golden_st0 << factor_5t  << " \n ";
+							DTFAG_golden_st0 << factor_6t << " \n ";
+							DTFAG_golden_st0 << factor_7t << " \n ";
+							DTFAG_golden_st0 << factor_8t << " \n ";
+							DTFAG_golden_st0 << factor_9t  << " \n ";
+							DTFAG_golden_st0 << factor_10t << " \n ";
+							DTFAG_golden_st0 << factor_11t << " \n ";
+							DTFAG_golden_st0 << factor_12t << " \n ";
+							DTFAG_golden_st0 << factor_13t  << " \n ";
+							DTFAG_golden_st0 << factor_14t << " \n ";
+							DTFAG_golden_st0 << factor_15t << " \n ";
+							break;
+						case 1:
+							DTFAG_golden_st1 << 1 		  << " \n ";
+							DTFAG_golden_st1 << factor_t  << " \n ";
+							DTFAG_golden_st1 << factor_2t << " \n ";
+							DTFAG_golden_st1 << factor_3t << " \n ";
+							DTFAG_golden_st1 << factor_4t << " \n ";
+							DTFAG_golden_st1 << factor_5t  << " \n ";
+							DTFAG_golden_st1 << factor_6t << " \n ";
+							DTFAG_golden_st1 << factor_7t << " \n ";
+							DTFAG_golden_st1 << factor_8t << " \n ";
+							DTFAG_golden_st1 << factor_9t  << " \n ";
+							DTFAG_golden_st1 << factor_10t << " \n ";
+							DTFAG_golden_st1 << factor_11t << " \n ";
+							DTFAG_golden_st1 << factor_12t << " \n ";
+							DTFAG_golden_st1 << factor_13t  << " \n ";
+							DTFAG_golden_st1 << factor_14t << " \n ";
+							DTFAG_golden_st1 << factor_15t << " \n ";
+							break;
+						case 2:
+							DTFAG_golden_st2 << 1 		  << " \n ";
+							DTFAG_golden_st2 << factor_t  << " \n ";
+							DTFAG_golden_st2 << factor_2t << " \n ";
+							DTFAG_golden_st2 << factor_3t << " \n ";
+							DTFAG_golden_st2 << factor_4t << " \n ";
+							DTFAG_golden_st2 << factor_5t  << " \n ";
+							DTFAG_golden_st2 << factor_6t << " \n ";
+							DTFAG_golden_st2 << factor_7t << " \n ";
+							DTFAG_golden_st2 << factor_8t << " \n ";
+							DTFAG_golden_st2 << factor_9t  << " \n ";
+							DTFAG_golden_st2 << factor_10t << " \n ";
+							DTFAG_golden_st2 << factor_11t << " \n ";
+							DTFAG_golden_st2 << factor_12t << " \n ";
+							DTFAG_golden_st2 << factor_13t  << " \n ";
+							DTFAG_golden_st2 << factor_14t << " \n ";
+							DTFAG_golden_st2 << factor_15t << " \n ";
+							break;
+						default:
+							break;
+					}
+					//--------------------------------------------------				
 				}
 			}
 		//data relocation
@@ -5370,39 +5572,39 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 	
 	std::cout << "radix-16 FFT computing over!!\n";
 	
-	DATARECORD <<"----------------------------------------------------------------------------- \n";
-	DATARECORD <<" Radix-2 FFT computing start!!! \n";
+	//DATARECORD <<"----------------------------------------------------------------------------- \n";
+	//DATARECORD <<" Radix-2 FFT computing start!!! \n";
 	
 	
 	for(int i = 0;i < group; i++){
         for(int j=0; j < radix; j++){
         	gray_i  = Gray(i,group);
         	BC_tmp  = j * group + gray_i;
-			DATARECORD << "BC_tmp: " << BC_tmp << "\n";
+			//DATARECORD << "BC_tmp: " << BC_tmp << "\n";
         	BC = BC_tmp;
-			DATARECORD << "After RR_R16 , BC : " << BC << "\n";
+			//DATARECORD << "After RR_R16 , BC : " << BC << "\n";
         	AGU_R16(BC,bn_tmp,ma_tmp);
-		    DATARECORD << "BN : " << bn_tmp << "\n";
-		    DATARECORD << "MA : " << ma_tmp << "\n";			
+		    //DATARECORD << "BN : " << bn_tmp << "\n";
+		    //DATARECORD << "MA : " << ma_tmp << "\n";			
         	if(bn_tmp == 0){
         		if(j < 2)bn0_bc_tmp = BC_tmp;
-				DATARECORD << "Before Radix-2 butterfly unit operation!!! \n";
-				DATARECORD << "A_B0R0["<< ma_tmp <<"]: " << A_B0R0[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R1["<< ma_tmp <<"]: " << A_B0R1[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R2["<< ma_tmp <<"]: " << A_B0R2[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R3["<< ma_tmp <<"]: " << A_B0R3[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R4["<< ma_tmp <<"]: " << A_B0R4[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R5["<< ma_tmp <<"]: " << A_B0R5[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R6["<< ma_tmp <<"]: " << A_B0R6[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R7["<< ma_tmp <<"]: " << A_B0R7[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R8["<< ma_tmp <<"]: " << A_B0R8[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R9["<< ma_tmp <<"]: " << A_B0R9[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R10["<< ma_tmp <<"]: "<< A_B0R10[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R11["<< ma_tmp <<"]: "<< A_B0R11[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R12["<< ma_tmp <<"]: "<< A_B0R12[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R13["<< ma_tmp <<"]: "<< A_B0R13[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R14["<< ma_tmp <<"]: "<< A_B0R14[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R15["<< ma_tmp <<"]: "<< A_B0R15[ma_tmp]<<"\n";					
+				//DATARECORD << "Before Radix-2 butterfly unit operation!!! \n";
+				//DATARECORD << "A_B0R0["<< ma_tmp <<"]: " << A_B0R0[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R1["<< ma_tmp <<"]: " << A_B0R1[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R2["<< ma_tmp <<"]: " << A_B0R2[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R3["<< ma_tmp <<"]: " << A_B0R3[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R4["<< ma_tmp <<"]: " << A_B0R4[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R5["<< ma_tmp <<"]: " << A_B0R5[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R6["<< ma_tmp <<"]: " << A_B0R6[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R7["<< ma_tmp <<"]: " << A_B0R7[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R8["<< ma_tmp <<"]: " << A_B0R8[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R9["<< ma_tmp <<"]: " << A_B0R9[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R10["<< ma_tmp <<"]: "<< A_B0R10[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R11["<< ma_tmp <<"]: "<< A_B0R11[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R12["<< ma_tmp <<"]: "<< A_B0R12[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R13["<< ma_tmp <<"]: "<< A_B0R13[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R14["<< ma_tmp <<"]: "<< A_B0R14[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R15["<< ma_tmp <<"]: "<< A_B0R15[ma_tmp]<<"\n";					
         		Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
         		Radix2_BU(A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
         		Radix2_BU(A_B0R4[ma_tmp],A_B0R5[ma_tmp]);
@@ -5411,41 +5613,41 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
         		Radix2_BU(A_B0R10[ma_tmp],A_B0R11[ma_tmp]);
         		Radix2_BU(A_B0R12[ma_tmp],A_B0R13[ma_tmp]);
         		Radix2_BU(A_B0R14[ma_tmp],A_B0R15[ma_tmp]);
-				DATARECORD << "After Radix-2 butterfly unit operation!!! \n";
-				DATARECORD << "A_B0R0["<< ma_tmp <<"]: " << A_B0R0[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R1["<< ma_tmp <<"]: " << A_B0R1[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R2["<< ma_tmp <<"]: " << A_B0R2[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R3["<< ma_tmp <<"]: " << A_B0R3[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R4["<< ma_tmp <<"]: " << A_B0R4[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R5["<< ma_tmp <<"]: " << A_B0R5[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R6["<< ma_tmp <<"]: " << A_B0R6[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R7["<< ma_tmp <<"]: " << A_B0R7[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R8["<< ma_tmp <<"]: " << A_B0R8[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R9["<< ma_tmp <<"]: " << A_B0R9[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R10["<< ma_tmp <<"]: "<< A_B0R10[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R11["<< ma_tmp <<"]: "<< A_B0R11[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R12["<< ma_tmp <<"]: "<< A_B0R12[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R13["<< ma_tmp <<"]: "<< A_B0R13[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R14["<< ma_tmp <<"]: "<< A_B0R14[ma_tmp]<<"\n";
-				DATARECORD << "A_B0R15["<< ma_tmp <<"]: "<< A_B0R15[ma_tmp]<<"\n";						
+				//DATARECORD << "After Radix-2 butterfly unit operation!!! \n";
+				//DATARECORD << "A_B0R0["<< ma_tmp <<"]: " << A_B0R0[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R1["<< ma_tmp <<"]: " << A_B0R1[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R2["<< ma_tmp <<"]: " << A_B0R2[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R3["<< ma_tmp <<"]: " << A_B0R3[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R4["<< ma_tmp <<"]: " << A_B0R4[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R5["<< ma_tmp <<"]: " << A_B0R5[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R6["<< ma_tmp <<"]: " << A_B0R6[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R7["<< ma_tmp <<"]: " << A_B0R7[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R8["<< ma_tmp <<"]: " << A_B0R8[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R9["<< ma_tmp <<"]: " << A_B0R9[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R10["<< ma_tmp <<"]: "<< A_B0R10[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R11["<< ma_tmp <<"]: "<< A_B0R11[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R12["<< ma_tmp <<"]: "<< A_B0R12[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R13["<< ma_tmp <<"]: "<< A_B0R13[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R14["<< ma_tmp <<"]: "<< A_B0R14[ma_tmp]<<"\n";
+				//DATARECORD << "A_B0R15["<< ma_tmp <<"]: "<< A_B0R15[ma_tmp]<<"\n";						
         	}else {
-				DATARECORD << "Before Radix-2 butterfly unit operation!!! \n";
-				DATARECORD << "A_B1R0["<< ma_tmp <<"]: " << A_B1R0[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R1["<< ma_tmp <<"]: " << A_B1R1[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R2["<< ma_tmp <<"]: " << A_B1R2[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R3["<< ma_tmp <<"]: " << A_B1R3[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R4["<< ma_tmp <<"]: " << A_B1R4[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R5["<< ma_tmp <<"]: " << A_B1R5[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R6["<< ma_tmp <<"]: " << A_B1R6[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R7["<< ma_tmp <<"]: " << A_B1R7[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R8["<< ma_tmp <<"]: " << A_B1R8[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R9["<< ma_tmp <<"]: " << A_B1R9[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R10["<< ma_tmp <<"]: "<< A_B1R10[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R11["<< ma_tmp <<"]: "<< A_B1R11[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R12["<< ma_tmp <<"]: "<< A_B1R12[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R13["<< ma_tmp <<"]: "<< A_B1R13[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R14["<< ma_tmp <<"]: "<< A_B1R14[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R15["<< ma_tmp <<"]: "<< A_B1R15[ma_tmp]<<"\n";				
+				//DATARECORD << "Before Radix-2 butterfly unit operation!!! \n";
+				//DATARECORD << "A_B1R0["<< ma_tmp <<"]: " << A_B1R0[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R1["<< ma_tmp <<"]: " << A_B1R1[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R2["<< ma_tmp <<"]: " << A_B1R2[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R3["<< ma_tmp <<"]: " << A_B1R3[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R4["<< ma_tmp <<"]: " << A_B1R4[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R5["<< ma_tmp <<"]: " << A_B1R5[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R6["<< ma_tmp <<"]: " << A_B1R6[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R7["<< ma_tmp <<"]: " << A_B1R7[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R8["<< ma_tmp <<"]: " << A_B1R8[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R9["<< ma_tmp <<"]: " << A_B1R9[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R10["<< ma_tmp <<"]: "<< A_B1R10[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R11["<< ma_tmp <<"]: "<< A_B1R11[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R12["<< ma_tmp <<"]: "<< A_B1R12[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R13["<< ma_tmp <<"]: "<< A_B1R13[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R14["<< ma_tmp <<"]: "<< A_B1R14[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R15["<< ma_tmp <<"]: "<< A_B1R15[ma_tmp]<<"\n";				
         	    Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
         	    Radix2_BU(A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
         	    Radix2_BU(A_B1R4[ma_tmp],A_B1R5[ma_tmp]);
@@ -5454,23 +5656,23 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
         	    Radix2_BU(A_B1R10[ma_tmp],A_B1R11[ma_tmp]);
         	    Radix2_BU(A_B1R12[ma_tmp],A_B1R13[ma_tmp]);
         	    Radix2_BU(A_B1R14[ma_tmp],A_B1R15[ma_tmp]);
-				DATARECORD << "After Radix-2 butterfly unit operation!!! \n";
-				DATARECORD << "A_B1R0["<< ma_tmp <<"]: " << A_B1R0[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R1["<< ma_tmp <<"]: " << A_B1R1[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R2["<< ma_tmp <<"]: " << A_B1R2[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R3["<< ma_tmp <<"]: " << A_B1R3[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R4["<< ma_tmp <<"]: " << A_B1R4[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R5["<< ma_tmp <<"]: " << A_B1R5[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R6["<< ma_tmp <<"]: " << A_B1R6[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R7["<< ma_tmp <<"]: " << A_B1R7[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R8["<< ma_tmp <<"]: " << A_B1R8[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R9["<< ma_tmp <<"]: " << A_B1R9[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R10["<< ma_tmp <<"]: "<< A_B1R10[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R11["<< ma_tmp <<"]: "<< A_B1R11[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R12["<< ma_tmp <<"]: "<< A_B1R12[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R13["<< ma_tmp <<"]: "<< A_B1R13[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R14["<< ma_tmp <<"]: "<< A_B1R14[ma_tmp]<<"\n";
-				DATARECORD << "A_B1R15["<< ma_tmp <<"]: "<< A_B1R15[ma_tmp]<<"\n";					
+				//DATARECORD << "After Radix-2 butterfly unit operation!!! \n";
+				//DATARECORD << "A_B1R0["<< ma_tmp <<"]: " << A_B1R0[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R1["<< ma_tmp <<"]: " << A_B1R1[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R2["<< ma_tmp <<"]: " << A_B1R2[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R3["<< ma_tmp <<"]: " << A_B1R3[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R4["<< ma_tmp <<"]: " << A_B1R4[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R5["<< ma_tmp <<"]: " << A_B1R5[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R6["<< ma_tmp <<"]: " << A_B1R6[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R7["<< ma_tmp <<"]: " << A_B1R7[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R8["<< ma_tmp <<"]: " << A_B1R8[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R9["<< ma_tmp <<"]: " << A_B1R9[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R10["<< ma_tmp <<"]: "<< A_B1R10[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R11["<< ma_tmp <<"]: "<< A_B1R11[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R12["<< ma_tmp <<"]: "<< A_B1R12[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R13["<< ma_tmp <<"]: "<< A_B1R13[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R14["<< ma_tmp <<"]: "<< A_B1R14[ma_tmp]<<"\n";
+				//DATARECORD << "A_B1R15["<< ma_tmp <<"]: "<< A_B1R15[ma_tmp]<<"\n";					
         	}			
         }		
 	}
@@ -5512,26 +5714,26 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 	int BC_INDEX_32FLAG;
 	int BC_INDEX_2FLAG;
 	
-	DATARECORD <<"***************************************************************\n";
-	DATARECORD <<"***** DATA OUTPUT!!                                         ***\n";
-	DATARECORD <<"***************************************************************\n";
+	//DATARECORD <<"***************************************************************\n";
+	//DATARECORD <<"***** DATA OUTPUT!!                                         ***\n";
+	//DATARECORD <<"***************************************************************\n";
 	//data output
 	// SPMB data output , output function is "NTT_REORDERINDEX_R16_R2_OUT".
 	for(int i = 0;i < group;i++){
 		for(int j = 0;j < radix;j++){
 			gray_i  = Gray(i,group);
 			BC_tmp  = j * group + gray_i;
-			DATARECORD <<"---------------------------------------------------\n";
-			DATARECORD <<" BC_tmp: "<< BC_tmp <<"\n";
+			//DATARECORD <<"---------------------------------------------------\n";
+			//DATARECORD <<" BC_tmp: "<< BC_tmp <<"\n";
 			RR_R16_R2(BC_tmp,((4 * (Stage-1)) - 3),BC);
             BC_INDEX_32FLAG = BC >> 1;
 			BC_INDEX_2FLAG  = BC % 2;
-			DATARECORD <<" BC: "<< BC <<"\n";
-			DATARECORD <<" BC_INDEX_32FLAG: "<< BC_INDEX_32FLAG <<"\n";
-			DATARECORD <<" BC_INDEX_2FLAG:  "<< BC_INDEX_2FLAG  <<"\n";
+			//DATARECORD <<" BC: "<< BC <<"\n";
+			//DATARECORD <<" BC_INDEX_32FLAG: "<< BC_INDEX_32FLAG <<"\n";
+			//DATARECORD <<" BC_INDEX_2FLAG:  "<< BC_INDEX_2FLAG  <<"\n";
 			AGU_R16(BC,bn_tmp,ma_tmp);
-			DATARECORD <<" bn_tmp:  "<< bn_tmp <<"\n";
-			DATARECORD <<" ma_tmp:  "<< ma_tmp <<"\n";
+			//DATARECORD <<" bn_tmp:  "<< bn_tmp <<"\n";
+			//DATARECORD <<" ma_tmp:  "<< ma_tmp <<"\n";
 			index0_i  = BC_INDEX_32FLAG * 32  + BC_INDEX_2FLAG * 2 + 0;
 			index1_i  = BC_INDEX_32FLAG * 32  + BC_INDEX_2FLAG * 2 + 1;
 			index2_i  = BC_INDEX_32FLAG * 32  + BC_INDEX_2FLAG * 2 + 4;
@@ -5549,22 +5751,22 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 			index14_i = BC_INDEX_32FLAG * 32  + BC_INDEX_2FLAG * 2 + 28;
 			index15_i = BC_INDEX_32FLAG * 32  + BC_INDEX_2FLAG * 2 + 29;
 			
-			DATARECORD <<" index0_i:  "<< index0_i <<"\n";
-			DATARECORD <<" index1_i:  "<< index1_i <<"\n";
-			DATARECORD <<" index2_i:  "<< index2_i <<"\n";
-			DATARECORD <<" index3_i:  "<< index3_i <<"\n";
-			DATARECORD <<" index4_i:  "<< index4_i <<"\n";
-			DATARECORD <<" index5_i:  "<< index5_i <<"\n";
-			DATARECORD <<" index6_i:  "<< index6_i <<"\n";
-			DATARECORD <<" index7_i:  "<< index7_i <<"\n";
-			DATARECORD <<" index8_i:  "<< index8_i <<"\n";
-			DATARECORD <<" index9_i:  "<< index9_i <<"\n";
-			DATARECORD <<" index10_i: "<< index10_i <<"\n";
-			DATARECORD <<" index11_i: "<< index11_i <<"\n";
-			DATARECORD <<" index12_i: "<< index12_i <<"\n";
-			DATARECORD <<" index13_i: "<< index13_i <<"\n";
-			DATARECORD <<" index14_i: "<< index14_i <<"\n";
-			DATARECORD <<" index15_i: "<< index15_i <<"\n";
+			//DATARECORD <<" index0_i:  "<< index0_i <<"\n";
+			//DATARECORD <<" index1_i:  "<< index1_i <<"\n";
+			//DATARECORD <<" index2_i:  "<< index2_i <<"\n";
+			//DATARECORD <<" index3_i:  "<< index3_i <<"\n";
+			//DATARECORD <<" index4_i:  "<< index4_i <<"\n";
+			//DATARECORD <<" index5_i:  "<< index5_i <<"\n";
+			//DATARECORD <<" index6_i:  "<< index6_i <<"\n";
+			//DATARECORD <<" index7_i:  "<< index7_i <<"\n";
+			//DATARECORD <<" index8_i:  "<< index8_i <<"\n";
+			//DATARECORD <<" index9_i:  "<< index9_i <<"\n";
+			//DATARECORD <<" index10_i: "<< index10_i <<"\n";
+			//DATARECORD <<" index11_i: "<< index11_i <<"\n";
+			//DATARECORD <<" index12_i: "<< index12_i <<"\n";
+			//DATARECORD <<" index13_i: "<< index13_i <<"\n";
+			//DATARECORD <<" index14_i: "<< index14_i <<"\n";
+			//DATARECORD <<" index15_i: "<< index15_i <<"\n";
 					
 			if(bn_tmp == 0){
 			   NTT_REORDERINDEX_R16_R2_OUT(index0_i,index0);
@@ -5583,22 +5785,22 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 			   NTT_REORDERINDEX_R16_R2_OUT(index13_i,index13);
 			   NTT_REORDERINDEX_R16_R2_OUT(index14_i,index14);
 			   NTT_REORDERINDEX_R16_R2_OUT(index15_i,index15);
-			   DATARECORD <<" index0:  "<< index0 <<"\n";
-			   DATARECORD <<" index1:  "<< index1 <<"\n";
-			   DATARECORD <<" index2:  "<< index2 <<"\n";
-			   DATARECORD <<" index3:  "<< index3 <<"\n";
-			   DATARECORD <<" index4:  "<< index4 <<"\n";
-			   DATARECORD <<" index5:  "<< index5 <<"\n";
-			   DATARECORD <<" index6:  "<< index6 <<"\n";
-			   DATARECORD <<" index7:  "<< index7 <<"\n";
-			   DATARECORD <<" index8:  "<< index8 <<"\n";
-			   DATARECORD <<" index9:  "<< index9 <<"\n";
-			   DATARECORD <<" index10: "<< index10 <<"\n";
-			   DATARECORD <<" index11: "<< index11 <<"\n";
-			   DATARECORD <<" index12: "<< index12 <<"\n";
-			   DATARECORD <<" index13: "<< index13 <<"\n";
-			   DATARECORD <<" index14: "<< index14 <<"\n";
-			   DATARECORD <<" index15: "<< index15 <<"\n";
+			   //DATARECORD <<" index0:  "<< index0 <<"\n";
+			   //DATARECORD <<" index1:  "<< index1 <<"\n";
+			   //DATARECORD <<" index2:  "<< index2 <<"\n";
+			   //DATARECORD <<" index3:  "<< index3 <<"\n";
+			   //DATARECORD <<" index4:  "<< index4 <<"\n";
+			   //DATARECORD <<" index5:  "<< index5 <<"\n";
+			   //DATARECORD <<" index6:  "<< index6 <<"\n";
+			   //DATARECORD <<" index7:  "<< index7 <<"\n";
+			   //DATARECORD <<" index8:  "<< index8 <<"\n";
+			   //DATARECORD <<" index9:  "<< index9 <<"\n";
+			   //DATARECORD <<" index10: "<< index10 <<"\n";
+			   //DATARECORD <<" index11: "<< index11 <<"\n";
+			   //DATARECORD <<" index12: "<< index12 <<"\n";
+			   //DATARECORD <<" index13: "<< index13 <<"\n";
+			   //DATARECORD <<" index14: "<< index14 <<"\n";
+			   //DATARECORD <<" index15: "<< index15 <<"\n";
                A[index0] = A_B0R0[ma_tmp];
 			   A[index1] = A_B0R1[ma_tmp];
 			   A[index2] = A_B0R2[ma_tmp];
@@ -5633,22 +5835,22 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 			   NTT_REORDERINDEX_R16_R2_OUT(index13_i,index13);
 			   NTT_REORDERINDEX_R16_R2_OUT(index14_i,index14);
 			   NTT_REORDERINDEX_R16_R2_OUT(index15_i,index15);
-			   DATARECORD <<" index0:  "<< index0 <<"\n";
-			   DATARECORD <<" index1:  "<< index1 <<"\n";
-			   DATARECORD <<" index2:  "<< index2 <<"\n";
-			   DATARECORD <<" index3:  "<< index3 <<"\n";
-			   DATARECORD <<" index4:  "<< index4 <<"\n";
-			   DATARECORD <<" index5:  "<< index5 <<"\n";
-			   DATARECORD <<" index6:  "<< index6 <<"\n";
-			   DATARECORD <<" index7:  "<< index7 <<"\n";
-			   DATARECORD <<" index8:  "<< index8 <<"\n";
-			   DATARECORD <<" index9:  "<< index9 <<"\n";
-			   DATARECORD <<" index10: "<< index10 <<"\n";
-			   DATARECORD <<" index11: "<< index11 <<"\n";
-			   DATARECORD <<" index12: "<< index12 <<"\n";
-			   DATARECORD <<" index13: "<< index13 <<"\n";
-			   DATARECORD <<" index14: "<< index14 <<"\n";
-			   DATARECORD <<" index15: "<< index15 <<"\n";
+			   //DATARECORD <<" index0:  "<< index0 <<"\n";
+			   //DATARECORD <<" index1:  "<< index1 <<"\n";
+			   //DATARECORD <<" index2:  "<< index2 <<"\n";
+			   //DATARECORD <<" index3:  "<< index3 <<"\n";
+			   //DATARECORD <<" index4:  "<< index4 <<"\n";
+			   //DATARECORD <<" index5:  "<< index5 <<"\n";
+			   //DATARECORD <<" index6:  "<< index6 <<"\n";
+			   //DATARECORD <<" index7:  "<< index7 <<"\n";
+			   //DATARECORD <<" index8:  "<< index8 <<"\n";
+			   //DATARECORD <<" index9:  "<< index9 <<"\n";
+			   //DATARECORD <<" index10: "<< index10 <<"\n";
+			   //DATARECORD <<" index11: "<< index11 <<"\n";
+			   //DATARECORD <<" index12: "<< index12 <<"\n";
+			   //DATARECORD <<" index13: "<< index13 <<"\n";
+			   //DATARECORD <<" index14: "<< index14 <<"\n";
+			   //DATARECORD <<" index15: "<< index15 <<"\n";
                A[index0]     = A_B1R0[ma_tmp];
                A[index1]     = A_B1R1[ma_tmp];
                A[index2]     = A_B1R2[ma_tmp];
@@ -8673,27 +8875,23 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 	
 	std::ofstream DATARECORD("./NTT_R16_R4_SPMB.txt");
 	std::ofstream siang_record("./my_print_data/r16_r4_SPMB.txt");
-	std::ofstream siang_ROM0_gen("./my_print_data/v_code_gen/ROM0_gen.txt");
-	std::ofstream siang_ROM1_gen("./my_print_data/v_code_gen/ROM1_gen.txt");
-	std::ofstream siang_ROM2_gen("./my_print_data/v_code_gen/ROM2_gen.txt");
-	std::ofstream siang_ROM3_gen("./my_print_data/v_code_gen/ROM3_gen.txt");
-	std::ofstream siang_ROM4_gen("./my_print_data/v_code_gen/ROM4_gen.txt");
-	std::ofstream siang_ROM5_gen("./my_print_data/v_code_gen/ROM5_gen.txt");
-	std::ofstream siang_ROM6_gen("./my_print_data/v_code_gen/ROM6_gen.txt");
-	std::ofstream siang_ROM7_gen("./my_print_data/v_code_gen/ROM7_gen.txt");
-	std::ofstream siang_tw_diff("./my_print_data/tw_diff.txt");
-	std::ofstream siang_tw_diff_v_gen("./my_print_data/v_code_gen/tw_diff_v.txt");
-	std::ofstream siang_tw_diff_row1("./my_print_data/tw_diff_row1.txt");
-	std::ofstream siang_tw_diff_row1_v_gen("./my_print_data/v_code_gen/tw_diff_row1_v.txt");
-	std::ofstream siang_tw_diff_row2("./my_print_data/tw_diff_row2.txt");
-	std::ofstream siang_tw_diff_row2_v_gen("./my_print_data/v_code_gen/tw_diff_row2_v.txt");
-	std::ofstream siang_tw_diff_row3("./my_print_data/tw_diff_row3.txt");
-	std::ofstream siang_tw_diff_row3_v_gen("./my_print_data/v_code_gen/tw_diff_row3_v.txt");
 	std::ofstream r16_r4_SPMB_TF_dg("./my_print_data/r16_r4_SPMB_TF_dg.txt");
+
+	std::ofstream spmb_r16_r4("./SPMB_tw/spmb_r16_r4.txt");
+	std::ofstream DTFAG_golden_st0("./SPMB_tw/DTFAG_golden_st0_16384.txt");
+	std::ofstream DTFAG_golden_st1("./SPMB_tw/DTFAG_golden_st1_16384.txt");
+	std::ofstream DTFAG_golden_st2("./SPMB_tw/DTFAG_golden_st2_16384.txt");
 	//**********************************************************
 	//**********************************************************
 	display  = 1;
 	//**********************************************************
+
+	//-------------Bit Reverse--------------
+	BitOperate RR, IntToVec, VecToInt;
+	long long bit_width = log2(N);
+	long long bit_width_s = log(radix)/log(2);
+	vector<long long> bit_array;
+	//----------------------------------------
 	
 	//radix-16 Stage
     Stage_double  = log2(N);
@@ -8905,14 +9103,6 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 	std::cout << "init load over! \n";
 	if(display == 1)DATARECORD <<"radix-16 computing stage:  "<< Stage <<"\n";
 	if(display == 1)siang_record <<"radix-16 computing stage:  "<< Stage <<"\n"; // siang_record
-	if(display == 1)siang_ROM0_gen <<"radix-16 computing stage:  "<< Stage <<"\n"; // siang_record
-	if(display == 1)siang_ROM1_gen <<"radix-16 computing stage:  "<< Stage <<"\n"; // siang_record
-	if(display == 1)siang_ROM2_gen <<"radix-16 computing stage:  "<< Stage <<"\n"; // siang_record
-	if(display == 1)siang_ROM3_gen <<"radix-16 computing stage:  "<< Stage <<"\n"; // siang_record
-	if(display == 1)siang_ROM4_gen <<"radix-16 computing stage:  "<< Stage <<"\n"; // siang_record
-	if(display == 1)siang_ROM5_gen <<"radix-16 computing stage:  "<< Stage <<"\n"; // siang_record
-	if(display == 1)siang_ROM6_gen <<"radix-16 computing stage:  "<< Stage <<"\n"; // siang_record
-	if(display == 1)siang_ROM7_gen <<"radix-16 computing stage:  "<< Stage <<"\n"; // siang_record
 	//need modify to mult by twiddle factor
 	for(int s = 0; s < Stage; s++){
 		if(s == 0)factor = W;
@@ -8929,282 +9119,17 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 		if(display == 1)siang_record <<"---------------------------------\n";	// siang_record
 		if(display == 1)siang_record <<"Now Stage: "<< s <<"\n";	// siang_record
 		if(display == 1)siang_record <<"factor: "<< factor <<"\n";	// siang_record
-		if(display == 1)siang_ROM0_gen <<"---------------------------------\n";	// siang_record
-		if(display == 1)siang_ROM0_gen <<"Now Stage: "<< s <<"\n";	// siang_record
-		if(display == 1)siang_ROM0_gen <<"factor: "<< factor <<"\n";	// siang_record
-		if(display == 1)siang_ROM1_gen <<"---------------------------------\n";	// siang_record
-		if(display == 1)siang_ROM1_gen <<"Now Stage: "<< s <<"\n";	// siang_record
-		if(display == 1)siang_ROM1_gen <<"factor: "<< factor <<"\n";	// siang_record
-		if(display == 1)siang_ROM2_gen <<"---------------------------------\n";	// siang_record
-		if(display == 1)siang_ROM2_gen <<"Now Stage: "<< s <<"\n";	// siang_record
-		if(display == 1)siang_ROM2_gen <<"factor: "<< factor <<"\n";	// siang_record
-		if(display == 1)siang_ROM3_gen <<"---------------------------------\n";	// siang_record
-		if(display == 1)siang_ROM3_gen <<"Now Stage: "<< s <<"\n";	// siang_record
-		if(display == 1)siang_ROM3_gen <<"factor: "<< factor <<"\n";	// siang_record
-		if(display == 1)siang_ROM4_gen <<"---------------------------------\n";	// siang_record
-		if(display == 1)siang_ROM4_gen <<"Now Stage: "<< s <<"\n";	// siang_record
-		if(display == 1)siang_ROM4_gen <<"factor: "<< factor <<"\n";	// siang_record
-		if(display == 1)siang_ROM5_gen <<"---------------------------------\n";	// siang_record
-		if(display == 1)siang_ROM5_gen <<"Now Stage: "<< s <<"\n";	// siang_record
-		if(display == 1)siang_ROM5_gen <<"factor: "<< factor <<"\n";	// siang_record
-		if(display == 1)siang_ROM6_gen <<"---------------------------------\n";	// siang_record
-		if(display == 1)siang_ROM6_gen <<"Now Stage: "<< s <<"\n";	// siang_record
-		if(display == 1)siang_ROM6_gen <<"factor: "<< factor <<"\n";	// siang_record
-		if(display == 1)siang_ROM7_gen <<"---------------------------------\n";	// siang_record
-		if(display == 1)siang_ROM7_gen <<"Now Stage: "<< s <<"\n";	// siang_record
-		if(display == 1)siang_ROM7_gen <<"factor: "<< factor <<"\n";	// siang_record
+		spmb_r16_r4 <<"Now Stage: "<< s <<"\n";
+		spmb_r16_r4 <<"twiddle factor : "<< factor <<"\n";
 		r16_r4_SPMB_TF_dg << "Now Stage : " << s << "\n";
-		//-------------------------------siang record-------------------------------------------------------------
-		ZZ siang_factor_1;
-		ZZ siang_factor_2;
-		ZZ siang_factor_3;
-		ZZ siang_factor_4;
-		ZZ siang_factor_5;
-		ZZ siang_factor_6;
-		ZZ siang_factor_7;
-		ZZ siang_factor_8;
-		ZZ siang_factor_9;
-		ZZ siang_factor_10;
-		ZZ siang_factor_11;
-		ZZ siang_factor_12;
-		ZZ siang_factor_13;
-		ZZ siang_factor_14;
-		ZZ siang_factor_15;
-
-		SPMB spmb;
-		int difference;
-		int carry_difference;
-		switch(s) {
-			case 0:
-				difference = 64;
-				carry_difference = difference*4;
-				break;
-			case 1:
-				difference = 4;
-				carry_difference = difference*4;
-				break;
-			case 2:
-				difference = 1;
-				carry_difference = difference*4;
-				break;
-			default: 
-				difference = 0;
-				carry_difference = difference*4;
-				break;
-		}
-		
-		PowerMod(siang_factor_1,factor,1*carry_difference,p);
-		PowerMod(siang_factor_2,factor,2*carry_difference,p);
-		PowerMod(siang_factor_3,factor,3*carry_difference,p);
-		PowerMod(siang_factor_4,factor,4*carry_difference,p);
-		PowerMod(siang_factor_5,factor,5*carry_difference,p);
-		PowerMod(siang_factor_6,factor,6*carry_difference,p);
-		PowerMod(siang_factor_7,factor,7*carry_difference,p);
-		PowerMod(siang_factor_8,factor,8*carry_difference,p);
-		PowerMod(siang_factor_9,factor,9*carry_difference,p);
-		PowerMod(siang_factor_10,factor,10*carry_difference,p);
-		PowerMod(siang_factor_11,factor,11*carry_difference,p);
-		PowerMod(siang_factor_12,factor,12*carry_difference,p);
-		PowerMod(siang_factor_13,factor,13*carry_difference,p);
-		PowerMod(siang_factor_14,factor,14*carry_difference,p);
-		PowerMod(siang_factor_15,factor,15*carry_difference,p);
-
-		 
-		std::string hex_siang_factor_1	; 
-		std::string hex_siang_factor_2	; 
-		std::string hex_siang_factor_3	; 
-		std::string hex_siang_factor_4	; 
-		std::string hex_siang_factor_5	; 
-		std::string hex_siang_factor_6	; 
-		std::string hex_siang_factor_7	; 
-		std::string hex_siang_factor_8	; 
-		std::string hex_siang_factor_9	; 
-		std::string hex_siang_factor_10	;
-		std::string hex_siang_factor_11	;
-		std::string hex_siang_factor_12	;
-		std::string hex_siang_factor_13	;
-		std::string hex_siang_factor_14	;
-		std::string hex_siang_factor_15	;
-
-		std::string hex_factor_t	;
-		std::string hex_factor_2t	;
-		std::string hex_factor_3t	;
-		std::string hex_factor_4t	;
-		std::string hex_factor_5t	;
-		std::string hex_factor_6t	;
-		std::string hex_factor_7t	;
-		std::string hex_factor_8t	;
-		std::string hex_factor_9t	;
-		std::string hex_factor_10t	;
-		std::string hex_factor_11t	;
-		std::string hex_factor_12t	;
-		std::string hex_factor_13t	;
-		std::string hex_factor_14t	;
-		std::string hex_factor_15t	;
-		 
-		 
-		hex_siang_factor_1 = spmb.ZZtohex(siang_factor_1);
-		hex_siang_factor_2 = spmb.ZZtohex(siang_factor_2);
-		hex_siang_factor_3 = spmb.ZZtohex(siang_factor_3);
-		hex_siang_factor_4 = spmb.ZZtohex(siang_factor_4);
-		hex_siang_factor_5 = spmb.ZZtohex(siang_factor_5);
-		hex_siang_factor_6 = spmb.ZZtohex(siang_factor_6);
-		hex_siang_factor_7 = spmb.ZZtohex(siang_factor_7);
-		hex_siang_factor_8 = spmb.ZZtohex(siang_factor_8);
-		hex_siang_factor_9 = spmb.ZZtohex(siang_factor_9);
-		hex_siang_factor_10 = spmb.ZZtohex(siang_factor_10);
-		hex_siang_factor_11 = spmb.ZZtohex(siang_factor_11);
-		hex_siang_factor_12 = spmb.ZZtohex(siang_factor_12);
-		hex_siang_factor_13 = spmb.ZZtohex(siang_factor_13);
-		hex_siang_factor_14 = spmb.ZZtohex(siang_factor_14);
-		hex_siang_factor_15 = spmb.ZZtohex(siang_factor_15);
-
-	
-		if(display == 1)siang_record << "p : " << p << "\n";	// siang_record	
-		//**************gen const factor v code*****************
-		ZZ siang_const_factor_t;
-		ZZ siang_const_factor_2t;
-		ZZ siang_const_factor_3t;
-		ZZ siang_const_factor_4t;
-		ZZ siang_const_factor_5t;
-		ZZ siang_const_factor_6t;
-		ZZ siang_const_factor_7t;
-		ZZ siang_const_factor_8t;
-		ZZ siang_const_factor_9t;
-		ZZ siang_const_factor_10t;
-		ZZ siang_const_factor_11t;
-		ZZ siang_const_factor_12t;
-		ZZ siang_const_factor_13t;
-		ZZ siang_const_factor_14t;
-		ZZ siang_const_factor_15t;
-
-		std::string hex_siang_const_factor_t		;
-		std::string hex_siang_const_factor_2t		;
-		std::string hex_siang_const_factor_3t		;
-		std::string hex_siang_const_factor_4t		;
-		std::string hex_siang_const_factor_5t		;
-		std::string hex_siang_const_factor_6t		;
-		std::string hex_siang_const_factor_7t		;
-		std::string hex_siang_const_factor_8t		;
-		std::string hex_siang_const_factor_9t		;
-		std::string hex_siang_const_factor_10t		;
-		std::string hex_siang_const_factor_11t		;
-		std::string hex_siang_const_factor_12t		;
-		std::string hex_siang_const_factor_13t		;
-		std::string hex_siang_const_factor_14t		;
-		std::string hex_siang_const_factor_15t		;
-
-		int store_const_difference = 4;
-		int W_degree;
-		int W_const_Degree_Diff = 64;
-		int overall_deg;
-		switch(s){
-			case 0:
-				W_degree = 1;
-				overall_deg = (W_const_Degree_Diff/W_degree);
-				break;
-			case 1:
-				W_degree = 16;
-				overall_deg = (W_const_Degree_Diff/W_degree);
-			case 2:
-				break;
-			default:
-				break;
-		}
-		// each omega difference degree is [(W^4)]^64
-		// for stage = 0 => factor_const = [(W^4)^1]
-		// for stage = 1 => factor_const = [(W^4)^4]
-		PowerMod(siang_const_factor_t,factor,1*overall_deg*store_const_difference,p); 
-		PowerMod(siang_const_factor_2t,factor,2*overall_deg*store_const_difference,p);
-		PowerMod(siang_const_factor_3t,factor,3*overall_deg*store_const_difference,p);
-		PowerMod(siang_const_factor_4t,factor,4*overall_deg*store_const_difference,p);
-		PowerMod(siang_const_factor_5t,factor,5*overall_deg*store_const_difference,p);
-		PowerMod(siang_const_factor_6t,factor,6*overall_deg*store_const_difference,p);
-		PowerMod(siang_const_factor_7t,factor,7*overall_deg*store_const_difference,p);
-		PowerMod(siang_const_factor_8t,factor,8*overall_deg*store_const_difference,p);
-		PowerMod(siang_const_factor_9t,factor,9*overall_deg*store_const_difference,p);
-		PowerMod(siang_const_factor_10t,factor,10*overall_deg*store_const_difference,p);
-		PowerMod(siang_const_factor_11t,factor,11*overall_deg*store_const_difference,p);
-		PowerMod(siang_const_factor_12t,factor,12*overall_deg*store_const_difference,p);
-		PowerMod(siang_const_factor_13t,factor,13*overall_deg*store_const_difference,p);
-		PowerMod(siang_const_factor_14t,factor,14*overall_deg*store_const_difference,p);
-		PowerMod(siang_const_factor_15t,factor,15*overall_deg*store_const_difference,p);
-
-		hex_siang_const_factor_t		= spmb.ZZtohex(siang_const_factor_t);
-		hex_siang_const_factor_2t		= spmb.ZZtohex(siang_const_factor_2t);
-		hex_siang_const_factor_3t		= spmb.ZZtohex(siang_const_factor_3t);
-		hex_siang_const_factor_4t		= spmb.ZZtohex(siang_const_factor_4t);
-		hex_siang_const_factor_5t		= spmb.ZZtohex(siang_const_factor_5t);
-		hex_siang_const_factor_6t		= spmb.ZZtohex(siang_const_factor_6t);
-		hex_siang_const_factor_7t		= spmb.ZZtohex(siang_const_factor_7t);
-		hex_siang_const_factor_8t		= spmb.ZZtohex(siang_const_factor_8t);
-		hex_siang_const_factor_9t		= spmb.ZZtohex(siang_const_factor_9t);
-		hex_siang_const_factor_10t	 	= spmb.ZZtohex(siang_const_factor_10t);
-		hex_siang_const_factor_11t	 	= spmb.ZZtohex(siang_const_factor_11t);
-		hex_siang_const_factor_12t	 	= spmb.ZZtohex(siang_const_factor_12t);
-		hex_siang_const_factor_13t	 	= spmb.ZZtohex(siang_const_factor_13t);
-		hex_siang_const_factor_14t	 	= spmb.ZZtohex(siang_const_factor_14t);
-		hex_siang_const_factor_15t	 	= spmb.ZZtohex(siang_const_factor_15t);
-
-		// for factor_t in ROM0
-		if(s == 0){
-			if(display == 1)siang_ROM0_gen << "buf_const[" << s << "] <= " << hex_siang_const_factor_t   << "\n";	// siang_record	
-		}else if(s == 1){
-			if(display == 1)siang_ROM0_gen << "buf_const[" << s << "] <= " << hex_siang_const_factor_t   << "\n";	// siang_record	
-		}
-		// for factor_2t_factor_3t in ROM1
-		if(s == 0){
-			if(display == 1)siang_ROM1_gen << "buf_const[" << s << "] <= " << hex_siang_const_factor_2t << "_" << hex_siang_const_factor_3t << "\n";	// siang_record	
-		}else if(s == 1){
-			if(display == 1)siang_ROM1_gen << "buf_const[" << s << "] <= " << hex_siang_const_factor_2t << "_" << hex_siang_const_factor_3t << "\n";	// siang_record	
-		}
-		// for factor_4t_factor_5t in ROM2
-		if(s == 0){
-			if(display == 1)siang_ROM2_gen << "buf_const[" << s << "] <= " << hex_siang_const_factor_4t << "_" << hex_siang_const_factor_5t << "\n";	// siang_record	
-		}else if(s == 1){
-			if(display == 1)siang_ROM2_gen << "buf_const[" << s << "] <= " << hex_siang_const_factor_4t << "_" << hex_siang_const_factor_5t << "\n";	// siang_record	
-		}
-		// for factor_6t_factor_7t in ROM3
-		if(s == 0){
-			if(display == 1)siang_ROM3_gen << "buf_const[" << s << "] <= " << hex_siang_const_factor_6t << "_" << hex_siang_const_factor_7t << "\n";	// siang_record	
-		}else if(s == 1){
-			if(display == 1)siang_ROM3_gen << "buf_const[" << s << "] <= " << hex_siang_const_factor_6t << "_" << hex_siang_const_factor_7t << "\n";	// siang_record	
-		}
-		// for factor_8t_factor_9t in ROM4
-		if(s == 0){
-			if(display == 1)siang_ROM4_gen << "buf_const[" << s << "] <= " << hex_siang_const_factor_8t << "_" << hex_siang_const_factor_9t << "\n";	// siang_record	
-		}else if(s == 1){
-			if(display == 1)siang_ROM4_gen << "buf_const[" << s << "] <= " << hex_siang_const_factor_8t << "_" << hex_siang_const_factor_9t << "\n";	// siang_record	
-		}
-		// for factor_10t_factor_11t in ROM5
-		if(s == 0){
-			if(display == 1)siang_ROM5_gen << "buf_const[" << s << "] <= " << hex_siang_const_factor_10t << "_" << hex_siang_const_factor_11t << "\n";	// siang_record	
-		}else if(s == 1){
-			if(display == 1)siang_ROM5_gen << "buf_const[" << s << "] <= " << hex_siang_const_factor_10t << "_" << hex_siang_const_factor_11t << "\n";	// siang_record	
-		}
-		// for factor_12t_factor_13t in ROM6
-		if(s == 0){
-			if(display == 1)siang_ROM6_gen << "buf_const[" << s << "] <= " << hex_siang_const_factor_12t << "_" << hex_siang_const_factor_13t << "\n";	// siang_record	
-		}else if(s == 1){
-			if(display == 1)siang_ROM6_gen << "buf_const[" << s << "] <= " << hex_siang_const_factor_12t << "_" << hex_siang_const_factor_13t << "\n";	// siang_record	
-		}
-		// for factor_14t_factor_15t in ROM7
-		if(s == 0){
-			if(display == 1)siang_ROM7_gen << "buf_const[" << s << "] <= " << hex_siang_const_factor_14t << "_" << hex_siang_const_factor_15t << "\n";	// siang_record	
-		}else if(s == 1){
-			if(display == 1)siang_ROM7_gen << "buf_const[" << s << "] <= " << hex_siang_const_factor_14t << "_" << hex_siang_const_factor_15t << "\n";	// siang_record	
-		}
-
-		//*******************************************************
-		//------------------------------------------------------------------------------------------------------------
 		tw_modulus_tmp  = tw_modulus >> ( 4 * s);
-		siang_record << "tw_modulus = " << tw_modulus << ", tw_modulus_tmp = " << tw_modulus_tmp << "\n";
 		int tw_record = 0; // siang_record
 		int cnt = 0;//siang
 		for(int i = 0 ;i < group;i++){
 			bn0_bc_tmp  = 0;
 			bn1_bc_tmp  = 0;
 			r16_r4_SPMB_TF_dg << "-------------i = "<< i <<"-------------" << "\n";
+			spmb_r16_r4 << "-----------------i = " << i << "-------------------" << std::endl;
 			//r16_r4_SPMB_TF_dg << "i = " << i << std::endl;
 			for(int j = 0;j < radix;j++){
 				gray_i  = Gray(i,group);
@@ -9226,48 +9151,29 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 				if(display == 1)siang_record << "factor = " << factor << ", length : " << length << "\n";	// siang_record	
 				AGU_R16(BC,bn_tmp,ma_tmp);
 				if(display == 1)DATARECORD << "BN : " << bn_tmp << "\n";
-				if(display == 1)DATARECORD << "MA : " << ma_tmp << "\n";		
+				if(display == 1)DATARECORD << "MA : " << ma_tmp << "\n";	
 
-				//------------siang record--------------
-				ZZ  factor_diff_1t;
-				ZZ  factor_diff_5t;
-				ZZ  factor_diff_9t;
-				ZZ  factor_diff_13t;
-
-				std::string hex_factor_diff_1t;
-				std::string hex_factor_diff_5t;
-				std::string hex_factor_diff_9t;
-				std::string hex_factor_diff_13t;
-
-				if(s == 0 && j == 0){ 
-					int tw_diff = BC_tmp - tw_record;
-
-					//siang_tw_diff << "--------------------------" << "\n";
-					PowerMod(factor_diff_1t, factor, tw_diff, p);
-					PowerMod(factor_diff_5t, factor, 5*tw_diff, p);
-					PowerMod(factor_diff_9t, factor, 9*tw_diff, p);
-					PowerMod(factor_diff_13t, factor, 13*tw_diff, p);
-
-					siang_tw_diff << "BC_tmp = " << BC_tmp << ", tw_diff = " << tw_diff << ", factor_diff_1t  = " << factor_diff_1t << "\n";
-					siang_tw_diff_row1 << "BC_tmp = " << BC_tmp << ", 5*tw_diff = " << 5*tw_diff << ", factor_diff_5t  = " << factor_diff_5t << "\n";
-					siang_tw_diff_row2 << "BC_tmp = " << BC_tmp << ", 9*tw_diff = " << 9*tw_diff << ", factor_diff_9t  = " << factor_diff_9t << "\n";
-					siang_tw_diff_row3 << "BC_tmp = " << BC_tmp << ", 13*tw_diff = " << 13*tw_diff << ", factor_diff_13t  = " << factor_diff_13t << "\n";
-
-					//siang_tw_diff_v_gen << "--------------------------" << "\n";
-					hex_factor_diff_1t = spmb.ZZtohex(factor_diff_1t);
-					hex_factor_diff_5t = spmb.ZZtohex(factor_diff_5t);
-					hex_factor_diff_9t = spmb.ZZtohex(factor_diff_9t);
-					hex_factor_diff_13t = spmb.ZZtohex(factor_diff_13t);
-
-					siang_tw_diff_v_gen << "factor_diff_1t[" << cnt << "] <= " << "64'h" << hex_factor_diff_1t << " ;" <<"\n";
-					siang_tw_diff_row1_v_gen << "factor_diff_5t[" << cnt << "] <= " << "64'h" << hex_factor_diff_5t << " ;" <<"\n";
-					siang_tw_diff_row2_v_gen << "factor_diff_9t[" << cnt << "] <= " << "64'h" << hex_factor_diff_9t << " ;" <<"\n";
-					siang_tw_diff_row3_v_gen << "factor_diff_13t[" << cnt << "] <= " << "64'h" << hex_factor_diff_13t << " ;" <<"\n";
-					tw_record = BC_tmp;
-					cnt = cnt + 1;
+				//-----------compute data idx-------------
+				spmb_r16_r4 << "BC_tmp = " << BC_tmp << std::endl;
+				
+				IntToVec.IntToVec(BC_tmp, N, bit_array);
+				rotate(bit_array.begin(), bit_array.begin()+ bit_width_s*s , bit_array.end());
+				long long Data = VecToInt.VecToInt(bit_array, N);
+				spmb_r16_r4 << "Data_index = ";
+                spmb_r16_r4 << "( " ;					
+				for(int k = 0; k < radix ; k++ ){
+					spmb_r16_r4 << Data + k*(1<<(bit_width-bit_width_s-bit_width_s*s)) <<" ";	
 				}
+				spmb_r16_r4 << ") " << std::endl;
+				spmb_r16_r4 << ", (w^" << 0 << ", w^" << tw_degree * length << ", w^" << tw_degree * length * 2 
+				<< ", w^" << tw_degree * length * 3  << ", w^" << tw_degree * length * 4 << ", w^" << tw_degree * length * 5 
+				<< ", w^" << tw_degree * length * 6  << ", w^" << tw_degree * length * 7 << ", w^" << tw_degree * length * 8 
+				<< ", w^" << tw_degree * length * 9  << ", w^" << tw_degree * length * 10 << ", w^" << tw_degree * length * 11 
+				<< ", w^" << tw_degree * length * 12  << ", w^" << tw_degree * length * 13 << ", w^" << tw_degree * length * 14 
+				<< ", w^" << tw_degree * length * 15
+				<< ")" <<std::endl;
+				//-----------------------------------------	
 
-				//--------------------------------------
 
 				if(bn_tmp == 0){
 					if(j < 2)bn0_bc_tmp = BC_tmp;
@@ -9301,40 +9207,6 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					if(display == 1)DATARECORD <<"factor_14t: "<< factor_14t <<"\n";
 					if(display == 1)DATARECORD <<"factor_15t: "<< factor_15t <<"\n";	
 					//----------------siang record-----------------------------------------
-
-					hex_factor_t = spmb.ZZtohex(factor_t);
-					hex_factor_2t = spmb.ZZtohex(factor_2t);
-					hex_factor_3t = spmb.ZZtohex(factor_3t);
-					hex_factor_4t = spmb.ZZtohex(factor_4t);
-					hex_factor_5t = spmb.ZZtohex(factor_5t);
-					hex_factor_6t = spmb.ZZtohex(factor_6t);
-					hex_factor_7t = spmb.ZZtohex(factor_7t);
-					hex_factor_8t = spmb.ZZtohex(factor_8t);
-					hex_factor_9t = spmb.ZZtohex(factor_9t);
-					hex_factor_10t = spmb.ZZtohex(factor_10t);
-					hex_factor_11t = spmb.ZZtohex(factor_11t);
-					hex_factor_12t = spmb.ZZtohex(factor_12t);
-					hex_factor_13t = spmb.ZZtohex(factor_13t);
-					hex_factor_14t = spmb.ZZtohex(factor_14t);
-					hex_factor_15t = spmb.ZZtohex(factor_15t);
-					/*
-					if(display == 1)siang_record << "p : " << p << "\n";	// siang_record
-					if(display == 1)siang_record << "factor_t : "   << factor_t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_2t : "  << factor_2t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_3t : "  << factor_3t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_4t : "  << factor_4t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_5t : "  << factor_5t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_6t : "  << factor_6t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_7t : "  << factor_7t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_8t : "  << factor_8t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_9t : "  << factor_9t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_10t : " << factor_10t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_11t : " << factor_11t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_12t : " << factor_12t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_13t : " << factor_13t << "\n";	// siang_record
-					if(display == 1)siang_record << "factor_14t : " << factor_14t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_15t : " << factor_15t << "\n";	// siang_record		
-					*/
 					if(display == 1)siang_record << "p : " << p << "\n";	// siang_record
 					if(display == 1)siang_record << "j : " << j << "\n";	// siang_record
 					if(display == 1)siang_record << "i : " << i << "\n";	// siang_record
@@ -9348,95 +9220,9 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					if(display == 1)siang_record << "factor_14t_factor_15t : " << factor_14t << "_" << factor_15t << "\n";	// siang_record	
 
 
-					//*************gen v code*****************
-					int cnt = 0;
-					if(i < group) {
-						// ROM0
-						if(s== 0 && j <4) {
-							if(display == 1)siang_ROM0_gen << "buf_data_stage0[" << i << "][" << j << "] <= "  << hex_factor_t   << "\n";	// siang_record	
-						}
-						if(i % 16 == 0 && s == 1 && j< 4){
-							if(display == 1)siang_ROM0_gen << "buf_data_stage1[" << i << "][" << j << "] <= "  << hex_factor_t   << "\n";	// siang_record	
-						}
-						if(s == 2 && j < 4){
-							if(display == 1)siang_ROM0_gen << "buf_data_stage2[" << i << "][" << j << "] <= "  << hex_factor_t   << "\n";	// siang_record	
-						}
-						// ROM1
-						if(s == 0 && j <4) {
-							if(display == 1)siang_ROM1_gen << "buf_data_stage0[" << i << "][" << j << "] <= "  << hex_factor_2t << "_" << hex_factor_3t << "\n";	// siang_record	
-						}
-						if(i % 16 == 0 && s == 1 && j< 4){
-							if(display == 1)siang_ROM1_gen << "buf_data_stage1[" << i << "][" << j << "] <= "  << hex_factor_2t << "_" << hex_factor_3t << "\n";	// siang_record	
-						}
-						if(s == 2 && j < 4){
-							if(display == 1)siang_ROM1_gen << "buf_data_stage2[" << i << "][" << j << "] <= "  << hex_factor_2t << "_" << hex_factor_3t << "\n";	// siang_record	
-						}
-						// ROM2
-						if(s == 0 && j <4) {
-							if(display == 1)siang_ROM2_gen << "buf_data_stage0[" << i << "][" << j << "] <= "  << hex_factor_4t << "_" << hex_factor_5t << "\n";	// siang_record	
-						}
-						if(i % 16 == 0 && s == 1 && j< 4){
-							if(display == 1)siang_ROM2_gen << "buf_data_stage1[" << i << "][" << j << "] <= "  << hex_factor_4t << "_" << hex_factor_5t << "\n";	// siang_record	
-						}
-						if(s == 2 && j < 4){
-							if(display == 1)siang_ROM2_gen << "buf_data_stage2[" << i << "][" << j << "] <= "  << hex_factor_4t << "_" << hex_factor_5t << "\n";	// siang_record	
-						}
-						// ROM3
-						if(s == 0 && j <4) {
-							if(display == 1)siang_ROM3_gen << "buf_data_stage0[" << i << "][" << j << "] <= "  << hex_factor_6t << "_" << hex_factor_7t << "\n";	// siang_record	
-						}
-						if(i % 16 == 0 && s == 1 && j< 4){
-							if(display == 1)siang_ROM3_gen << "buf_data_stage1[" << i << "][" << j << "] <= "  << hex_factor_6t << "_" << hex_factor_7t << "\n";	// siang_record	
-						}
-						if(s == 2 && j < 4){
-							if(display == 1)siang_ROM3_gen << "buf_data_stage2[" << i << "][" << j << "] <= "  << hex_factor_6t << "_" << hex_factor_7t << "\n";	// siang_record	
-						}
-						// ROM4
-						if(s == 0 && j <4) {
-							if(display == 1)siang_ROM4_gen << "buf_data_stage0[" << i << "][" << j << "] <= "  << hex_factor_8t << "_" << hex_factor_9t << "\n";	// siang_record	
-						}
-						if(i % 16 == 0 && s == 1 && j< 4){
-							if(display == 1)siang_ROM4_gen << "buf_data_stage1[" << i << "][" << j << "] <= "  << hex_factor_8t << "_" << hex_factor_9t << "\n";	// siang_record	
-						}
-						if(s == 2 && j < 4){
-							if(display == 1)siang_ROM4_gen << "buf_data_stage2[" << i << "][" << j << "] <= "  << hex_factor_8t << "_" << hex_factor_9t << "\n";	// siang_record	
-						}
-						// ROM5
-						if(s == 0 && j <4) {
-							if(display == 1)siang_ROM5_gen << "buf_data_stage0[" << i << "][" << j << "] <= "  << hex_factor_10t << "_" << hex_factor_11t << "\n";	// siang_record	
-						}
-						if(i % 16 == 0 && s == 1 && j< 4){
-							if(display == 1)siang_ROM5_gen << "buf_data_stage1[" << i << "][" << j << "] <= "  << hex_factor_10t << "_" << hex_factor_11t << "\n";	// siang_record	
-						}
-						if(s == 2 && j < 4){
-							if(display == 1)siang_ROM5_gen << "buf_data_stage2[" << i << "][" << j << "] <= "  << hex_factor_10t << "_" << hex_factor_11t << "\n";	// siang_record	
-						}
-						// ROM6
-						if(s == 0 && j <4) {
-							if(display == 1)siang_ROM6_gen << "buf_data_stage0[" << i << "][" << j << "] <= "  << hex_factor_12t << "_" << hex_factor_13t << "\n";	// siang_record	
-						}
-						if(i % 16 == 0 && s == 1 && j< 4){
-							if(display == 1)siang_ROM6_gen << "buf_data_stage1[" << i << "][" << j << "] <= "  << hex_factor_12t << "_" << hex_factor_13t << "\n";	// siang_record	
-						}
-						if(s == 2 && j < 4){
-							if(display == 1)siang_ROM6_gen << "buf_data_stage2[" << i << "][" << j << "] <= "  << hex_factor_12t << "_" << hex_factor_13t << "\n";	// siang_record	
-						}
-						// ROM7
-						if(s == 0 && j <4) {
-							if(display == 1)siang_ROM7_gen << "buf_data_stage0[" << i << "][" << j << "] <= "  << hex_factor_14t << "_" << hex_factor_15t << "\n";	// siang_record	
-						}
-						if(i % 16 == 0 && s == 1 && j< 4){
-							if(display == 1)siang_ROM7_gen << "buf_data_stage1[" << i << "][" << j << "] <= "  << hex_factor_14t << "_" << hex_factor_15t << "\n";	// siang_record	
-						}
-						if(s == 2 && j < 4){
-							if(display == 1)siang_ROM7_gen << "buf_data_stage2[" << i << "][" << j << "] <= "  << hex_factor_14t << "_" << hex_factor_15t << "\n";	// siang_record	
-						}
-
-					}
-					//*****************************************
 					//-----------------------------------------------------------------------
 
-					if(display == 1)DATARECORD << "Before Radix-16 butterfly unit operation!!! \n";
+					//if(display == 1)DATARECORD << "Before Radix-16 butterfly unit operation!!! \n";
 				    /*if(display == 1)DATARECORD << "A_B0R0["<< ma_tmp <<"]: " << A_B0R0[ma_tmp]<<"\n";
 				    if(display == 1)DATARECORD << "A_B0R1["<< ma_tmp <<"]: " << A_B0R1[ma_tmp]<<"\n";
 				    if(display == 1)DATARECORD << "A_B0R2["<< ma_tmp <<"]: " << A_B0R2[ma_tmp]<<"\n";
@@ -9457,7 +9243,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 							   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 							   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 							   A_B0R15[ma_tmp]);
-					if(display == 1)DATARECORD << "After Radix-16 butterfly unit operation!!! \n";
+					//if(display == 1)DATARECORD << "After Radix-16 butterfly unit operation!!! \n";
 				   /* if(display == 1)DATARECORD << "A_B0R0["<< ma_tmp <<"]: " << A_B0R0[ma_tmp]<<"\n";
 				    if(display == 1)DATARECORD << "A_B0R1["<< ma_tmp <<"]: " << A_B0R1[ma_tmp]<<"\n";
 				    if(display == 1)DATARECORD << "A_B0R2["<< ma_tmp <<"]: " << A_B0R2[ma_tmp]<<"\n";
@@ -9489,7 +9275,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					MulMod(A_B0R13[ma_tmp],A_B0R13[ma_tmp],factor_13t,p);
 					MulMod(A_B0R14[ma_tmp],A_B0R14[ma_tmp],factor_14t,p);
 					MulMod(A_B0R15[ma_tmp],A_B0R15[ma_tmp],factor_15t,p);
-					if(display == 1)DATARECORD <<" After mult by twiddle factor!!! \n";
+					//if(display == 1)DATARECORD <<" After mult by twiddle factor!!! \n";
 					/*if(display == 1)DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<< A_B0R0[ma_tmp]<<"\n";
 					if(display == 1)DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<< A_B0R1[ma_tmp]<<"\n";
 					if(display == 1)DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<< A_B0R2[ma_tmp]<<"\n";
@@ -9514,6 +9300,66 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					if((j >= 10) && (j < 12))bn0_ma_reg6 = ma_tmp;
 					if((j >= 12) && (j < 14))bn0_ma_reg7 = ma_tmp;
 					if((j >= 14) && (j < 16))bn0_ma_reg8 = ma_tmp;
+					//----------------DTFAG golden pattern------------------
+					switch(s){
+						case 0:
+							DTFAG_golden_st0 << 1 		  << " \n ";
+							DTFAG_golden_st0 << factor_t  << " \n ";
+							DTFAG_golden_st0 << factor_2t << " \n ";
+							DTFAG_golden_st0 << factor_3t << " \n ";
+							DTFAG_golden_st0 << factor_4t << " \n ";
+							DTFAG_golden_st0 << factor_5t  << " \n ";
+							DTFAG_golden_st0 << factor_6t << " \n ";
+							DTFAG_golden_st0 << factor_7t << " \n ";
+							DTFAG_golden_st0 << factor_8t << " \n ";
+							DTFAG_golden_st0 << factor_9t  << " \n ";
+							DTFAG_golden_st0 << factor_10t << " \n ";
+							DTFAG_golden_st0 << factor_11t << " \n ";
+							DTFAG_golden_st0 << factor_12t << " \n ";
+							DTFAG_golden_st0 << factor_13t  << " \n ";
+							DTFAG_golden_st0 << factor_14t << " \n ";
+							DTFAG_golden_st0 << factor_15t << " \n ";
+							break;
+						case 1:
+							DTFAG_golden_st1 << 1 		  << " \n ";
+							DTFAG_golden_st1 << factor_t  << " \n ";
+							DTFAG_golden_st1 << factor_2t << " \n ";
+							DTFAG_golden_st1 << factor_3t << " \n ";
+							DTFAG_golden_st1 << factor_4t << " \n ";
+							DTFAG_golden_st1 << factor_5t  << " \n ";
+							DTFAG_golden_st1 << factor_6t << " \n ";
+							DTFAG_golden_st1 << factor_7t << " \n ";
+							DTFAG_golden_st1 << factor_8t << " \n ";
+							DTFAG_golden_st1 << factor_9t  << " \n ";
+							DTFAG_golden_st1 << factor_10t << " \n ";
+							DTFAG_golden_st1 << factor_11t << " \n ";
+							DTFAG_golden_st1 << factor_12t << " \n ";
+							DTFAG_golden_st1 << factor_13t  << " \n ";
+							DTFAG_golden_st1 << factor_14t << " \n ";
+							DTFAG_golden_st1 << factor_15t << " \n ";
+							break;
+						case 2:
+							DTFAG_golden_st2 << 1 		  << " \n ";
+							DTFAG_golden_st2 << factor_t  << " \n ";
+							DTFAG_golden_st2 << factor_2t << " \n ";
+							DTFAG_golden_st2 << factor_3t << " \n ";
+							DTFAG_golden_st2 << factor_4t << " \n ";
+							DTFAG_golden_st2 << factor_5t  << " \n ";
+							DTFAG_golden_st2 << factor_6t << " \n ";
+							DTFAG_golden_st2 << factor_7t << " \n ";
+							DTFAG_golden_st2 << factor_8t << " \n ";
+							DTFAG_golden_st2 << factor_9t  << " \n ";
+							DTFAG_golden_st2 << factor_10t << " \n ";
+							DTFAG_golden_st2 << factor_11t << " \n ";
+							DTFAG_golden_st2 << factor_12t << " \n ";
+							DTFAG_golden_st2 << factor_13t  << " \n ";
+							DTFAG_golden_st2 << factor_14t << " \n ";
+							DTFAG_golden_st2 << factor_15t << " \n ";
+							break;
+						default:
+							break;
+					}
+					//--------------------------------------------------
 				}
 			    else {
 					if(j < 2)bn1_bc_tmp = BC_tmp;
@@ -9547,42 +9393,6 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					if(display == 1)DATARECORD <<"factor_14t: "<< factor_14t <<"\n";
 					if(display == 1)DATARECORD <<"factor_15t: "<< factor_15t <<"\n";	
 					//----------------siang record-----------------------------------------
-
-					hex_factor_t = spmb.ZZtohex(factor_t);
-					hex_factor_2t = spmb.ZZtohex(factor_2t);
-					hex_factor_3t = spmb.ZZtohex(factor_3t);
-					hex_factor_4t = spmb.ZZtohex(factor_4t);
-					hex_factor_5t = spmb.ZZtohex(factor_5t);
-					hex_factor_6t = spmb.ZZtohex(factor_6t);
-					hex_factor_7t = spmb.ZZtohex(factor_7t);
-					hex_factor_8t = spmb.ZZtohex(factor_8t);
-					hex_factor_9t = spmb.ZZtohex(factor_9t);
-					hex_factor_10t = spmb.ZZtohex(factor_10t);
-					hex_factor_11t = spmb.ZZtohex(factor_11t);
-					hex_factor_12t = spmb.ZZtohex(factor_12t);
-					hex_factor_13t = spmb.ZZtohex(factor_13t);
-					hex_factor_14t = spmb.ZZtohex(factor_14t);
-					hex_factor_15t = spmb.ZZtohex(factor_15t);
-
-					/*
-					if(display == 1)siang_record << "p : " << p << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_t : "   << factor_t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_2t : "  << factor_2t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_3t : "  << factor_3t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_4t : "  << factor_4t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_5t : "  << factor_5t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_6t : "  << factor_6t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_7t : "  << factor_7t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_8t : "  << factor_8t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_9t : "  << factor_9t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_10t : " << factor_10t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_11t : " << factor_11t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_12t : " << factor_12t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_13t : " << factor_13t << "\n";	// siang_record
-					if(display == 1)siang_record << "factor_14t : " << factor_14t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_15t : " << factor_15t << "\n";	// siang_record		
-					*/
-
 					if(display == 1)siang_record << "p : " << p << "\n";	// siang_record
 					if(display == 1)siang_record << "j : " << j << "\n";	// siang_record
 					if(display == 1)siang_record << "i : " << i << "\n";	// siang_record
@@ -9593,96 +9403,10 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					if(display == 1)siang_record << "factor_8t_factor_9t : "   << factor_8t  << "_"  << factor_9t << "\n";	// siang_record	
 					if(display == 1)siang_record << "factor_10t_factor_11t : " << factor_10t << "_"  << factor_11t << "\n";	// siang_record	
 					if(display == 1)siang_record << "factor_12t_factor_13t : " << factor_12t << "_"  << factor_13t << "\n";	// siang_record	
-					if(display == 1)siang_record << "factor_14t_factor_15t : " << factor_14t << "_"  << factor_15t << "\n";	// siang_record	
-					
-					//*************gen v code*****************
-					if(i < group) {
-						// ROM0
-						if(s == 0 && j <4) {
-							if(display == 1)siang_ROM0_gen << "buf_data_stage0[" << i << "][" << j << "] <= "  << hex_factor_t   << "\n";	// siang_record	
-						}
-						if(i % 16 == 0 && s == 1 && j< 4){
-							if(display == 1)siang_ROM0_gen << "buf_data_stage1[" << i << "][" << j << "] <= "  << hex_factor_t   << "\n";	// siang_record	
-						}
-						if(s == 2 && j < 4){
-							if(display == 1)siang_ROM0_gen << "buf_data_stage2[" << i << "][" << j << "] <= "  << hex_factor_t   << "\n";	// siang_record	
-						}
-						// ROM1
-						if(s == 0 && j <4) {
-							if(display == 1)siang_ROM1_gen << "buf_data_stage0[" << i << "][" << j << "] <= "  << hex_factor_2t << "_" << hex_factor_3t << "\n";	// siang_record	
-						}
-						if(i % 16 == 0 && s == 1 && j< 4){
-							if(display == 1)siang_ROM1_gen << "buf_data_stage1[" << i << "][" << j << "] <= "  << hex_factor_2t << "_" << hex_factor_3t << "\n";	// siang_record	
-						}
-						if(s == 2 && j < 4){
-							if(display == 1)siang_ROM1_gen << "buf_data_stage2[" << i << "][" << j << "] <= "  << hex_factor_2t << "_" << hex_factor_3t << "\n";	// siang_record	
-						}
-						// ROM2
-						if(s == 0 && j <4) {
-							if(display == 1)siang_ROM2_gen << "buf_data_stage0[" << i << "][" << j << "] <= "  << hex_factor_4t << "_" << hex_factor_5t << "\n";	// siang_record	
-						}
-						if(i % 16 == 0 && s == 1 && j< 4){
-							if(display == 1)siang_ROM2_gen << "buf_data_stage1[" << i << "][" << j << "] <= "  << hex_factor_4t << "_" << hex_factor_5t << "\n";	// siang_record	
-						}
-						if(s == 2 && j < 4){
-							if(display == 1)siang_ROM2_gen << "buf_data_stage2[" << i << "][" << j << "] <= "  << hex_factor_4t << "_" << hex_factor_5t << "\n";	// siang_record	
-						}
-						// ROM3
-						if(s == 0 && j <4) {
-							if(display == 1)siang_ROM3_gen << "buf_data_stage0[" << i << "][" << j << "] <= "  << hex_factor_6t << "_" << hex_factor_7t << "\n";	// siang_record	
-						}
-						if(i % 16 == 0 && s == 1 && j< 4){
-							if(display == 1)siang_ROM3_gen << "buf_data_stage1[" << i << "][" << j << "] <= "  << hex_factor_6t << "_" << hex_factor_7t << "\n";	// siang_record	
-						}
-						if(s == 2 && j < 4){
-							if(display == 1)siang_ROM3_gen << "buf_data_stage2[" << i << "][" << j << "] <= "  << hex_factor_6t << "_" << hex_factor_7t << "\n";	// siang_record	
-						}
-						// ROM4
-						if(s == 0 && j <4) {
-							if(display == 1)siang_ROM4_gen << "buf_data_stage0[" << i << "][" << j << "] <= "  << hex_factor_8t << "_" << hex_factor_9t << "\n";	// siang_record	
-						}
-						if(i % 16 == 0 && s == 1 && j< 4){
-							if(display == 1)siang_ROM4_gen << "buf_data_stage1[" << i << "][" << j << "] <= "  << hex_factor_8t << "_" << hex_factor_9t << "\n";	// siang_record	
-						}
-						if(s == 2 && j < 4){
-							if(display == 1)siang_ROM4_gen << "buf_data_stage2[" << i << "][" << j << "] <= "  << hex_factor_8t << "_" << hex_factor_9t << "\n";	// siang_record	
-						}
-						// ROM5
-						if(s == 0 && j <4) {
-							if(display == 1)siang_ROM5_gen << "buf_data_stage0[" << i << "][" << j << "] <= "  << hex_factor_10t << "_" << hex_factor_11t << "\n";	// siang_record	
-						}
-						if(i % 16 == 0 && s == 1 && j< 4){
-							if(display == 1)siang_ROM5_gen << "buf_data_stage1[" << i << "][" << j << "] <= "  << hex_factor_10t << "_" << hex_factor_11t << "\n";	// siang_record	
-						}
-						if(s == 2 && j < 4){
-							if(display == 1)siang_ROM5_gen << "buf_data_stage2[" << i << "][" << j << "] <= "  << hex_factor_10t << "_" << hex_factor_11t << "\n";	// siang_record	
-						}
-						// ROM6
-						if(s == 0 && j <4) {
-							if(display == 1)siang_ROM6_gen << "buf_data_stage0[" << i << "][" << j << "] <= "  << hex_factor_12t << "_" << hex_factor_13t << "\n";	// siang_record	
-						}
-						if(i % 16 == 0 && s == 1 && j< 4){
-							if(display == 1)siang_ROM6_gen << "buf_data_stage1[" << i << "][" << j << "] <= "  << hex_factor_12t << "_" << hex_factor_13t << "\n";	// siang_record	
-						}
-						if(s == 2 && j < 4){
-							if(display == 1)siang_ROM6_gen << "buf_data_stage2[" << i << "][" << j << "] <= "  << hex_factor_12t << "_" << hex_factor_13t << "\n";	// siang_record	
-						}
-						// ROM7
-						if(s == 0 && j <4) {
-							if(display == 1)siang_ROM7_gen << "buf_data_stage0[" << i << "][" << j << "] <= "  << hex_factor_14t << "_" << hex_factor_15t << "\n";	// siang_record	
-						}
-						if(i % 16 == 0 && s == 1 && j< 4){
-							if(display == 1)siang_ROM7_gen << "buf_data_stage1[" << i << "][" << j << "] <= "  << hex_factor_14t << "_" << hex_factor_15t << "\n";	// siang_record	
-						}
-						if(s == 2 && j < 4){
-							if(display == 1)siang_ROM7_gen << "buf_data_stage2[" << i << "][" << j << "] <= "  << hex_factor_14t << "_" << hex_factor_15t << "\n";	// siang_record	
-						}
-					}
-					//*************************************************
-					
+					if(display == 1)siang_record << "factor_14t_factor_15t : " << factor_14t << "_"  << factor_15t << "\n";	// siang_record		
 					//-----------------------------------------------------------------------
 
-					if(display == 1)DATARECORD << "Before Radix-16 butterfly unit operation!!! \n";
+					//if(display == 1)DATARECORD << "Before Radix-16 butterfly unit operation!!! \n";
 				   /* if(display == 1)DATARECORD << "A_B1R0["<< ma_tmp <<"]: " << A_B1R0[ma_tmp]<<"\n";
 				    if(display == 1)DATARECORD << "A_B1R1["<< ma_tmp <<"]: " << A_B1R1[ma_tmp]<<"\n";
 				    if(display == 1)DATARECORD << "A_B1R2["<< ma_tmp <<"]: " << A_B1R2[ma_tmp]<<"\n";
@@ -9703,7 +9427,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 							   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 							   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 							   A_B1R15[ma_tmp]);
-					if(display == 1)DATARECORD << "After Radix-16 butterfly unit operation!!! \n";
+					//if(display == 1)DATARECORD << "After Radix-16 butterfly unit operation!!! \n";
 				    /*if(display == 1)DATARECORD << "A_B1R0["<< ma_tmp <<"]: " << A_B1R0[ma_tmp]<<"\n";
 				    if(display == 1)DATARECORD << "A_B1R1["<< ma_tmp <<"]: " << A_B1R1[ma_tmp]<<"\n";
 				    if(display == 1)DATARECORD << "A_B1R2["<< ma_tmp <<"]: " << A_B1R2[ma_tmp]<<"\n";
@@ -9735,7 +9459,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					MulMod(A_B1R13[ma_tmp],A_B1R13[ma_tmp],factor_13t,p);
 					MulMod(A_B1R14[ma_tmp],A_B1R14[ma_tmp],factor_14t,p);
 					MulMod(A_B1R15[ma_tmp],A_B1R15[ma_tmp],factor_15t,p);
-					if(display == 1)DATARECORD <<" After mult by twiddle factor!!! \n";
+					//if(display == 1)DATARECORD <<" After mult by twiddle factor!!! \n";
 					/*if(display == 1)DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<< A_B1R0[ma_tmp]<<"\n";
 					if(display == 1)DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<< A_B1R1[ma_tmp]<<"\n";
 					if(display == 1)DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<< A_B1R2[ma_tmp]<<"\n";
@@ -9759,7 +9483,67 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
                     if((j >= 8)  && (j < 10))bn1_ma_reg5 = ma_tmp;
                     if((j >= 10) && (j < 12))bn1_ma_reg6 = ma_tmp;
                     if((j >= 12) && (j < 14))bn1_ma_reg7 = ma_tmp;
-                    if((j >= 14) && (j < 16))bn1_ma_reg8 = ma_tmp;					
+                    if((j >= 14) && (j < 16))bn1_ma_reg8 = ma_tmp;	
+					//----------------DTFAG golden pattern------------------
+					switch(s){
+						case 0:
+							DTFAG_golden_st0 << 1 		  << " \n ";
+							DTFAG_golden_st0 << factor_t  << " \n ";
+							DTFAG_golden_st0 << factor_2t << " \n ";
+							DTFAG_golden_st0 << factor_3t << " \n ";
+							DTFAG_golden_st0 << factor_4t << " \n ";
+							DTFAG_golden_st0 << factor_5t  << " \n ";
+							DTFAG_golden_st0 << factor_6t << " \n ";
+							DTFAG_golden_st0 << factor_7t << " \n ";
+							DTFAG_golden_st0 << factor_8t << " \n ";
+							DTFAG_golden_st0 << factor_9t  << " \n ";
+							DTFAG_golden_st0 << factor_10t << " \n ";
+							DTFAG_golden_st0 << factor_11t << " \n ";
+							DTFAG_golden_st0 << factor_12t << " \n ";
+							DTFAG_golden_st0 << factor_13t  << " \n ";
+							DTFAG_golden_st0 << factor_14t << " \n ";
+							DTFAG_golden_st0 << factor_15t << " \n ";
+							break;
+						case 1:
+							DTFAG_golden_st1 << 1 		  << " \n ";
+							DTFAG_golden_st1 << factor_t  << " \n ";
+							DTFAG_golden_st1 << factor_2t << " \n ";
+							DTFAG_golden_st1 << factor_3t << " \n ";
+							DTFAG_golden_st1 << factor_4t << " \n ";
+							DTFAG_golden_st1 << factor_5t  << " \n ";
+							DTFAG_golden_st1 << factor_6t << " \n ";
+							DTFAG_golden_st1 << factor_7t << " \n ";
+							DTFAG_golden_st1 << factor_8t << " \n ";
+							DTFAG_golden_st1 << factor_9t  << " \n ";
+							DTFAG_golden_st1 << factor_10t << " \n ";
+							DTFAG_golden_st1 << factor_11t << " \n ";
+							DTFAG_golden_st1 << factor_12t << " \n ";
+							DTFAG_golden_st1 << factor_13t  << " \n ";
+							DTFAG_golden_st1 << factor_14t << " \n ";
+							DTFAG_golden_st1 << factor_15t << " \n ";
+							break;
+						case 2:
+							DTFAG_golden_st2 << 1 		  << " \n ";
+							DTFAG_golden_st2 << factor_t  << " \n ";
+							DTFAG_golden_st2 << factor_2t << " \n ";
+							DTFAG_golden_st2 << factor_3t << " \n ";
+							DTFAG_golden_st2 << factor_4t << " \n ";
+							DTFAG_golden_st2 << factor_5t  << " \n ";
+							DTFAG_golden_st2 << factor_6t << " \n ";
+							DTFAG_golden_st2 << factor_7t << " \n ";
+							DTFAG_golden_st2 << factor_8t << " \n ";
+							DTFAG_golden_st2 << factor_9t  << " \n ";
+							DTFAG_golden_st2 << factor_10t << " \n ";
+							DTFAG_golden_st2 << factor_11t << " \n ";
+							DTFAG_golden_st2 << factor_12t << " \n ";
+							DTFAG_golden_st2 << factor_13t  << " \n ";
+							DTFAG_golden_st2 << factor_14t << " \n ";
+							DTFAG_golden_st2 << factor_15t << " \n ";
+							break;
+						default:
+							break;
+					}
+					//--------------------------------------------------				
 				}
 			}
 		//data relocation
@@ -11143,10 +10927,10 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 	
 	std::cout << "radix-16 FFT computing over!!\n";
 	
-	if(display == 1)DATARECORD <<" ----------------------------------------------- \n";
-	if(display == 1)DATARECORD <<" Radix-4 FFT computing start!!! \n";
-	if(display == 1)siang_record <<" ----------------------------------------------- \n";
-	if(display == 1)siang_record <<" Radix-4 FFT computing start!!! \n";
+	//if(display == 1)DATARECORD <<" ----------------------------------------------- \n";
+	//if(display == 1)DATARECORD <<" Radix-4 FFT computing start!!! \n";
+	//if(display == 1)siang_record <<" ----------------------------------------------- \n";
+	//if(display == 1)siang_record <<" Radix-4 FFT computing start!!! \n";
 	
 	for(int i = 0;i < group; i++){
         for(int j=0; j < radix; j++){
@@ -11154,16 +10938,16 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
         	BC_tmp  = j * group + gray_i;
         	RR_R16_R4(BC_tmp,((4 * (Stage-1)) - 2),BC);
         	AGU_R16(BC,bn_tmp,ma_tmp);
-			if(display == 1)DATARECORD <<"--------------------------------------------- \n";
-			if(display == 1)DATARECORD <<"BC_tmp: "<< BC_tmp <<"\n";
-			if(display == 1)DATARECORD <<"BC   : " << BC     <<"\n";
-			if(display == 1)DATARECORD <<"bn_tmp: "<< bn_tmp <<"\n";
-			if(display == 1)DATARECORD <<"ma_tmp: "<< ma_tmp <<"\n";	
+			//if(display == 1)DATARECORD <<"--------------------------------------------- \n";
+			//if(display == 1)DATARECORD <<"BC_tmp: "<< BC_tmp <<"\n";
+			//if(display == 1)DATARECORD <<"BC   : " << BC     <<"\n";
+			//if(display == 1)DATARECORD <<"bn_tmp: "<< bn_tmp <<"\n";
+			//if(display == 1)DATARECORD <<"ma_tmp: "<< ma_tmp <<"\n";	
 			if(display == 1)siang_record <<"--------------------------------------------- \n";	// siang_record
 			if(display == 1)siang_record <<"BC_tmp: "<< BC_tmp <<"\n"; // siang_record
 			if(display == 1)siang_record <<"BC   : " << BC     <<"\n"; // siang_record				
         	if(bn_tmp == 0){
-				if(display == 1)DATARECORD <<" Before Radix-4 Butterfly unit computing!!! \n";
+				//if(display == 1)DATARECORD <<" Before Radix-4 Butterfly unit computing!!! \n";
 				/*if(display == 1)DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<< A_B0R0[ma_tmp]<<"\n";
 				if(display == 1)DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<< A_B0R1[ma_tmp]<<"\n";
 				if(display == 1)DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<< A_B0R2[ma_tmp]<<"\n";
@@ -11184,7 +10968,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
         		Radix4_BU(A_B0R4[ma_tmp],A_B0R5[ma_tmp],A_B0R6[ma_tmp],A_B0R7[ma_tmp]);
         		Radix4_BU(A_B0R8[ma_tmp],A_B0R9[ma_tmp],A_B0R10[ma_tmp],A_B0R11[ma_tmp]);
         		Radix4_BU(A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],A_B0R15[ma_tmp]);
-				if(display == 1)DATARECORD <<" After Radix-4 Butterfly unit computing!!! \n";
+				//if(display == 1)DATARECORD <<" After Radix-4 Butterfly unit computing!!! \n";
 				/*if(display == 1)DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<< A_B0R0[ma_tmp]<<"\n";
 				if(display == 1)DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<< A_B0R1[ma_tmp]<<"\n";
 				if(display == 1)DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<< A_B0R2[ma_tmp]<<"\n";
@@ -11202,7 +10986,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 				if(display == 1)DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<< A_B0R14[ma_tmp]<<"\n";
 				if(display == 1)DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<< A_B0R15[ma_tmp]<<"\n";		*/			
         	}else {
-				if(display == 1)DATARECORD <<" Before Radix-4 Butterfly unit computing!!! \n";
+				//if(display == 1)DATARECORD <<" Before Radix-4 Butterfly unit computing!!! \n";
 				/*if(display == 1)DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<< A_B1R0[ma_tmp]<<"\n";
 				if(display == 1)DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<< A_B1R1[ma_tmp]<<"\n";
 				if(display == 1)DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<< A_B1R2[ma_tmp]<<"\n";
@@ -11223,7 +11007,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
         	    Radix4_BU(A_B1R4[ma_tmp],A_B1R5[ma_tmp],A_B1R6[ma_tmp],A_B1R7[ma_tmp]);
         	    Radix4_BU(A_B1R8[ma_tmp],A_B1R9[ma_tmp],A_B1R10[ma_tmp],A_B1R11[ma_tmp]);
         	    Radix4_BU(A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],A_B1R15[ma_tmp]);
-				if(display == 1)DATARECORD <<" After Radix-4 Butterfly unit computing!!! \n";
+				//if(display == 1)DATARECORD <<" After Radix-4 Butterfly unit computing!!! \n";
 				/*if(display == 1)DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<< A_B1R0[ma_tmp]<<"\n";
 				if(display == 1)DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<< A_B1R1[ma_tmp]<<"\n";
 				if(display == 1)DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<< A_B1R2[ma_tmp]<<"\n";
@@ -11293,7 +11077,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 			NTT_DATA_OUT <<"---------------------------------------------------\n";
 			NTT_DATA_OUT <<" BC_tmp: "<< BC_tmp <<"\n";
 			RR_R16_R4(BC_tmp,((4 * (Stage-1)) - 2),BC);
-			DATARECORD <<" BC: "<< BC <<"\n";
+			//DATARECORD <<" BC: "<< BC <<"\n";
 			AGU_R16(BC,bn_tmp,ma_tmp);
 			NTT_DATA_OUT <<" bn_tmp:  "<< bn_tmp <<"\n";
 			NTT_DATA_OUT <<" ma_tmp:  "<< ma_tmp <<"\n";
@@ -14727,7 +14511,19 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 	std::ofstream DATARECORD("./NTT_R16_R8_SPMB.txt");
 	std::ofstream siang_record("./my_print_data/r16_r8_SPMB.txt");
 	std::ofstream r16_r8_SPMB_TF_dg("./my_print_data/r16_r8_SPMB_TF_dg.txt");
-
+	
+	std::ofstream spmb_r16_r8("./SPMB_tw/spmb_r16_r8.txt");
+	std::ofstream DTFAG_golden_st0("./SPMB_tw/DTFAG_golden_st0_32768.txt");
+	std::ofstream DTFAG_golden_st1("./SPMB_tw/DTFAG_golden_st1_32768.txt");
+	std::ofstream DTFAG_golden_st2("./SPMB_tw/DTFAG_golden_st2_32768.txt");
+	
+	//-------------Bit Reverse--------------
+	BitOperate RR, IntToVec, VecToInt;
+	long long bit_width = log2(N);
+	long long bit_width_s = log(radix)/log(2);
+	vector<long long> bit_array;
+	//----------------------------------------
+	
 	//radix-16 Stage
     Stage_double  = log2(N);
     Stage       =  (int)floor(Stage_double/4);
@@ -14970,11 +14766,12 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 		}
 		std::cout << "factor = " << factor << "\n";
 		if(display == 1)DATARECORD <<"**************************************\n";					
-		if(display == 1)DATARECORD <<"NOW stage: " << s << "!!!!\n";
 		if(display == 1)siang_record <<"---------------------------------\n";	// siang_record
 		if(display == 1)siang_record <<"Now Stage: "<< s <<"\n";	// siang_record
 		if(display == 1)siang_record <<"factor: "<< factor <<"\n";	// siang_record	
 		r16_r8_SPMB_TF_dg << "NOW stage: " << s << "!!!!\n";					
+		spmb_r16_r8 <<"Now Stage: "<< s <<"\n";
+		spmb_r16_r8 <<"twiddle factor : "<< factor <<"\n";
 		tw_modulus_tmp  = tw_modulus >> ( 4 * s);
 		for(int i = 0 ;i < group;i++){
 			bn0_bc_tmp  = 0;
@@ -14982,27 +14779,48 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 			if(display == 1)DATARECORD <<"-------------------------------------\n";										
 			if(display == 1)DATARECORD <<"NOW stage: " << s << "!!!!\n";	
 			r16_r8_SPMB_TF_dg <<"-------------------------------------\n";							
+			spmb_r16_r8 << "-----------------i = " << i << "-------------------" << std::endl;
 			for(int j = 0;j < radix;j++){
 				siang_record << "---------------------------------------" << std::endl;
 				siang_record << "s = " << s << ", i = " << i << ", j = " << j << std::endl;
 				gray_i  = Gray(i,group);
 			    BC_tmp  = j * group + gray_i;
-				if(display == 1)DATARECORD <<"i :      "<< i <<"\n";					
-				if(display == 1)DATARECORD <<"j :      "<< j <<"\n";					
-				if(display == 1)DATARECORD <<"gray_i : "<< gray_i <<"\n";					
-				if(display == 1)DATARECORD <<"BC_tmp: "<< BC_tmp <<"\n";
+				if(display == 1)DATARECORD <<"---------------------------------\n";
+				if(display == 1)DATARECORD << "i = " << i << ", j = " << j << std::endl;
+				if(display == 1)DATARECORD << "BC_tmp: " << BC_tmp << "\n";					
 				if(s == Stage - 1) RR_R16_R8(BC_tmp,(4 * s - 1),BC);
 				else RR_R16(BC_tmp,s,BC);
-				if(display == 1)DATARECORD <<"BC: "<< BC <<"\n";
+				if(display == 1)DATARECORD << "After RR_R16 , BC : " << BC << "\n";		
 				length = BC % tw_modulus_tmp;
-				if(display == 1)DATARECORD <<"length: "<< length <<"\n";
 				siang_record << "length: " << length << std::endl;
 				r16_r8_SPMB_TF_dg << "BC = " << BC << ", tw_modulus_tmp = " << tw_modulus_tmp << ", tw_modulus = " << tw_modulus
 				<< ", length : "<< length << ", tw_dg: " <<  tw_degree * length << " = " << tw_degree << " * " << length <<"\n";
 				PowerMod(factor_t,factor,length,p);
 				AGU_R16(BC,bn_tmp,ma_tmp);
-				if(display == 1)DATARECORD <<"bn_tmp: "<< bn_tmp <<"\n";
-				if(display == 1)DATARECORD <<"ma_tmp: "<< ma_tmp <<"\n";
+				if(display == 1)DATARECORD << "BN : " << bn_tmp << "\n";
+				if(display == 1)DATARECORD << "MA : " << ma_tmp << "\n";	
+				
+				//-----------compute data idx-------------
+				spmb_r16_r8 /*<< "BC = " << BC */<< "BC_tmp = " << BC_tmp << std::endl;
+				
+				IntToVec.IntToVec(BC_tmp, N, bit_array);
+				rotate(bit_array.begin(), bit_array.begin()+ bit_width_s*s , bit_array.end());
+				long long Data = VecToInt.VecToInt(bit_array, N);
+				spmb_r16_r8 << "Data_index = ";
+                spmb_r16_r8 << "( " ;					
+				for(int k = 0; k < radix ; k++ ){
+					spmb_r16_r8 << Data + k*(1<<(bit_width-bit_width_s-bit_width_s*s)) <<" ";	
+				}
+				spmb_r16_r8 << ") " << std::endl;
+				spmb_r16_r8 << ", (w^" << 0 << ", w^" << tw_degree * length << ", w^" << tw_degree * length * 2 
+				<< ", w^" << tw_degree * length * 3  << ", w^" << tw_degree * length * 4 << ", w^" << tw_degree * length * 5 
+				<< ", w^" << tw_degree * length * 6  << ", w^" << tw_degree * length * 7 << ", w^" << tw_degree * length * 8 
+				<< ", w^" << tw_degree * length * 9  << ", w^" << tw_degree * length * 10 << ", w^" << tw_degree * length * 11 
+				<< ", w^" << tw_degree * length * 12  << ", w^" << tw_degree * length * 13 << ", w^" << tw_degree * length * 14 
+				<< ", w^" << tw_degree * length * 15
+				<< ")" <<std::endl;
+				//-----------------------------------------
+				
 				if(bn_tmp == 0){
 					if(j < 2)bn0_bc_tmp = BC_tmp;
                     //if(display == 1)DATARECORD <<" Before radix-16 BU operation!! \n";					
@@ -15036,6 +14854,22 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					PowerMod(factor_13t,factor_t,13,p);
 					PowerMod(factor_14t,factor_t,14,p);
 					PowerMod(factor_15t,factor_t,15,p);
+
+					if(display == 1)DATARECORD <<"factor_t: "  << factor_t <<"\n";
+					if(display == 1)DATARECORD <<"factor_2t: " << factor_2t <<"\n";
+					if(display == 1)DATARECORD <<"factor_3t: " << factor_3t <<"\n";
+					if(display == 1)DATARECORD <<"factor_4t: " << factor_4t <<"\n";
+					if(display == 1)DATARECORD <<"factor_5t: " << factor_5t <<"\n";
+					if(display == 1)DATARECORD <<"factor_6t: " << factor_6t <<"\n";
+					if(display == 1)DATARECORD <<"factor_7t: " << factor_7t <<"\n";
+					if(display == 1)DATARECORD <<"factor_8t: " << factor_8t <<"\n";
+					if(display == 1)DATARECORD <<"factor_9t: " << factor_9t <<"\n";
+					if(display == 1)DATARECORD <<"factor_10t: "<< factor_10t <<"\n";
+					if(display == 1)DATARECORD <<"factor_11t: "<< factor_11t <<"\n";
+					if(display == 1)DATARECORD <<"factor_12t: "<< factor_12t <<"\n";
+					if(display == 1)DATARECORD <<"factor_13t: "<< factor_13t <<"\n";
+					if(display == 1)DATARECORD <<"factor_14t: "<< factor_14t <<"\n";
+					if(display == 1)DATARECORD <<"factor_15t: "<< factor_15t <<"\n";	
 
 					//----------------------siang-------------
 					if(display == 1)siang_record << "p : " << p << "\n";	// siang_record
@@ -15085,7 +14919,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					MulMod(A_B0R13[ma_tmp],A_B0R13[ma_tmp],factor_13t,p);
 					MulMod(A_B0R14[ma_tmp],A_B0R14[ma_tmp],factor_14t,p);
 					MulMod(A_B0R15[ma_tmp],A_B0R15[ma_tmp],factor_15t,p);
-                    if(display == 1)DATARECORD <<" After multiplication!!!\n";					
+                    //if(display == 1)DATARECORD <<" After multiplication!!!\n";					
                     //if(display == 1)DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<< A_B0R0[ma_tmp]<<"\n";					
                     //if(display == 1)DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<< A_B0R1[ma_tmp]<<"\n";					
                     //if(display == 1)DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<< A_B0R2[ma_tmp]<<"\n";					
@@ -15110,10 +14944,70 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					if((j >= 10) && (j < 12))bn0_ma_reg6 = ma_tmp;
 					if((j >= 12) && (j < 14))bn0_ma_reg7 = ma_tmp;
 					if((j >= 14) && (j < 16))bn0_ma_reg8 = ma_tmp;
+					//----------------DTFAG golden pattern------------------
+					switch(s){
+						case 0:
+							DTFAG_golden_st0 << 1 		  << " \n ";
+							DTFAG_golden_st0 << factor_t  << " \n ";
+							DTFAG_golden_st0 << factor_2t << " \n ";
+							DTFAG_golden_st0 << factor_3t << " \n ";
+							DTFAG_golden_st0 << factor_4t << " \n ";
+							DTFAG_golden_st0 << factor_5t  << " \n ";
+							DTFAG_golden_st0 << factor_6t << " \n ";
+							DTFAG_golden_st0 << factor_7t << " \n ";
+							DTFAG_golden_st0 << factor_8t << " \n ";
+							DTFAG_golden_st0 << factor_9t  << " \n ";
+							DTFAG_golden_st0 << factor_10t << " \n ";
+							DTFAG_golden_st0 << factor_11t << " \n ";
+							DTFAG_golden_st0 << factor_12t << " \n ";
+							DTFAG_golden_st0 << factor_13t  << " \n ";
+							DTFAG_golden_st0 << factor_14t << " \n ";
+							DTFAG_golden_st0 << factor_15t << " \n ";
+							break;
+						case 1:
+							DTFAG_golden_st1 << 1 		  << " \n ";
+							DTFAG_golden_st1 << factor_t  << " \n ";
+							DTFAG_golden_st1 << factor_2t << " \n ";
+							DTFAG_golden_st1 << factor_3t << " \n ";
+							DTFAG_golden_st1 << factor_4t << " \n ";
+							DTFAG_golden_st1 << factor_5t  << " \n ";
+							DTFAG_golden_st1 << factor_6t << " \n ";
+							DTFAG_golden_st1 << factor_7t << " \n ";
+							DTFAG_golden_st1 << factor_8t << " \n ";
+							DTFAG_golden_st1 << factor_9t  << " \n ";
+							DTFAG_golden_st1 << factor_10t << " \n ";
+							DTFAG_golden_st1 << factor_11t << " \n ";
+							DTFAG_golden_st1 << factor_12t << " \n ";
+							DTFAG_golden_st1 << factor_13t  << " \n ";
+							DTFAG_golden_st1 << factor_14t << " \n ";
+							DTFAG_golden_st1 << factor_15t << " \n ";
+							break;
+						case 2:
+							DTFAG_golden_st2 << 1 		  << " \n ";
+							DTFAG_golden_st2 << factor_t  << " \n ";
+							DTFAG_golden_st2 << factor_2t << " \n ";
+							DTFAG_golden_st2 << factor_3t << " \n ";
+							DTFAG_golden_st2 << factor_4t << " \n ";
+							DTFAG_golden_st2 << factor_5t  << " \n ";
+							DTFAG_golden_st2 << factor_6t << " \n ";
+							DTFAG_golden_st2 << factor_7t << " \n ";
+							DTFAG_golden_st2 << factor_8t << " \n ";
+							DTFAG_golden_st2 << factor_9t  << " \n ";
+							DTFAG_golden_st2 << factor_10t << " \n ";
+							DTFAG_golden_st2 << factor_11t << " \n ";
+							DTFAG_golden_st2 << factor_12t << " \n ";
+							DTFAG_golden_st2 << factor_13t  << " \n ";
+							DTFAG_golden_st2 << factor_14t << " \n ";
+							DTFAG_golden_st2 << factor_15t << " \n ";
+							break;
+						default:
+							break;
+					}
+					//--------------------------------------------------
 				}
 			    else {
 					if(j < 2)bn1_bc_tmp = BC_tmp;
-                    if(display == 1)DATARECORD <<" Before radix-16 BU operation!! \n";					
+                    //if(display == 1)DATARECORD <<" Before radix-16 BU operation!! \n";					
                     //if(display == 1)DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<< A_B1R0[ma_tmp]<<"\n";					
                     //if(display == 1)DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<< A_B1R1[ma_tmp]<<"\n";					
                     //if(display == 1)DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<< A_B1R2[ma_tmp]<<"\n";					
@@ -15144,6 +15038,21 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					PowerMod(factor_13t,factor_t,13,p);
 					PowerMod(factor_14t,factor_t,14,p);
 					PowerMod(factor_15t,factor_t,15,p);	
+					if(display == 1)DATARECORD <<"factor_t: "  << factor_t <<"\n";
+					if(display == 1)DATARECORD <<"factor_2t: " << factor_2t <<"\n";
+					if(display == 1)DATARECORD <<"factor_3t: " << factor_3t <<"\n";
+					if(display == 1)DATARECORD <<"factor_4t: " << factor_4t <<"\n";
+					if(display == 1)DATARECORD <<"factor_5t: " << factor_5t <<"\n";
+					if(display == 1)DATARECORD <<"factor_6t: " << factor_6t <<"\n";
+					if(display == 1)DATARECORD <<"factor_7t: " << factor_7t <<"\n";
+					if(display == 1)DATARECORD <<"factor_8t: " << factor_8t <<"\n";
+					if(display == 1)DATARECORD <<"factor_9t: " << factor_9t <<"\n";
+					if(display == 1)DATARECORD <<"factor_10t: "<< factor_10t <<"\n";
+					if(display == 1)DATARECORD <<"factor_11t: "<< factor_11t <<"\n";
+					if(display == 1)DATARECORD <<"factor_12t: "<< factor_12t <<"\n";
+					if(display == 1)DATARECORD <<"factor_13t: "<< factor_13t <<"\n";
+					if(display == 1)DATARECORD <<"factor_14t: "<< factor_14t <<"\n";
+					if(display == 1)DATARECORD <<"factor_15t: "<< factor_15t <<"\n";	
 					//------------------siang record-----------------------
 					if(display == 1)siang_record << "p : " << p << "\n";	// siang_record
 					if(display == 1)siang_record << "factor_t : "   		   << factor_t << "\n";	// siang_record	
@@ -15159,7 +15068,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 							   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 							   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 							   A_B1R15[ma_tmp]);
-                    if(display == 1)DATARECORD <<" After radix-16 BU Operation!!!\n";												   
+                    //if(display == 1)DATARECORD <<" After radix-16 BU Operation!!!\n";												   
                     //if(display == 1)DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<< A_B1R0[ma_tmp]<<"\n";					
                     //if(display == 1)DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<< A_B1R1[ma_tmp]<<"\n";					
                     //if(display == 1)DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<< A_B1R2[ma_tmp]<<"\n";					
@@ -15191,7 +15100,7 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 					MulMod(A_B1R13[ma_tmp],A_B1R13[ma_tmp],factor_13t,p);
 					MulMod(A_B1R14[ma_tmp],A_B1R14[ma_tmp],factor_14t,p);
 					MulMod(A_B1R15[ma_tmp],A_B1R15[ma_tmp],factor_15t,p);
-                    if(display == 1)DATARECORD <<" After multiplication!!!\n";					
+                    //if(display == 1)DATARECORD <<" After multiplication!!!\n";					
                     //if(display == 1)DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<< A_B1R0[ma_tmp]<<"\n";					
                     //if(display == 1)DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<< A_B1R1[ma_tmp]<<"\n";					
                     //if(display == 1)DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<< A_B1R2[ma_tmp]<<"\n";					
@@ -15215,7 +15124,67 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
                     if((j >= 8)  && (j < 10))bn1_ma_reg5 = ma_tmp;
                     if((j >= 10) && (j < 12))bn1_ma_reg6 = ma_tmp;
                     if((j >= 12) && (j < 14))bn1_ma_reg7 = ma_tmp;
-                    if((j >= 14) && (j < 16))bn1_ma_reg8 = ma_tmp;					
+                    if((j >= 14) && (j < 16))bn1_ma_reg8 = ma_tmp;
+					//----------------DTFAG golden pattern------------------
+					switch(s){
+						case 0:
+							DTFAG_golden_st0 << 1 		  << " \n ";
+							DTFAG_golden_st0 << factor_t  << " \n ";
+							DTFAG_golden_st0 << factor_2t << " \n ";
+							DTFAG_golden_st0 << factor_3t << " \n ";
+							DTFAG_golden_st0 << factor_4t << " \n ";
+							DTFAG_golden_st0 << factor_5t  << " \n ";
+							DTFAG_golden_st0 << factor_6t << " \n ";
+							DTFAG_golden_st0 << factor_7t << " \n ";
+							DTFAG_golden_st0 << factor_8t << " \n ";
+							DTFAG_golden_st0 << factor_9t  << " \n ";
+							DTFAG_golden_st0 << factor_10t << " \n ";
+							DTFAG_golden_st0 << factor_11t << " \n ";
+							DTFAG_golden_st0 << factor_12t << " \n ";
+							DTFAG_golden_st0 << factor_13t  << " \n ";
+							DTFAG_golden_st0 << factor_14t << " \n ";
+							DTFAG_golden_st0 << factor_15t << " \n ";
+							break;
+						case 1:
+							DTFAG_golden_st1 << 1 		  << " \n ";
+							DTFAG_golden_st1 << factor_t  << " \n ";
+							DTFAG_golden_st1 << factor_2t << " \n ";
+							DTFAG_golden_st1 << factor_3t << " \n ";
+							DTFAG_golden_st1 << factor_4t << " \n ";
+							DTFAG_golden_st1 << factor_5t  << " \n ";
+							DTFAG_golden_st1 << factor_6t << " \n ";
+							DTFAG_golden_st1 << factor_7t << " \n ";
+							DTFAG_golden_st1 << factor_8t << " \n ";
+							DTFAG_golden_st1 << factor_9t  << " \n ";
+							DTFAG_golden_st1 << factor_10t << " \n ";
+							DTFAG_golden_st1 << factor_11t << " \n ";
+							DTFAG_golden_st1 << factor_12t << " \n ";
+							DTFAG_golden_st1 << factor_13t  << " \n ";
+							DTFAG_golden_st1 << factor_14t << " \n ";
+							DTFAG_golden_st1 << factor_15t << " \n ";
+							break;
+						case 2:
+							DTFAG_golden_st2 << 1 		  << " \n ";
+							DTFAG_golden_st2 << factor_t  << " \n ";
+							DTFAG_golden_st2 << factor_2t << " \n ";
+							DTFAG_golden_st2 << factor_3t << " \n ";
+							DTFAG_golden_st2 << factor_4t << " \n ";
+							DTFAG_golden_st2 << factor_5t  << " \n ";
+							DTFAG_golden_st2 << factor_6t << " \n ";
+							DTFAG_golden_st2 << factor_7t << " \n ";
+							DTFAG_golden_st2 << factor_8t << " \n ";
+							DTFAG_golden_st2 << factor_9t  << " \n ";
+							DTFAG_golden_st2 << factor_10t << " \n ";
+							DTFAG_golden_st2 << factor_11t << " \n ";
+							DTFAG_golden_st2 << factor_12t << " \n ";
+							DTFAG_golden_st2 << factor_13t  << " \n ";
+							DTFAG_golden_st2 << factor_14t << " \n ";
+							DTFAG_golden_st2 << factor_15t << " \n ";
+							break;
+						default:
+							break;
+					}
+					//--------------------------------------------------					
 				}
 			}
 		//data relocation
@@ -16687,8 +16656,8 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 	
 	std::cout << "radix-16 FFT computing over!!\n";
 		
-	if(display == 1)DATARECORD <<" ----------------------------------------------- \n";
-	if(display == 1)DATARECORD <<" Radix-8 FFT computing start!!! \n";
+	//if(display == 1)DATARECORD <<" ----------------------------------------------- \n";
+	//if(display == 1)DATARECORD <<" Radix-8 FFT computing start!!! \n";
 	
 	int    right_shift_bits;
 	double relocation_difference;
@@ -16702,84 +16671,84 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
         	BC_tmp  = j * group + gray_i;
 			RR_R16_R8(BC_tmp,right_shift_bits,BC);
         	AGU_R16(BC,bn_tmp,ma_tmp);
-			if(display == 1)DATARECORD <<" ----------------------------------------------- \n";
-			if(display == 1)DATARECORD <<"BC: "<< BC <<" \n";
-			if(display == 1)DATARECORD <<"bn_tmp: "<< bn_tmp <<" \n";
-			if(display == 1)DATARECORD <<"ma_tmp: "<< ma_tmp <<" \n";
+			//if(display == 1)DATARECORD <<" ----------------------------------------------- \n";
+			//if(display == 1)DATARECORD <<"BC: "<< BC <<" \n";
+			//if(display == 1)DATARECORD <<"bn_tmp: "<< bn_tmp <<" \n";
+			//if(display == 1)DATARECORD <<"ma_tmp: "<< ma_tmp <<" \n";
         	if(bn_tmp == 0){
-                if(display == 1)DATARECORD <<" Before radix-8 BU operation!! \n";					
-                if(display == 1)DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<< A_B0R0[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<< A_B0R1[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<< A_B0R2[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<< A_B0R3[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R4["<<ma_tmp<<"]: "<< A_B0R4[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R5["<<ma_tmp<<"]: "<< A_B0R5[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R6["<<ma_tmp<<"]: "<< A_B0R6[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R7["<<ma_tmp<<"]: "<< A_B0R7[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R8["<<ma_tmp<<"]: "<< A_B0R8[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R9["<<ma_tmp<<"]: "<< A_B0R9[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R10["<<ma_tmp<<"]: "<< A_B0R10[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R11["<<ma_tmp<<"]: "<< A_B0R11[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R12["<<ma_tmp<<"]: "<< A_B0R12[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<< A_B0R13[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<< A_B0R14[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<< A_B0R15[ma_tmp]<<"\n";
+                //if(display == 1)DATARECORD <<" Before radix-8 BU operation!! \n";					
+                //if(display == 1)DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<< A_B0R0[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<< A_B0R1[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<< A_B0R2[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<< A_B0R3[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R4["<<ma_tmp<<"]: "<< A_B0R4[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R5["<<ma_tmp<<"]: "<< A_B0R5[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R6["<<ma_tmp<<"]: "<< A_B0R6[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R7["<<ma_tmp<<"]: "<< A_B0R7[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R8["<<ma_tmp<<"]: "<< A_B0R8[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R9["<<ma_tmp<<"]: "<< A_B0R9[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R10["<<ma_tmp<<"]: "<< A_B0R10[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R11["<<ma_tmp<<"]: "<< A_B0R11[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R12["<<ma_tmp<<"]: "<< A_B0R12[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<< A_B0R13[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<< A_B0R14[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<< A_B0R15[ma_tmp]<<"\n";
                 Radix8_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp],A_B0R4[ma_tmp],A_B0R5[ma_tmp],A_B0R6[ma_tmp],A_B0R7[ma_tmp]);
         		Radix8_BU(A_B0R8[ma_tmp],A_B0R9[ma_tmp],A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],A_B0R15[ma_tmp]);
-                if(display == 1)DATARECORD <<"After radix-8 BU operation!! \n";					
-                if(display == 1)DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<< A_B0R0[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<< A_B0R1[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<< A_B0R2[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<< A_B0R3[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R4["<<ma_tmp<<"]: "<< A_B0R4[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R5["<<ma_tmp<<"]: "<< A_B0R5[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R6["<<ma_tmp<<"]: "<< A_B0R6[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R7["<<ma_tmp<<"]: "<< A_B0R7[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R8["<<ma_tmp<<"]: "<< A_B0R8[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R9["<<ma_tmp<<"]: "<< A_B0R9[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R10["<<ma_tmp<<"]: "<< A_B0R10[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R11["<<ma_tmp<<"]: "<< A_B0R11[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R12["<<ma_tmp<<"]: "<< A_B0R12[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<< A_B0R13[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<< A_B0R14[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<< A_B0R15[ma_tmp]<<"\n";						 
+                //if(display == 1)DATARECORD <<"After radix-8 BU operation!! \n";					
+                //if(display == 1)DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<< A_B0R0[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<< A_B0R1[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<< A_B0R2[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<< A_B0R3[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R4["<<ma_tmp<<"]: "<< A_B0R4[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R5["<<ma_tmp<<"]: "<< A_B0R5[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R6["<<ma_tmp<<"]: "<< A_B0R6[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R7["<<ma_tmp<<"]: "<< A_B0R7[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R8["<<ma_tmp<<"]: "<< A_B0R8[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R9["<<ma_tmp<<"]: "<< A_B0R9[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R10["<<ma_tmp<<"]: "<< A_B0R10[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R11["<<ma_tmp<<"]: "<< A_B0R11[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R12["<<ma_tmp<<"]: "<< A_B0R12[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<< A_B0R13[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<< A_B0R14[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<< A_B0R15[ma_tmp]<<"\n";						 
         	}else {
-                if(display == 1)DATARECORD <<"Before radix-8 BU operation!! \n";					
-                if(display == 1)DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<< A_B1R0[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<< A_B1R1[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<< A_B1R2[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<< A_B1R3[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R4["<<ma_tmp<<"]: "<< A_B1R4[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R5["<<ma_tmp<<"]: "<< A_B1R5[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R6["<<ma_tmp<<"]: "<< A_B1R6[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R7["<<ma_tmp<<"]: "<< A_B1R7[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R8["<<ma_tmp<<"]: "<< A_B1R8[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R9["<<ma_tmp<<"]: "<< A_B1R9[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R10["<<ma_tmp<<"]: "<< A_B1R10[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R11["<<ma_tmp<<"]: "<< A_B1R11[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R12["<<ma_tmp<<"]: "<< A_B1R12[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R13["<<ma_tmp<<"]: "<< A_B1R13[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<< A_B1R14[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<< A_B1R15[ma_tmp]<<"\n";				
+                //if(display == 1)DATARECORD <<"Before radix-8 BU operation!! \n";					
+                //if(display == 1)DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<< A_B1R0[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<< A_B1R1[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<< A_B1R2[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<< A_B1R3[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R4["<<ma_tmp<<"]: "<< A_B1R4[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R5["<<ma_tmp<<"]: "<< A_B1R5[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R6["<<ma_tmp<<"]: "<< A_B1R6[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R7["<<ma_tmp<<"]: "<< A_B1R7[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R8["<<ma_tmp<<"]: "<< A_B1R8[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R9["<<ma_tmp<<"]: "<< A_B1R9[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R10["<<ma_tmp<<"]: "<< A_B1R10[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R11["<<ma_tmp<<"]: "<< A_B1R11[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R12["<<ma_tmp<<"]: "<< A_B1R12[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R13["<<ma_tmp<<"]: "<< A_B1R13[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<< A_B1R14[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<< A_B1R15[ma_tmp]<<"\n";				
         	    Radix8_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp],A_B1R4[ma_tmp],A_B1R5[ma_tmp],A_B1R6[ma_tmp],A_B1R7[ma_tmp]);
         	    Radix8_BU(A_B1R8[ma_tmp],A_B1R9[ma_tmp],A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],A_B1R15[ma_tmp]);
-                if(display == 1)DATARECORD <<"After radix-8 BU operation!! \n";					
-                if(display == 1)DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<< A_B1R0[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<< A_B1R1[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<< A_B1R2[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<< A_B1R3[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R4["<<ma_tmp<<"]: "<< A_B1R4[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R5["<<ma_tmp<<"]: "<< A_B1R5[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R6["<<ma_tmp<<"]: "<< A_B1R6[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R7["<<ma_tmp<<"]: "<< A_B1R7[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R8["<<ma_tmp<<"]: "<< A_B1R8[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R9["<<ma_tmp<<"]: "<< A_B1R9[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R10["<<ma_tmp<<"]: "<< A_B1R10[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R11["<<ma_tmp<<"]: "<< A_B1R11[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R12["<<ma_tmp<<"]: "<< A_B1R12[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R13["<<ma_tmp<<"]: "<< A_B1R13[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<< A_B1R14[ma_tmp]<<"\n";					
-                if(display == 1)DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<< A_B1R15[ma_tmp]<<"\n";							  
+                //if(display == 1)DATARECORD <<"After radix-8 BU operation!! \n";					
+                //if(display == 1)DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<< A_B1R0[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<< A_B1R1[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<< A_B1R2[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<< A_B1R3[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R4["<<ma_tmp<<"]: "<< A_B1R4[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R5["<<ma_tmp<<"]: "<< A_B1R5[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R6["<<ma_tmp<<"]: "<< A_B1R6[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R7["<<ma_tmp<<"]: "<< A_B1R7[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R8["<<ma_tmp<<"]: "<< A_B1R8[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R9["<<ma_tmp<<"]: "<< A_B1R9[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R10["<<ma_tmp<<"]: "<< A_B1R10[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R11["<<ma_tmp<<"]: "<< A_B1R11[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R12["<<ma_tmp<<"]: "<< A_B1R12[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R13["<<ma_tmp<<"]: "<< A_B1R13[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<< A_B1R14[ma_tmp]<<"\n";					
+                //if(display == 1)DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<< A_B1R15[ma_tmp]<<"\n";							  
         	}			
         }		
 	}
@@ -16837,8 +16806,8 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 			index_128_flag   = BC >> 3;
 			index_3_BITS_FLAG = BC % 8;
 			AGU_R16(BC,bn_tmp,ma_tmp);
-			if(display == 1)DATARECORD <<" bn_tmp:  "<< bn_tmp <<"\n";
-			if(display == 1)DATARECORD <<" ma_tmp:  "<< ma_tmp <<"\n";
+			//if(display == 1)DATARECORD <<" bn_tmp:  "<< bn_tmp <<"\n";
+			//if(display == 1)DATARECORD <<" ma_tmp:  "<< ma_tmp <<"\n";
 			index0_i  = index_128_flag * 128 + index_3_BITS_FLAG * 8 + 0;
 			index1_i  = index_128_flag * 128 + index_3_BITS_FLAG * 8 + 1;
 			index2_i  = index_128_flag * 128 + index_3_BITS_FLAG * 8 + 2;
@@ -16856,22 +16825,22 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 			index14_i = index_128_flag * 128 + index_3_BITS_FLAG * 8 + 70;
 			index15_i = index_128_flag * 128 + index_3_BITS_FLAG * 8 + 71;
 
-			if(display == 1)DATARECORD <<" index0_i:  "<< index0_i <<"\n";
-			if(display == 1)DATARECORD <<" index1_i:  "<< index1_i <<"\n";
-			if(display == 1)DATARECORD <<" index2_i:  "<< index2_i <<"\n";
-			if(display == 1)DATARECORD <<" index3_i:  "<< index3_i <<"\n";
-			if(display == 1)DATARECORD <<" index4_i:  "<< index4_i <<"\n";
-			if(display == 1)DATARECORD <<" index5_i:  "<< index5_i <<"\n";
-			if(display == 1)DATARECORD <<" index6_i:  "<< index6_i <<"\n";
-			if(display == 1)DATARECORD <<" index7_i:  "<< index7_i <<"\n";
-			if(display == 1)DATARECORD <<" index8_i:  "<< index8_i <<"\n";
-			if(display == 1)DATARECORD <<" index9_i:  "<< index9_i <<"\n";
-			if(display == 1)DATARECORD <<" index10_i: "<< index10_i <<"\n";
-			if(display == 1)DATARECORD <<" index11_i: "<< index11_i <<"\n";
-			if(display == 1)DATARECORD <<" index12_i: "<< index12_i <<"\n";
-			if(display == 1)DATARECORD <<" index13_i: "<< index13_i <<"\n";
-			if(display == 1)DATARECORD <<" index14_i: "<< index14_i <<"\n";
-			if(display == 1)DATARECORD <<" index15_i: "<< index15_i <<"\n";
+			//if(display == 1)DATARECORD <<" index0_i:  "<< index0_i <<"\n";
+			//if(display == 1)DATARECORD <<" index1_i:  "<< index1_i <<"\n";
+			//if(display == 1)DATARECORD <<" index2_i:  "<< index2_i <<"\n";
+			//if(display == 1)DATARECORD <<" index3_i:  "<< index3_i <<"\n";
+			//if(display == 1)DATARECORD <<" index4_i:  "<< index4_i <<"\n";
+			//if(display == 1)DATARECORD <<" index5_i:  "<< index5_i <<"\n";
+			//if(display == 1)DATARECORD <<" index6_i:  "<< index6_i <<"\n";
+			//if(display == 1)DATARECORD <<" index7_i:  "<< index7_i <<"\n";
+			//if(display == 1)DATARECORD <<" index8_i:  "<< index8_i <<"\n";
+			//if(display == 1)DATARECORD <<" index9_i:  "<< index9_i <<"\n";
+			//if(display == 1)DATARECORD <<" index10_i: "<< index10_i <<"\n";
+			//if(display == 1)DATARECORD <<" index11_i: "<< index11_i <<"\n";
+			//if(display == 1)DATARECORD <<" index12_i: "<< index12_i <<"\n";
+			//if(display == 1)DATARECORD <<" index13_i: "<< index13_i <<"\n";
+			//if(display == 1)DATARECORD <<" index14_i: "<< index14_i <<"\n";
+			//if(display == 1)DATARECORD <<" index15_i: "<< index15_i <<"\n";
             NTT_REORDERINDEX_R16_R8_OUT(index0_i,index0);			
             NTT_REORDERINDEX_R16_R8_OUT(index1_i,index1);			
             NTT_REORDERINDEX_R16_R8_OUT(index2_i,index2);			
@@ -16889,22 +16858,22 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
             NTT_REORDERINDEX_R16_R8_OUT(index14_i,index14);			
             NTT_REORDERINDEX_R16_R8_OUT(index15_i,index15);		
 
-            if(display == 1)DATARECORD <<" index0:  "<< index0 <<"\n";
-			if(display == 1)DATARECORD <<" index1:  "<< index1 <<"\n";
-			if(display == 1)DATARECORD <<" index2:  "<< index2 <<"\n";
-			if(display == 1)DATARECORD <<" index3:  "<< index3 <<"\n";
-			if(display == 1)DATARECORD <<" index4:  "<< index4 <<"\n";
-			if(display == 1)DATARECORD <<" index5:  "<< index5 <<"\n";
-			if(display == 1)DATARECORD <<" index6:  "<< index6 <<"\n";
-			if(display == 1)DATARECORD <<" index7:  "<< index7 <<"\n";
-			if(display == 1)DATARECORD <<" index8:  "<< index8 <<"\n";
-			if(display == 1)DATARECORD <<" index9:  "<< index9 <<"\n";
-			if(display == 1)DATARECORD <<" index10: "<< index10 <<"\n";
-			if(display == 1)DATARECORD <<" index11: "<< index11 <<"\n";
-			if(display == 1)DATARECORD <<" index12: "<< index12 <<"\n";
-			if(display == 1)DATARECORD <<" index13: "<< index13 <<"\n";
-			if(display == 1)DATARECORD <<" index14: "<< index14 <<"\n";
-			if(display == 1)DATARECORD <<" index15: "<< index15 <<"\n";
+            //if(display == 1)DATARECORD <<" index0:  "<< index0 <<"\n";
+			//if(display == 1)DATARECORD <<" index1:  "<< index1 <<"\n";
+			//if(display == 1)DATARECORD <<" index2:  "<< index2 <<"\n";
+			//if(display == 1)DATARECORD <<" index3:  "<< index3 <<"\n";
+			//if(display == 1)DATARECORD <<" index4:  "<< index4 <<"\n";
+			//if(display == 1)DATARECORD <<" index5:  "<< index5 <<"\n";
+			//if(display == 1)DATARECORD <<" index6:  "<< index6 <<"\n";
+			//if(display == 1)DATARECORD <<" index7:  "<< index7 <<"\n";
+			//if(display == 1)DATARECORD <<" index8:  "<< index8 <<"\n";
+			//if(display == 1)DATARECORD <<" index9:  "<< index9 <<"\n";
+			//if(display == 1)DATARECORD <<" index10: "<< index10 <<"\n";
+			//if(display == 1)DATARECORD <<" index11: "<< index11 <<"\n";
+			//if(display == 1)DATARECORD <<" index12: "<< index12 <<"\n";
+			//if(display == 1)DATARECORD <<" index13: "<< index13 <<"\n";
+			//if(display == 1)DATARECORD <<" index14: "<< index14 <<"\n";
+			//if(display == 1)DATARECORD <<" index15: "<< index15 <<"\n";
 			
 			if(bn_tmp == 0){
                A[index0]  = A_B0R0[ma_tmp];
@@ -16923,22 +16892,22 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
 			   A[index13] = A_B0R13[ma_tmp];
 			   A[index14] = A_B0R14[ma_tmp];
 			   A[index15] = A_B0R15[ma_tmp];
-			   if(display == 1)DATARECORD << "A_B0R0[" << ma_tmp <<"]: "<< A_B0R0[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B0R1[" << ma_tmp <<"]: "<< A_B0R1[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B0R2[" << ma_tmp <<"]: "<< A_B0R2[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B0R3[" << ma_tmp <<"]: "<< A_B0R3[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B0R4[" << ma_tmp <<"]: "<< A_B0R4[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B0R5[" << ma_tmp <<"]: "<< A_B0R5[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B0R6[" << ma_tmp <<"]: "<< A_B0R6[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B0R7[" << ma_tmp <<"]: "<< A_B0R7[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B0R8[" << ma_tmp <<"]: "<< A_B0R8[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B0R9[" << ma_tmp <<"]: "<< A_B0R9[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B0R10[" << ma_tmp <<"]: "<< A_B0R10[ma_tmp] << "\n";					
-			   if(display == 1)DATARECORD << "A_B0R11[" << ma_tmp <<"]: "<< A_B0R11[ma_tmp] << "\n";					
-			   if(display == 1)DATARECORD << "A_B0R12[" << ma_tmp <<"]: "<< A_B0R12[ma_tmp] << "\n";					
-			   if(display == 1)DATARECORD << "A_B0R13[" << ma_tmp <<"]: "<< A_B0R13[ma_tmp] << "\n";					
-			   if(display == 1)DATARECORD << "A_B0R14[" << ma_tmp <<"]: "<< A_B0R14[ma_tmp] << "\n";					
-			   if(display == 1)DATARECORD << "A_B0R15[" << ma_tmp <<"]: "<< A_B0R15[ma_tmp] <<"\n";
+			   //if(display == 1)DATARECORD << "A_B0R0[" << ma_tmp <<"]: "<< A_B0R0[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B0R1[" << ma_tmp <<"]: "<< A_B0R1[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B0R2[" << ma_tmp <<"]: "<< A_B0R2[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B0R3[" << ma_tmp <<"]: "<< A_B0R3[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B0R4[" << ma_tmp <<"]: "<< A_B0R4[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B0R5[" << ma_tmp <<"]: "<< A_B0R5[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B0R6[" << ma_tmp <<"]: "<< A_B0R6[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B0R7[" << ma_tmp <<"]: "<< A_B0R7[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B0R8[" << ma_tmp <<"]: "<< A_B0R8[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B0R9[" << ma_tmp <<"]: "<< A_B0R9[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B0R10[" << ma_tmp <<"]: "<< A_B0R10[ma_tmp] << "\n";					
+			   //if(display == 1)DATARECORD << "A_B0R11[" << ma_tmp <<"]: "<< A_B0R11[ma_tmp] << "\n";					
+			   //if(display == 1)DATARECORD << "A_B0R12[" << ma_tmp <<"]: "<< A_B0R12[ma_tmp] << "\n";					
+			   //if(display == 1)DATARECORD << "A_B0R13[" << ma_tmp <<"]: "<< A_B0R13[ma_tmp] << "\n";					
+			   //if(display == 1)DATARECORD << "A_B0R14[" << ma_tmp <<"]: "<< A_B0R14[ma_tmp] << "\n";					
+			   //if(display == 1)DATARECORD << "A_B0R15[" << ma_tmp <<"]: "<< A_B0R15[ma_tmp] <<"\n";
 			}
 			else {
                A[index0]     = A_B1R0[ma_tmp];
@@ -16957,22 +16926,22 @@ std::vector<ZZ> &B1R12,std::vector<ZZ> &B1R13,std::vector<ZZ> &B1R14,std::vector
                A[index13]    = A_B1R13[ma_tmp];
                A[index14]    = A_B1R14[ma_tmp];
                A[index15]    = A_B1R15[ma_tmp];
-			   if(display == 1)DATARECORD << "A_B1R0[" << ma_tmp <<"]: "<< A_B1R0[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B1R1[" << ma_tmp <<"]: "<< A_B1R1[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B1R2[" << ma_tmp <<"]: "<< A_B1R2[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B1R3[" << ma_tmp <<"]: "<< A_B1R3[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B1R4[" << ma_tmp <<"]: "<< A_B1R4[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B1R5[" << ma_tmp <<"]: "<< A_B1R5[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B1R6[" << ma_tmp <<"]: "<< A_B1R6[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B1R7[" << ma_tmp <<"]: "<< A_B1R7[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B1R8[" << ma_tmp <<"]: "<< A_B1R8[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B1R9[" << ma_tmp <<"]: "<< A_B1R9[ma_tmp] << "\n";
-			   if(display == 1)DATARECORD << "A_B1R10[" << ma_tmp <<"]: "<< A_B1R10[ma_tmp] << "\n";					
-			   if(display == 1)DATARECORD << "A_B1R11[" << ma_tmp <<"]: "<< A_B1R11[ma_tmp] << "\n";					
-			   if(display == 1)DATARECORD << "A_B1R12[" << ma_tmp <<"]: "<< A_B1R12[ma_tmp] << "\n";					
-			   if(display == 1)DATARECORD << "A_B1R13[" << ma_tmp <<"]: "<< A_B1R13[ma_tmp] << "\n";					
-			   if(display == 1)DATARECORD << "A_B1R14[" << ma_tmp <<"]: "<< A_B1R14[ma_tmp] << "\n";					
-			   if(display == 1)DATARECORD << "A_B1R15[" << ma_tmp <<"]: "<< A_B1R15[ma_tmp] <<"\n";			   
+			   //if(display == 1)DATARECORD << "A_B1R0[" << ma_tmp <<"]: "<< A_B1R0[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B1R1[" << ma_tmp <<"]: "<< A_B1R1[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B1R2[" << ma_tmp <<"]: "<< A_B1R2[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B1R3[" << ma_tmp <<"]: "<< A_B1R3[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B1R4[" << ma_tmp <<"]: "<< A_B1R4[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B1R5[" << ma_tmp <<"]: "<< A_B1R5[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B1R6[" << ma_tmp <<"]: "<< A_B1R6[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B1R7[" << ma_tmp <<"]: "<< A_B1R7[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B1R8[" << ma_tmp <<"]: "<< A_B1R8[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B1R9[" << ma_tmp <<"]: "<< A_B1R9[ma_tmp] << "\n";
+			   //if(display == 1)DATARECORD << "A_B1R10[" << ma_tmp <<"]: "<< A_B1R10[ma_tmp] << "\n";					
+			   //if(display == 1)DATARECORD << "A_B1R11[" << ma_tmp <<"]: "<< A_B1R11[ma_tmp] << "\n";					
+			   //if(display == 1)DATARECORD << "A_B1R12[" << ma_tmp <<"]: "<< A_B1R12[ma_tmp] << "\n";					
+			   //if(display == 1)DATARECORD << "A_B1R13[" << ma_tmp <<"]: "<< A_B1R13[ma_tmp] << "\n";					
+			   //if(display == 1)DATARECORD << "A_B1R14[" << ma_tmp <<"]: "<< A_B1R14[ma_tmp] << "\n";					
+			   //if(display == 1)DATARECORD << "A_B1R15[" << ma_tmp <<"]: "<< A_B1R15[ma_tmp] <<"\n";			   
 			}			
 		}		
 	}

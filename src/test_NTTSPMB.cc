@@ -22,7 +22,6 @@ NTL_CLIENT
 void test_NTTSPMB()
 {
   NTTSPMB test;
-  //NTTSPMB I_test;
   NTT     NTT_test;
   long difference_length;
   long difference_16;
@@ -39,27 +38,26 @@ void test_NTTSPMB()
   blue.N_ROU(tmp_prime, u_n, ROU);
   cout << "ROU = " << ROU << std::endl;
   //---------------------------------
-  
-  radix = 2;
+
+  radix = 16;
   ZZ fft_prime;
   ZZ fft_twiddle;
   ZZ fft_twiddle_16;
   ZZ fft_IW;
   ZZ fft_twiddle_65536;
   
-  fft_point         = 16;//16
+  fft_point         = 65536;//16
   difference_length = 65536 / fft_point;
   difference_16     = fft_point / 16;
   band_memory_size  = fft_point / 32;
   conv(fft_prime,"18446744069414584321");
   conv(fft_twiddle_65536,"14603442835287214144");  //65536-th twiddle factor
   //-------test--------
-  //conv(fft_prime,"97");
+  //conv(fft_prime,"197");
   //conv(fft_twiddle_65536,"8");  //65536-th twiddle factor
   //-------------------
   
   PowerMod(fft_twiddle,fft_twiddle_65536,difference_length,fft_prime);
-  //PowerMod(fft_twiddle_16,fft_twiddle,difference_16,fft_prime);
   std::cout << "difference_length = " << difference_length << ", fft_twiddle = " << fft_twiddle << std::endl;
    
   InvMod(fft_IW,fft_twiddle,fft_prime);
@@ -69,8 +67,7 @@ void test_NTTSPMB()
   test.init(fft_point,fft_prime,fft_twiddle,radix);
   NTT_test.NTT_init(fft_point,fft_prime,fft_twiddle);
   //----
-  //test.init(fft_point,fft_prime,fft_twiddle,radix);
-  //NTT_test.NTT_init(fft_point,fft_prime,fft_twiddle);
+
   std::vector<ZZ> A;
   std::vector<ZZ> A_1;
   std::vector<ZZ> A_NTT_B0R0;
@@ -115,30 +112,55 @@ void test_NTTSPMB()
 		  A[i]   = i;
 		  A_1[i] = i;
   }
+
+  switch(fft_point){
+    case 65536:
+      test.NTT_radix16(A);
+      break;
+    case 32768:
+      test.NTT_r16_r8(A,A_NTT_B0R0,A_NTT_B0R1,A_NTT_B0R2,A_NTT_B0R3,
+			    A_NTT_B0R4,A_NTT_B0R5,A_NTT_B0R6,A_NTT_B0R7,
+                  A_NTT_B0R8,A_NTT_B0R9,A_NTT_B0R10,A_NTT_B0R11,
+                  A_NTT_B0R12,A_NTT_B0R13,A_NTT_B0R14,A_NTT_B0R15,
+                  A_NTT_B1R0,A_NTT_B1R1,A_NTT_B1R2,A_NTT_B1R3,
+				A_NTT_B1R4,A_NTT_B1R5,A_NTT_B1R6,A_NTT_B1R7,
+                  A_NTT_B1R8,A_NTT_B1R9,A_NTT_B1R10,A_NTT_B1R11,
+				A_NTT_B1R12,A_NTT_B1R13,A_NTT_B1R14,A_NTT_B1R15);
+      break;
+    case 16384:
+      test.NTT_r16_r4(A,A_NTT_B0R0,A_NTT_B0R1,A_NTT_B0R2,A_NTT_B0R3,
+			    A_NTT_B0R4,A_NTT_B0R5,A_NTT_B0R6,A_NTT_B0R7,
+                  A_NTT_B0R8,A_NTT_B0R9,A_NTT_B0R10,A_NTT_B0R11,
+                  A_NTT_B0R12,A_NTT_B0R13,A_NTT_B0R14,A_NTT_B0R15,
+                  A_NTT_B1R0,A_NTT_B1R1,A_NTT_B1R2,A_NTT_B1R3,
+				A_NTT_B1R4,A_NTT_B1R5,A_NTT_B1R6,A_NTT_B1R7,
+                  A_NTT_B1R8,A_NTT_B1R9,A_NTT_B1R10,A_NTT_B1R11,
+				A_NTT_B1R12,A_NTT_B1R13,A_NTT_B1R14,A_NTT_B1R15);
+      break;
+    case 8192:
+      test.NTT_r16_r2(A,A_NTT_B0R0,A_NTT_B0R1,A_NTT_B0R2,A_NTT_B0R3,
+			    A_NTT_B0R4,A_NTT_B0R5,A_NTT_B0R6,A_NTT_B0R7,
+                  A_NTT_B0R8,A_NTT_B0R9,A_NTT_B0R10,A_NTT_B0R11,
+                  A_NTT_B0R12,A_NTT_B0R13,A_NTT_B0R14,A_NTT_B0R15,
+                  A_NTT_B1R0,A_NTT_B1R1,A_NTT_B1R2,A_NTT_B1R3,
+				A_NTT_B1R4,A_NTT_B1R5,A_NTT_B1R6,A_NTT_B1R7,
+                  A_NTT_B1R8,A_NTT_B1R9,A_NTT_B1R10,A_NTT_B1R11,
+				A_NTT_B1R12,A_NTT_B1R13,A_NTT_B1R14,A_NTT_B1R15);
+      break;
+    case 256:
+      test.NTT_radix4(A);
+      break;
+    case 128:
+      test.NTT_r4_r2(A,A_NTT_B0R0,A_NTT_B0R1,A_NTT_B0R2,A_NTT_B0R3,
+              A_NTT_B1R0,A_NTT_B1R1,A_NTT_B1R2,A_NTT_B1R3);
+      break;
+    case 16:
+      test.NTT_radix2(A);
+      break;
+  }
   
     //multipler
-  //test.NTT_r16_r8(A_1,A_1_NTT_B0R0,A_1_NTT_B0R1,A_1_NTT_B0R2,A_1_NTT_B0R3,
-  //                  A_1_NTT_B0R4,A_1_NTT_B0R5,A_1_NTT_B0R6,A_1_NTT_B0R7,
-  //                  A_1_NTT_B0R8,A_1_NTT_B0R9,A_1_NTT_B0R10,A_1_NTT_B0R11,
-  //                  A_1_NTT_B0R12,A_1_NTT_B0R13,A_1_NTT_B0R14,A_1_NTT_B0R15,
-  //                  A_1_NTT_B1R0,A_1_NTT_B1R1,A_1_NTT_B1R2,A_1_NTT_B1R3,
-  //                  A_1_NTT_B1R4,A_1_NTT_B1R5,A_1_NTT_B1R6,A_1_NTT_B1R7,
-  //                  A_1_NTT_B1R8,A_1_NTT_B1R9,A_1_NTT_B1R10,A_1_NTT_B1R11,
-  //                  A_1_NTT_B1R12,A_1_NTT_B1R13,A_1_NTT_B1R14,A_1_NTT_B1R15);
   NTT_test.NTT_t(A_1);
-  
-  /*test.NTT_r16_r4(A,A_NTT_B0R0,A_NTT_B0R1,A_NTT_B0R2,A_NTT_B0R3,
-				    A_NTT_B0R4,A_NTT_B0R5,A_NTT_B0R6,A_NTT_B0R7,
-                    A_NTT_B0R8,A_NTT_B0R9,A_NTT_B0R10,A_NTT_B0R11,
-                    A_NTT_B0R12,A_NTT_B0R13,A_NTT_B0R14,A_NTT_B0R15,
-                    A_NTT_B1R0,A_NTT_B1R1,A_NTT_B1R2,A_NTT_B1R3,
-					A_NTT_B1R4,A_NTT_B1R5,A_NTT_B1R6,A_NTT_B1R7,
-                    A_NTT_B1R8,A_NTT_B1R9,A_NTT_B1R10,A_NTT_B1R11,
-					A_NTT_B1R12,A_NTT_B1R13,A_NTT_B1R14,A_NTT_B1R15);*/
-
-  //test.NTT_radix16(A);
-  //test.NTT_radix4(A);
-  test.NTT_radix2(A);
   
   std::ofstream A_o("./A_output.txt");
   std::ofstream A_1_o("./A_1_output.txt");
@@ -164,16 +186,18 @@ void test_NTTSPMB()
   std::cout << "------------------------------\n";
   std::cout << " INTT Start!!                 \n";
 
-  /*test.INTT_r16_r4(A,A_NTT_B0R0,A_NTT_B0R1,A_NTT_B0R2,A_NTT_B0R3,
-				     A_NTT_B0R4,A_NTT_B0R5,A_NTT_B0R6,A_NTT_B0R7,
-                     A_NTT_B0R8,A_NTT_B0R9,A_NTT_B0R10,A_NTT_B0R11,
-                     A_NTT_B0R12,A_NTT_B0R13,A_NTT_B0R14,A_NTT_B0R15,
-                     A_NTT_B1R0,A_NTT_B1R1,A_NTT_B1R2,A_NTT_B1R3,
-				     A_NTT_B1R4,A_NTT_B1R5,A_NTT_B1R6,A_NTT_B1R7,
-                     A_NTT_B1R8,A_NTT_B1R9,A_NTT_B1R10,A_NTT_B1R11,
-				     A_NTT_B1R12,A_NTT_B1R13,A_NTT_B1R14,A_NTT_B1R15);*/
+  //test.INTT_r16_r2(A,A_NTT_B0R0,A_NTT_B0R1,A_NTT_B0R2,A_NTT_B0R3,
+	//			     A_NTT_B0R4,A_NTT_B0R5,A_NTT_B0R6,A_NTT_B0R7,
+  //                   A_NTT_B0R8,A_NTT_B0R9,A_NTT_B0R10,A_NTT_B0R11,
+  //                   A_NTT_B0R12,A_NTT_B0R13,A_NTT_B0R14,A_NTT_B0R15,
+  //                   A_NTT_B1R0,A_NTT_B1R1,A_NTT_B1R2,A_NTT_B1R3,
+	//			     A_NTT_B1R4,A_NTT_B1R5,A_NTT_B1R6,A_NTT_B1R7,
+  //                   A_NTT_B1R8,A_NTT_B1R9,A_NTT_B1R10,A_NTT_B1R11,
+	//			     A_NTT_B1R12,A_NTT_B1R13,A_NTT_B1R14,A_NTT_B1R15);
   
   //test.NTT_radix16(A);
+  /*test.INTT_r4_r2(A,A_NTT_B0R0,A_NTT_B0R1,A_NTT_B0R2,A_NTT_B0R3,
+                A_NTT_B1R0,A_NTT_B1R1,A_NTT_B1R2,A_NTT_B1R3);*/
   
   for(int i = 0; i < fft_point;i++){
 	A_INTT_o << A[i];  
