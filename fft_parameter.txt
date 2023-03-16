@@ -1,8 +1,0 @@
----------------------------------
-fft_point: 16384
-radix: 16
-butterfly counter width: 10
-cyclotomic prime width: 22
-cyclotomic prime : 2146043
-m-th : 8191
-phi_m : 8190
