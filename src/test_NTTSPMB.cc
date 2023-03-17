@@ -39,14 +39,14 @@ void test_NTTSPMB()
   cout << "ROU = " << ROU << std::endl;
   //---------------------------------
 
-  radix = 4;
+  radix = 2;
   ZZ fft_prime;
   ZZ fft_twiddle;
   ZZ fft_twiddle_16;
   ZZ fft_IW;
   ZZ fft_twiddle_65536;
   
-  fft_point         = 256;//16
+  fft_point         = 16;//16
   difference_length = 65536 / fft_point;
   difference_16     = fft_point / 16;
   band_memory_size  = fft_point / 32;

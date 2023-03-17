@@ -52,3 +52,4 @@ clean:
 	rm -rf test_input/*.txt
 	rm -rf ROM_Data/*.txt
 	rm -rf my_print_data/*.txt
+	rm -rf SPMB_tw/*.txt

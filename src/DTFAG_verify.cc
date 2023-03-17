@@ -6,13 +6,9 @@ using namespace std;
 
 void DTFAG_verify(){
     //-------setting-------------
-    int radix_r1 = 4;
-    int radix_r2 = 4;
+    int radix_r1 = 2;
+    int radix_r2 = 2;
     int Tw_display = 2;
-    int MixedRadix = 1;
-    if(!MixedRadix){
-        //radix_r2 = radix_r1;
-    }
     //---------------------------
 
     ifstream DTFAG_pattern_Tw0;
@@ -20,16 +16,9 @@ void DTFAG_verify(){
     ifstream DTFAG_pattern_Tw2;
 
     //--------TestPattern fft point ---------------
-    if(MixedRadix){
-        DTFAG_pattern_Tw0.open("./SPMB_tw/MixR_DTFAG_TestPattern_Tw0.txt");
-        DTFAG_pattern_Tw1.open("./SPMB_tw/MixR_DTFAG_TestPattern_Tw1.txt");
-        DTFAG_pattern_Tw2.open("./SPMB_tw/MixR_DTFAG_TestPattern_Tw2.txt");
-    }else{
-        DTFAG_pattern_Tw0.open("./SPMB_tw/DTFAG_TestPattern_Tw0.txt");
-        DTFAG_pattern_Tw1.open("./SPMB_tw/DTFAG_TestPattern_Tw1.txt");
-        DTFAG_pattern_Tw2.open("./SPMB_tw/DTFAG_TestPattern_Tw2.txt");
-
-    } 
+    DTFAG_pattern_Tw0.open("./SPMB_tw/MixR_DTFAG_DIF_TestPattern_Tw0.txt");
+    DTFAG_pattern_Tw1.open("./SPMB_tw/MixR_DTFAG_DIF_TestPattern_Tw1.txt");
+    DTFAG_pattern_Tw2.open("./SPMB_tw/MixR_DTFAG_DIF_TestPattern_Tw2.txt");
     //-----------------------------------------
 
     ifstream DTFAG_golden_st0;

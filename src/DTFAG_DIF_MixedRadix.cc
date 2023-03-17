@@ -5,15 +5,15 @@
 
 using namespace std;
 
-vector<int> DecToBin_MixedRadix(int data, int bit_width);
-int VecToInt_MixedRadix(vector<int > bit_array, int N);
-int number_complement_MixedRadix(int i, int radix_r1);
+vector<int> DIF_DecToBin_MixedRadix(int data, int bit_width);
+int DIF_VecToInt_MixedRadix(vector<int > bit_array, int N);
+int DIF_number_complement_MixedRadix(int i, int radix_r1);
 
 
 void DTFAG_DIF_MixedRadix () {
     //------- radix sel-----
-    int radix_r1 = 4;
-    int radix_r2 = 4;
+    int radix_r1 = 2;
+    int radix_r2 = 2;
     unsigned long fft_point = pow(radix_r1, 3) * radix_r2;
     ZZ fft_prime ;
     ZZ fft_twiddle_65536 ;
@@ -56,11 +56,11 @@ void DTFAG_DIF_MixedRadix () {
 
     NTTSPMB NTTSPMB;
     std::ofstream DTFAG_DIF_MixedRadix("./my_print_data/DTFAG_DIF_MixedRadix.txt");
-    std::ofstream DTFAG_TestPattern_Tw0("./SPMB_tw/MixR_DTFAG_TestPattern_Tw0.txt");
-    std::ofstream DTFAG_TestPattern_Tw1("./SPMB_tw/MixR_DTFAG_TestPattern_Tw1.txt");
-    std::ofstream DTFAG_TestPattern_Tw2("./SPMB_tw/MixR_DTFAG_TestPattern_Tw2.txt");
+    std::ofstream DTFAG_TestPattern_Tw0("./SPMB_tw/MixR_DTFAG_DIF_TestPattern_Tw0.txt");
+    std::ofstream DTFAG_TestPattern_Tw1("./SPMB_tw/MixR_DTFAG_DIF_TestPattern_Tw1.txt");
+    std::ofstream DTFAG_TestPattern_Tw2("./SPMB_tw/MixR_DTFAG_DIF_TestPattern_Tw2.txt");
     //---------------ZZ to hex-----------------
-    std::ofstream hex_DTFAG_MixedRadix("./SPMB_tw/hex_DTFAG_MixedRadix.txt");
+    std::ofstream hex_DTFAG_MixedRadix("./SPMB_tw/hex_DTFAG_DIF_MixedRadix.txt");
     //-----------------------------------------
 
     int Tw2_display = 0;
@@ -141,7 +141,7 @@ void DTFAG_DIF_MixedRadix () {
                 MA1 = NTTSPMB.Gray(i,radix_r1);
                 DTFAG_DIF_MixedRadix << "      MA1 = " << MA1 << endl;
                 if(i % 2 == 1){
-                    int t_complement = number_complement_MixedRadix(t, radix_r1);
+                    int t_complement = DIF_number_complement_MixedRadix(t, radix_r1);
                     MA2 = NTTSPMB.Gray(t_complement,radix_r1);
                     DTFAG_DIF_MixedRadix << "      MA2 : " << MA2 << " = " << "G(" << t_complement << ")"<< endl; 
                 }else{
@@ -281,7 +281,7 @@ void DTFAG_DIF_MixedRadix () {
     }
 }
 
-int number_complement_MixedRadix(int i, int radix_r1){
+int DIF_number_complement_MixedRadix(int i, int radix_r1){
     
     vector<int > i_complement_array;
     int i_complement;
@@ -290,7 +290,7 @@ int number_complement_MixedRadix(int i, int radix_r1){
 
     //cout << "i = " << i << endl;
 
-    vector<int > i_array = DecToBin_MixedRadix(i, bit_width);
+    vector<int > i_array = DIF_DecToBin_MixedRadix(i, bit_width);
     int tmp;
     for(int i=0; i<bit_width; i++){
         tmp = i_array[i];
@@ -300,20 +300,20 @@ int number_complement_MixedRadix(int i, int radix_r1){
             i_complement_array[i] = 1;
         }
     }
-    i_complement = VecToInt_MixedRadix(i_complement_array, radix_r1);
+    i_complement = DIF_VecToInt_MixedRadix(i_complement_array, radix_r1);
 
     //cout << "i_complement = " << i_complement << endl;
     return i_complement;
 }
 
-vector<int> DecToBin_MixedRadix(int data, int bit_width){
+vector<int> DIF_DecToBin_MixedRadix(int data, int bit_width){
     vector<int> BinVec(bit_width);
     for(int j=0; j<bit_width; j++){
         BinVec.at(j) = (data >> j) & 1;
     }
     return BinVec;
 }
-int VecToInt_MixedRadix(vector<int > bit_array, int N){
+int DIF_VecToInt_MixedRadix(vector<int > bit_array, int N){
     int bit_width = (int)ceil(log2(N));
     int integer = 0;
     for(int j=0; j < bit_width; j++){
