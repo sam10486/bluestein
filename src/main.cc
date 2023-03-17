@@ -1,14 +1,14 @@
 #include <iostream>
 #include "NTT.h"
 #include "NTTSPMB.h"
-#include "DTFAG.h"
+#include "DTFAG_DIT.h"
 
 void test_NTTSPMB();
 void my_test(int argc, char *argv[]);
 void DTFAG_verify();
 void DTFAG_test();
 void DTFAG_DIF();
-void DTFAG_MixedRadix();
+void DTFAG_DIF_MixedRadix();
 
 using namespace std;
 
@@ -23,11 +23,11 @@ int main(int argc, char *argv[]){
         cout << "+----------------------------+----------------------------+" << endl;
         cout << "| 1. test_NTTSPMB            | test-NTTSPMB.cc            |" << endl;
         cout << "| 2. my_test                 | my_test.cpp                |" << endl;
-        cout << "| 3. DTFAG                   | DTFAG.cpp                  |" << endl;
+        cout << "| 3. DTFAG_DIT               | DTFAG_DIT.cpp              |" << endl;
         cout << "| 4. DTFAG_verify            | DTFAG_verify.cpp           |" << endl;
         cout << "| 5. DTFAG_test              | DTFAG_test.cpp             |" << endl;
         cout << "| 6. DTFAG_DIF               | DTFAG_DIF.cpp              |" << endl;
-        cout << "| 7. DTFAG_MixedRadix        | DTFAG_MixedRadix.cpp       |" << endl;
+        cout << "| 7. DTFAG_DIF_MixedRadix    | DTFAG_DIF_MixedRadix.cpp   |" << endl;
         cout << "+----------------------------+----------------------------+" << endl;
 
         int input_parameter = 7;
@@ -72,7 +72,7 @@ int main(int argc, char *argv[]){
                 my_test(argc, argv);
                 break;
             case 3:
-                DTFAG(fft_prime, fft_twiddle);
+                DTFAG_DIT(fft_prime, fft_twiddle);
                 break;
             case 4:
                 DTFAG_verify();
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]){
                 DTFAG_DIF();
                 break;
             case 7:
-                DTFAG_MixedRadix();
+                DTFAG_DIF_MixedRadix();
                 break;    
             case 0:
                 return 0;

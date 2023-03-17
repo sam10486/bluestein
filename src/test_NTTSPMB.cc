@@ -39,14 +39,14 @@ void test_NTTSPMB()
   cout << "ROU = " << ROU << std::endl;
   //---------------------------------
 
-  radix = 16;
+  radix = 4;
   ZZ fft_prime;
   ZZ fft_twiddle;
   ZZ fft_twiddle_16;
   ZZ fft_IW;
   ZZ fft_twiddle_65536;
   
-  fft_point         = 65536;//16
+  fft_point         = 256;//16
   difference_length = 65536 / fft_point;
   difference_16     = fft_point / 16;
   band_memory_size  = fft_point / 32;
@@ -186,19 +186,46 @@ void test_NTTSPMB()
   std::cout << "------------------------------\n";
   std::cout << " INTT Start!!                 \n";
 
-  //test.INTT_r16_r2(A,A_NTT_B0R0,A_NTT_B0R1,A_NTT_B0R2,A_NTT_B0R3,
-	//			     A_NTT_B0R4,A_NTT_B0R5,A_NTT_B0R6,A_NTT_B0R7,
-  //                   A_NTT_B0R8,A_NTT_B0R9,A_NTT_B0R10,A_NTT_B0R11,
-  //                   A_NTT_B0R12,A_NTT_B0R13,A_NTT_B0R14,A_NTT_B0R15,
-  //                   A_NTT_B1R0,A_NTT_B1R1,A_NTT_B1R2,A_NTT_B1R3,
-	//			     A_NTT_B1R4,A_NTT_B1R5,A_NTT_B1R6,A_NTT_B1R7,
-  //                   A_NTT_B1R8,A_NTT_B1R9,A_NTT_B1R10,A_NTT_B1R11,
-	//			     A_NTT_B1R12,A_NTT_B1R13,A_NTT_B1R14,A_NTT_B1R15);
-  
-  //test.NTT_radix16(A);
-  /*test.INTT_r4_r2(A,A_NTT_B0R0,A_NTT_B0R1,A_NTT_B0R2,A_NTT_B0R3,
-                A_NTT_B1R0,A_NTT_B1R1,A_NTT_B1R2,A_NTT_B1R3);*/
-  
+  switch(fft_point){
+    case 32768:
+      test.INTT_r16_r8(A,A_NTT_B0R0,A_NTT_B0R1,A_NTT_B0R2,A_NTT_B0R3,
+    	    A_NTT_B0R4,A_NTT_B0R5,A_NTT_B0R6,A_NTT_B0R7,
+                  A_NTT_B0R8,A_NTT_B0R9,A_NTT_B0R10,A_NTT_B0R11,
+                  A_NTT_B0R12,A_NTT_B0R13,A_NTT_B0R14,A_NTT_B0R15,
+                  A_NTT_B1R0,A_NTT_B1R1,A_NTT_B1R2,A_NTT_B1R3,
+    		A_NTT_B1R4,A_NTT_B1R5,A_NTT_B1R6,A_NTT_B1R7,
+                  A_NTT_B1R8,A_NTT_B1R9,A_NTT_B1R10,A_NTT_B1R11,
+    		A_NTT_B1R12,A_NTT_B1R13,A_NTT_B1R14,A_NTT_B1R15);
+      break;
+    case 16384:
+      test.INTT_r16_r4(A,A_NTT_B0R0,A_NTT_B0R1,A_NTT_B0R2,A_NTT_B0R3,
+    	    A_NTT_B0R4,A_NTT_B0R5,A_NTT_B0R6,A_NTT_B0R7,
+                  A_NTT_B0R8,A_NTT_B0R9,A_NTT_B0R10,A_NTT_B0R11,
+                  A_NTT_B0R12,A_NTT_B0R13,A_NTT_B0R14,A_NTT_B0R15,
+                  A_NTT_B1R0,A_NTT_B1R1,A_NTT_B1R2,A_NTT_B1R3,
+    		A_NTT_B1R4,A_NTT_B1R5,A_NTT_B1R6,A_NTT_B1R7,
+                  A_NTT_B1R8,A_NTT_B1R9,A_NTT_B1R10,A_NTT_B1R11,
+    		A_NTT_B1R12,A_NTT_B1R13,A_NTT_B1R14,A_NTT_B1R15);
+      break;
+    case 8192:
+      test.INTT_r16_r2(A,A_NTT_B0R0,A_NTT_B0R1,A_NTT_B0R2,A_NTT_B0R3,
+    	    A_NTT_B0R4,A_NTT_B0R5,A_NTT_B0R6,A_NTT_B0R7,
+                  A_NTT_B0R8,A_NTT_B0R9,A_NTT_B0R10,A_NTT_B0R11,
+                  A_NTT_B0R12,A_NTT_B0R13,A_NTT_B0R14,A_NTT_B0R15,
+                  A_NTT_B1R0,A_NTT_B1R1,A_NTT_B1R2,A_NTT_B1R3,
+    		A_NTT_B1R4,A_NTT_B1R5,A_NTT_B1R6,A_NTT_B1R7,
+                  A_NTT_B1R8,A_NTT_B1R9,A_NTT_B1R10,A_NTT_B1R11,
+    		A_NTT_B1R12,A_NTT_B1R13,A_NTT_B1R14,A_NTT_B1R15);
+      break;
+    case 128:
+      test.INTT_r4_r2(A,A_NTT_B0R0,A_NTT_B0R1,A_NTT_B0R2,A_NTT_B0R3,
+              A_NTT_B1R0,A_NTT_B1R1,A_NTT_B1R2,A_NTT_B1R3);
+      break;
+    default:
+      cout << "NO INTT function exist!!" << std::endl;
+      break;
+}
+
   for(int i = 0; i < fft_point;i++){
 	A_INTT_o << A[i];  
 	A_INTT_o << "\n";  

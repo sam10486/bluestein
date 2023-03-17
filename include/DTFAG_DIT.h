@@ -7,7 +7,7 @@
 
 using namespace std;
 
-void DTFAG (ZZ P, ZZ W);
+void DTFAG_DIT (ZZ P, ZZ W);
 
 
 #endif

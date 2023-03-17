@@ -6,8 +6,8 @@ using namespace std;
 
 void DTFAG_verify(){
     //-------setting-------------
-    int radix_r1 = 16;
-    int radix_r2 = 16;
+    int radix_r1 = 4;
+    int radix_r2 = 4;
     int Tw_display = 2;
     int MixedRadix = 1;
     if(!MixedRadix){

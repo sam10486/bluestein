@@ -9,10 +9,10 @@ int VecToInt(vector<int > bit_array, int N);
 int number_complement(int i, int radix_r1);
 
 
-void DTFAG (ZZ P, ZZ W) {
+void DTFAG_DIT (ZZ P, ZZ W) {
     //------- radix sel-----
-    int radix_r1 = 4;
-    int radix_r2 = 4;
+    int radix_r1 = 16;
+    int radix_r2 = 16;
     //-----------------------
 
     int MA0 = 0;
@@ -33,7 +33,7 @@ void DTFAG (ZZ P, ZZ W) {
     Tw0.resize(radix_r1);
 
     NTTSPMB NTTSPMB;
-    std::ofstream DTFAG("./my_print_data/DTFAG.txt");
+    std::ofstream DTFAG_DIT("./my_print_data/DTFAG_DIT.txt");
     std::ofstream DTFAG_pattern_Tw0("./my_print_data/DTFAG_pattern_Tw0.txt");
     std::ofstream DTFAG_pattern_Tw1("./my_print_data/DTFAG_pattern_Tw1.txt");
     std::ofstream DTFAG_pattern_Tw2("./my_print_data/DTFAG_pattern_Tw2.txt");
@@ -94,9 +94,9 @@ void DTFAG (ZZ P, ZZ W) {
     //--------------------------------------------
 
 
-    DTFAG << "****************initial ROM********************" << endl;
+    DTFAG_DIT << "****************initial ROM********************" << endl;
     for(int n=0; n<radix_r1; n++){
-        DTFAG << "n = " << n << ", ROM0[" << n <<  "] = [";
+        DTFAG_DIT << "n = " << n << ", ROM0[" << n <<  "] = [";
         for(int k=0; k<radix_r1; k++){
             ZZ ROM0_dg; 
             ROM0_dg = (radix_r1 * radix_r1) * n * k;
@@ -104,13 +104,13 @@ void DTFAG (ZZ P, ZZ W) {
             //------------------addr-------------------
             if(Addr_display) ROM0[n][k] = (radix_r1 * radix_r1) * k * n;
             //------------------addr-------------------
-            DTFAG << ROM0[n][k] << ", ";
+            DTFAG_DIT << ROM0[n][k] << ", ";
         }
-        DTFAG << "]\n";
+        DTFAG_DIT << "]\n";
     }
-    DTFAG << "----------------------------------" << endl;
+    DTFAG_DIT << "----------------------------------" << endl;
     for(int group=0; group<radix_r1; group++){
-        DTFAG << "ROM1[" << group <<  "] = [";
+        DTFAG_DIT << "ROM1[" << group <<  "] = [";
         for(int n=0; n<radix_r1; n++){
             ZZ ROM1_dg;
             ROM1_dg = group * radix_r1 * n;
@@ -118,13 +118,13 @@ void DTFAG (ZZ P, ZZ W) {
             //------------------addr-------------------
             if(Addr_display) ROM1[group*radix_r1+n] = group * radix_r1 * n;
             //------------------addr-------------------
-            DTFAG <<  ROM1[group*radix_r1+n] << ", ";
+            DTFAG_DIT <<  ROM1[group*radix_r1+n] << ", ";
         }
-        DTFAG << "]\n";
+        DTFAG_DIT << "]\n";
     }
-    DTFAG << "----------------------------------" << endl;
+    DTFAG_DIT << "----------------------------------" << endl;
     for(int group=0; group<radix_r1; group++){
-        DTFAG << "ROM2[" << group <<  "] = [";
+        DTFAG_DIT << "ROM2[" << group <<  "] = [";
         for(int n=0; n<radix_r1; n++){
             ZZ ROM2_dg;
             ROM2_dg = group * n;
@@ -132,38 +132,38 @@ void DTFAG (ZZ P, ZZ W) {
             //------------------addr-------------------
             if(Addr_display) ROM2[group*radix_r1+n] = group * n;
             //------------------addr-------------------
-            DTFAG << ROM2[group*radix_r1+n] << ", ";
+            DTFAG_DIT << ROM2[group*radix_r1+n] << ", ";
         }
-        DTFAG << "]\n";
+        DTFAG_DIT << "]\n";
     }
-    DTFAG << "**************intital fin****************" << endl;
+    DTFAG_DIT << "**************intital fin****************" << endl;
 
     for(int t=0; t<radix_r1; t++){
-        DTFAG << "     t = " << t << endl;
+        DTFAG_DIT << "     t = " << t << endl;
         for(int i=0; i<radix_r1; i++){
-            DTFAG << "     i = " << i << endl;
+            DTFAG_DIT << "     i = " << i << endl;
             // length_idx indicate the length in NTTSPMB
             for(int len_idx=0; len_idx<radix_r1; len_idx++){
                 // j indicate the sequence of TFs (ex: j=1 => TF1, j=2 => TF2 ... )
-                DTFAG << "-----------------crossbar for len--------------------"<< endl;
-                DTFAG << "  len_idx = " << len_idx << endl;
+                DTFAG_DIT << "-----------------crossbar for len--------------------"<< endl;
+                DTFAG_DIT << "  len_idx = " << len_idx << endl;
                 for(int j=0; j<radix_r1; j++){
                     if(Tw2_display || Tw1_display || Tw0_display){
-                        if(j == Tw_th) DTFAG << "     j = " << j << endl;
+                        if(j == Tw_th) DTFAG_DIT << "     j = " << j << endl;
                     }else{
-                        DTFAG << "     j = " << j << endl;
+                        DTFAG_DIT << "     j = " << j << endl;
                     }
                     MA0 = j;
                     //*************test*****
                     MA1 = radix_r1 * NTTSPMB.Gray(t,radix_r1) + j;
                     if(Tw2_display || Tw1_display || Tw0_display){
                         if( j == Tw_th) {
-                            DTFAG << "t = " << t << ", G(t) = " << NTTSPMB.Gray(t,radix_r1) 
+                            DTFAG_DIT << "t = " << t << ", G(t) = " << NTTSPMB.Gray(t,radix_r1) 
                             << ", i = " << i << ", MA1 : " << MA1 << " = " << radix_r1 << " * "  
                             << NTTSPMB.Gray(t,radix_r1) << " + " << j << endl;
                         } 
                     }else{
-                        //DTFAG << "t = " << t << ", G(t) = " << NTTSPMB.Gray(t,radix_r1) 
+                        //DTFAG_DIT << "t = " << t << ", G(t) = " << NTTSPMB.Gray(t,radix_r1) 
                         //<< ", i = " << i << ", MA1 : " << MA1 << " = " << radix_r1 << " * "  
                         //<< NTTSPMB.Gray(t,radix_r1) << " + " << j << endl;
                     }
@@ -174,11 +174,11 @@ void DTFAG (ZZ P, ZZ W) {
                         MA2 = radix_r1 * NTTSPMB.Gray(i,radix_r1) + j;
                         if(Tw2_display || Tw1_display || Tw0_display){
                             if(j == Tw_th){
-                                //DTFAG << "MA2 : " << MA2 << " = " << radix_r1 << " * " << 
+                                //DTFAG_DIT << "MA2 : " << MA2 << " = " << radix_r1 << " * " << 
                                 //            NTTSPMB.Gray(i,radix_r1) << " + " << j << endl; 
                             }
                         }else {
-                            //DTFAG << "MA2 : " << MA2 << " = " << radix_r1 << " * " << 
+                            //DTFAG_DIT << "MA2 : " << MA2 << " = " << radix_r1 << " * " << 
                             //                NTTSPMB.Gray(i,radix_r1) << " + " << j << endl; 
                         }
                     } else {
@@ -186,11 +186,11 @@ void DTFAG (ZZ P, ZZ W) {
                         MA2 = radix_r1 * NTTSPMB.Gray(i_complement,radix_r1) + j;
                         if(Tw2_display || Tw1_display || Tw0_display){
                             if(j == Tw_th){
-                                //DTFAG << "MA2 : " << MA2 << " = " << radix_r1 << " * " << 
+                                //DTFAG_DIT << "MA2 : " << MA2 << " = " << radix_r1 << " * " << 
                                 //            NTTSPMB.Gray(i_complement,radix_r1) << " + " << j << endl; 
                             }
                         }else {
-                            //DTFAG << "MA2 : " << MA2 << " = " << radix_r1 << " * " << 
+                            //DTFAG_DIT << "MA2 : " << MA2 << " = " << radix_r1 << " * " << 
                             //                NTTSPMB.Gray(i_complement,radix_r1) << " + " << j << endl; 
                         }
                     }
@@ -210,41 +210,41 @@ void DTFAG (ZZ P, ZZ W) {
 
                     if(Tw0_display){
                         if(j == Tw_th){
-                            //DTFAG << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
+                            //DTFAG_DIT << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
                             Tw0[len_idx] = v0[len_idx];
-                            //DTFAG << "Tw0: " << Tw0[len_idx] << " = " << v0[len_idx] << endl;
+                            //DTFAG_DIT << "Tw0: " << Tw0[len_idx] << " = " << v0[len_idx] << endl;
                         }
                     }else {
-                        //DTFAG << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
+                        //DTFAG_DIT << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
                         Tw0[len_idx] = v0[len_idx];
-                        //DTFAG << "Tw0: " << Tw0[len_idx] << " = " << v0[len_idx] << endl;
+                        //DTFAG_DIT << "Tw0: " << Tw0[len_idx] << " = " << v0[len_idx] << endl;
                     }
 
                     if(Tw1_display){
                         if(j == Tw_th){   
                             if(Addr_display){
                                 //----------------addr---------------------
-                                DTFAG << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
+                                DTFAG_DIT << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
                                 Tw1 = v0[len_idx] + v1;
-                                DTFAG << "Tw1: " << Tw1 << " = " << v0[len_idx] << " + " << v1 << endl;     
+                                DTFAG_DIT << "Tw1: " << Tw1 << " = " << v0[len_idx] << " + " << v1 << endl;     
                                 //-----------------------------------------
                             }else{
-                                //DTFAG << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
+                                //DTFAG_DIT << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
                                 MulMod(Tw1, v0[len_idx], v1, P);
-                                //DTFAG << "Tw1: " << Tw1 << " = " << v0[len_idx] << " * " << v1 << endl;     
+                                //DTFAG_DIT << "Tw1: " << Tw1 << " = " << v0[len_idx] << " * " << v1 << endl;     
                             }
                         }
                     }else {
                         if(Addr_display){
                             //----------------addr---------------------
-                            //DTFAG << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
+                            //DTFAG_DIT << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
                             Tw1 = v0[len_idx] + v1;
-                            //DTFAG << "Tw1: " << Tw1 << " = " << v0[len_idx] << " + " << v1 << endl;
+                            //DTFAG_DIT << "Tw1: " << Tw1 << " = " << v0[len_idx] << " + " << v1 << endl;
                             //-----------------------------------------
                         }else{
-                            //DTFAG << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
+                            //DTFAG_DIT << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
                             MulMod(Tw1, v0[len_idx], v1, P);
-                            //DTFAG << "Tw1: " << Tw1 << " = " << v0[len_idx] << " * " << v1 << endl;     
+                            //DTFAG_DIT << "Tw1: " << Tw1 << " = " << v0[len_idx] << " * " << v1 << endl;     
                         }
                     }
 
@@ -252,31 +252,31 @@ void DTFAG (ZZ P, ZZ W) {
                         if(j == Tw_th) {
                             if(Addr_display){
                                 //----------------addr---------------------
-                                //DTFAG << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
+                                //DTFAG_DIT << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
                                 Tw2 = v0[len_idx] + v1 + v2;
-                                //DTFAG << "Tw2: " << Tw2 << " = " << v0[len_idx] << " + " << v1 << " + " << v2 << endl;
+                                //DTFAG_DIT << "Tw2: " << Tw2 << " = " << v0[len_idx] << " + " << v1 << " + " << v2 << endl;
                                 //-----------------------------------------
                             }else{
-                                //DTFAG << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
+                                //DTFAG_DIT << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
                                 ZZ tmp;
                                 MulMod(tmp, v1, v2, P);
                                 MulMod(Tw2, v0[len_idx], tmp, P);
-                                //DTFAG << "Tw2: " << Tw2 << " = " << v0[len_idx] << " * " << v1 << " * " << v2 << endl;
+                                //DTFAG_DIT << "Tw2: " << Tw2 << " = " << v0[len_idx] << " * " << v1 << " * " << v2 << endl;
                             }
                         }
                     }else{
                         if(Addr_display){
                             //----------------addr---------------------
-                            DTFAG << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
+                            DTFAG_DIT << "(TF" << j << "): " << "len_idx = " << len_idx << ", ";
                             Tw2 = v0[len_idx] + v1 + v2;
-                            DTFAG << "Tw2: " << Tw2 << " = " << v0[len_idx] << " + " << v1 << " + " << v2 << endl;
+                            DTFAG_DIT << "Tw2: " << Tw2 << " = " << v0[len_idx] << " + " << v1 << " + " << v2 << endl;
                             //-----------------------------------------
                         }else{
-                            //DTFAG << "(TF" << j << "): "  << "len_idx = " << len_idx << ", ";
+                            //DTFAG_DIT << "(TF" << j << "): "  << "len_idx = " << len_idx << ", ";
                             ZZ tmp;
                             MulMod(tmp, v1, v2, P);
                             MulMod(Tw2, v0[len_idx], tmp, P);
-                            //DTFAG << "Tw2: " << Tw2 << " = " << v0[len_idx] << " * " << v1 << " * " << v2 << endl;
+                            //DTFAG_DIT << "Tw2: " << Tw2 << " = " << v0[len_idx] << " * " << v1 << " * " << v2 << endl;
                         }
                         
                     }
