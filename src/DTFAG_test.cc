@@ -1,253 +1,192 @@
 #include <iostream>
 #include "NTT.h"
 #include "NTTSPMB.h"
+#include "BitOperate.h"
+#include "DTFAG.h"
 
 using namespace std;
 
-vector<int> DecToBin_test(int data, int bit_width);
-int VecToInt_test(vector<int > bit_array, int N);
-int number_complement_test(int i, int radix_r);
-
-
-void DTFAG_test () {
+void DTFAG::DTFAG_test() {
     //------- radix sel-----
-    int radix_r = 4;
-    ZZ P ;
-    ZZ W ;
-    conv(P, "18446744069414584321");
-    conv(W, "14603442835287214144");
+    int radix_r1 = 2;
+    int radix_r2 = 2;
+    unsigned long fft_point = 16;
+    ZZ fft_prime ;
+    ZZ fft_twiddle_65536 ;
+    ZZ fft_twiddle ;
+    long difference_length = 65536 / fft_point ;
+    conv(fft_prime, "18446744069414584321"); // prime number
+    conv(fft_twiddle_65536, "14603442835287214144"); // twiddle factor based setting by main.cc
+    
+    PowerMod(fft_twiddle,fft_twiddle_65536,difference_length,fft_prime);
+    cout << "fft_twiddle = " << fft_twiddle << ", fft_prime = " << fft_prime << endl;
     //-----------------------
+    BitOperate number_complement;
 
     int MA0 = 0;
     int MA1 = 0;
     int MA2 = 0;
-    int arr_size = radix_r * radix_r;
+    int arr_size = radix_r1 * radix_r1;
 
-    //int v1, v2;
-    //int v0[radix_r] = {0};
     ZZ v1, v2;
     vector<ZZ > v0;
+    v0.resize(radix_r1);
 
-    v0.resize(radix_r);
 
-    //int Tw0[radix_r] = {0};
-    //int Tw1, Tw2;
-    ZZ Tw1, Tw2;
     vector<ZZ > Tw0;
-
-    Tw0.resize(radix_r);
-
+    Tw0.resize(radix_r1);
+    ZZ Tw1, Tw2;
+    
+    
+    
     NTTSPMB NTTSPMB;
-    std::ofstream DTFAG("./my_print_data/DTFAG.txt");
+    std::ofstream DTFAG_Test("./my_print_data/DTFAG_test.txt");
+    //std::ofstream DTFAG_pattern_Tw0("./my_print_data/DTFAG_pattern_Tw0.txt");
+    //std::ofstream DTFAG_pattern_Tw1("./my_print_data/DTFAG_pattern_Tw1.txt");
+    //std::ofstream DTFAG_pattern_Tw2("./my_print_data/DTFAG_pattern_Tw2.txt");
 
     int Tw2_display = 0;
     int Tw1_display = 0;
-    int Tw0_display = false;
+    int Tw0_display = 0;
+
+    int debug = 1;
     int Tw_th = 1;
 
-    //int ROM0[radix_r][radix_r]; // ROM0[k][n]
-    //int ROM1[arr_size]; // ROM1[group][n]
-    //int ROM2[arr_size]; // ROM2[group][n]
     vector<vector<ZZ > > ROM0;
     vector<ZZ > ROM1, ROM2;
-    ROM0.resize(radix_r);
-    for(int i=0; i<radix_r; i++){
-        ROM0[i].resize(radix_r);
+    ROM0.resize(radix_r1);
+    for(int i=0; i<radix_r1; i++){
+        ROM0[i].resize(radix_r1);
     }
     ROM1.resize(arr_size);
     ROM2.resize(arr_size);
 
-
-    DTFAG << "****************initial ROM********************" << endl;
-    for(int n=0; n<radix_r; n++){
-        DTFAG << "ROM0[" << n <<  "] = [";
-        for(int k=0; k<radix_r; k++){
-            ROM0[n][k] = (radix_r * radix_r) * k * n;
-            ZZ ROM0_dg; 
-            ROM0_dg = (radix_r * radix_r) * k * n;
-            //PowerMod(ROM0[k][n], W, ROM0_dg, P);
-            DTFAG << ROM0[n][k] << ", ";
-        }
-        DTFAG << "]\n";
-    }
-    DTFAG << "----------------------------------" << endl;
-    for(int group=0; group<radix_r; group++){
-        DTFAG << "ROM1[" << group <<  "] = [";
-        for(int n=0; n<radix_r; n++){
-            ROM1[group*radix_r+n] = group * radix_r * n;
-            //ROM1[group*radix_r+n] = group * n;
-            ZZ ROM1_dg;
-            ROM1_dg = group * radix_r * n;
-            //PowerMod(ROM1[group*radix_r+n], W, ROM1_dg, P);
-            DTFAG <<  ROM1[group*radix_r+n] << ", ";
-        }
-        DTFAG << "]\n";
-    }
-    DTFAG << "----------------------------------" << endl;
-    for(int group=0; group<radix_r; group++){
-        DTFAG << "ROM2[" << group <<  "] = [";
-        for(int n=0; n<radix_r; n++){
-            ROM2[group*radix_r+n] = group * n;
-            //ROM2[group*radix_r+n] = group * radix_r * n;
-            ZZ ROM2_dg;
-            ROM2_dg = group * n;
-            //PowerMod(ROM2[group*radix_r+n], W, ROM2_dg, P);
-            DTFAG << ROM2[group*radix_r+n] << ", ";
-        }
-        DTFAG << "]\n";
-    }
-    DTFAG << "**************intital fin****************" << endl;
-
-    for(int t=0; t<radix_r; t++){
-        DTFAG << "     t = " << t << endl;
-        for(int i=0; i<radix_r; i++){
-            DTFAG << "     i = " << i << endl;
-            for(int j=0; j<radix_r; j++){
-                DTFAG << "----------------------------" << endl;
-                if(Tw2_display || Tw1_display || Tw0_display){
-                    if(j == Tw_th) DTFAG << "     j = " << j << endl;
-                }else{
-                    DTFAG << "     j = " << j << " (TF" << j << ")"<< endl;
-                }
-                
-                MA0 = j;
-                DTFAG << "     MA0 = " << MA0 << endl;
-                if(t % 2 == 0){
-                    MA1 = radix_r * NTTSPMB.Gray(i,radix_r) + j;
-                    //MA1 = radix_r * i + j;
-                    DTFAG << "t = " << t << ", G(i) = " << NTTSPMB.Gray(i,radix_r) << ", MA1 : " << MA1 << " = " << radix_r << " * " << 
-                                    NTTSPMB.Gray(i,radix_r) << " + " << j << endl;
-                }else{
-                    int i_complement = number_complement_test(i, radix_r);
-                    MA1 = radix_r * NTTSPMB.Gray(i_complement,radix_r) + j; 
-                    //MA1 = radix_r * i_complement + j;
-                    DTFAG << "t = " << t << ", G(~i) = " << NTTSPMB.Gray(i_complement,radix_r) << ", MA1 : " << MA1 << " = " << radix_r << " * " << 
-                                    NTTSPMB.Gray(i_complement,radix_r) << " + " << j << endl;
-                }
-                //**********************
-                MA2 = radix_r * NTTSPMB.Gray(t,radix_r) + j;
-                DTFAG << "MA2 : " << MA2 << " = " << radix_r << " * " << 
-                                    NTTSPMB.Gray(t,radix_r) << " + " << j << endl; 
-                //*******************               
-
-                for(int i=0; i<radix_r; i++){
-                    v0[i] = ROM0[MA0][i];
-                }
-                v1 = ROM1[MA1];
-                v2 = ROM2[MA2];
-
-                //----------TW compute-----------
-                for(int i=0; i<radix_r; i++){
-                    if(Tw0_display){
-                        if(j == Tw_th){
-                            //DTFAG << "(len): v0[" << i << "] = " << v0[i] << ", ";
-                            Tw0[i] = v0[i];
-                            //DTFAG << "Tw0: " << Tw0[i] << " = " << v0[i] << endl;
-                        }
-                    }else {
-                        DTFAG << "(len): v0[" << i << "] = " << v0[i] << ", ";
-                        Tw0[i] = v0[i];
-                        DTFAG << "Tw0: " << Tw0[i] << " = " << v0[i] << endl;
-                    }
-                    
-                }
-                
-                for(int index=0; index<radix_r; index++){
-                    if(Tw1_display){
-                        if(j == Tw_th){
-                            /*DTFAG << "v0[" << index << "] = " << v0[index] << ", v1 = " << v1 << ", ";
-                            Tw1 = v0[index] + v1;
-                            DTFAG << "Tw1: " << Tw1 << " = " << v0[index] << " + " << v1 << endl;*/
-
-                            //DTFAG << "(len): " << "v0[" << index << "] = " << v0[index] << ", v1 = " << v1 << ", ";
-                            MulMod(Tw1, v0[index], v1, P);
-                            //DTFAG << "Tw1: " << Tw1 << " = " << v0[index] << " * " << v1 << endl;
-
-                        }
-                    }else {
-                        DTFAG << "v0[" << index << "] = " << v0[index] << ", v1 = " << v1 << ", ";
-                        Tw1 = v0[index] + v1;
-                        DTFAG << "Tw1: " << Tw1 << " = " << v0[index] << " + " << v1 << endl;
-
-                        //DTFAG << "(len): " << "v0[" << index << "] = " << v0[index] << ", v1 = " << v1 << ", ";
-                        MulMod(Tw1, v0[index], v1, P);
-                        //DTFAG << " Tw1: " << Tw1 << " = " << v0[index] << " * " << v1 << endl;
-                    }
-                    
-                }
-                for(int index=0; index<radix_r; index++){
-                    if(Tw2_display){
-                        if(j == Tw_th) {
-                            DTFAG << "v0[" << index << "] = " << v0[index] << ", v1 = " << v1 << ", v2 = " << v2 << ", ";
-                            Tw2 = v0[index] + v1 + v2;
-                            DTFAG << "Tw2: " << Tw2 << " = " << v0[index] << " + " << v1 << " + " << v2 << endl;
-
-                            //DTFAG << "v0[" << index << "] = " << v0[index] << ", v1 = " << v1 << ", v2 = " << v2 << ", ";
-                            ZZ tmp;
-                            MulMod(tmp, v1, v2, P);
-                            MulMod(Tw2, v0[index], tmp, P);
-                            //DTFAG << "Tw2: " << Tw2 << " = " << v0[index] << " * " << v1 << " * " << v2 
-                            //        << " ( index = " << index << " ) " << endl;
-                        }
-                    }else{
-                        DTFAG << "v0[" << index << "] = " << v0[index] << ", v1 = " << v1 << ", v2 = " << v2 << ", ";
-                        Tw2 = v0[index] + v1 + v2;
-                        DTFAG << "Tw2: " << Tw2 << " = " << v0[index] << " + " << v1 << " + " << v2 << endl;
-
-                        //DTFAG << "v0[" << index << "] = " << v0[index] << ", v1 = " << v1 << ", v2 = " << v2 << ", ";
-                        //ZZ tmp;
-                        //MulMod(tmp, v1, v2, P);
-                        //MulMod(Tw2, v0[index], tmp, P);
-                        //DTFAG << "Tw2: " << Tw2 << " = " << v0[index] << " * " << v1 << " * " << v2 
-                        //        << " ( index = " << index << " ) " << endl;
-                    }
-                    
-                    
-                }
-
-                //--------------------------------
+    //-------------test pattern array-------------
+    vector<vector<vector<vector<ZZ > > > > Tw0_ROM;
+    Tw0_ROM.resize(radix_r1);
+    for(int t=0; t<radix_r1; t++){
+        Tw0_ROM[t].resize(radix_r1);
+        for(int i=0; i<radix_r1; i++){
+            Tw0_ROM[t][i].resize(radix_r1);
+            for(int j=0; j<radix_r1; j++){
+                Tw0_ROM[t][i][j].resize(radix_r1);
             }
         }
     }
-}
+    //--------------------------------------------
 
-int number_complement_test(int i, int radix_r){
-    
-    vector<int > i_complement_array;
-    int i_complement;
-    int bit_width = (int)ceil(log2(radix_r));
-    i_complement_array.resize(bit_width);
 
-    //cout << "i = " << i << endl;
+    DTFAG_Test << "****************initial ROM********************" << endl;
+    for(int k=0; k<radix_r1; k++){
+        DTFAG_Test << "ROM0[k=" << k <<  "] = [";
+        for(int n=0; n<radix_r1; n++){
+            ZZ ROM0_dg; 
+            ROM0_dg = (radix_r1 * radix_r1) * n * k;
+            PowerMod(ROM0[k][n], fft_twiddle, ROM0_dg, fft_prime);
+            //------------------for debug-------------------
+            if(debug) ROM0[k][n] = (radix_r1 * radix_r1) * k * n;
+            //----------------------------------------------
+            DTFAG_Test << ROM0[k][n] << ", ";
+        }
+        DTFAG_Test << "]\n";
+    }
+    DTFAG_Test << "----------------------------------" << endl;
+    for(int group=0; group<radix_r1; group++){
+        DTFAG_Test << "ROM1[g=" << group <<  "] = [";
+        for(int n=0; n<radix_r1; n++){
+            ZZ ROM1_dg;
+            ROM1_dg = group * radix_r1 * n;
+            PowerMod(ROM1[group*radix_r1+n], fft_twiddle, ROM1_dg, fft_prime);
+            //------------------for debug-------------------
+            if(debug) ROM1[group*radix_r1+n] = group * radix_r1 * n;
+            //----------------------------------------------
+            DTFAG_Test <<  ROM1[group*radix_r1+n] << ", ";
+        }
+        DTFAG_Test << "]\n";
+    }
+    DTFAG_Test << "----------------------------------" << endl;
+    for(int group=0; group<radix_r1; group++){
+        DTFAG_Test << "ROM2[g=" << group <<  "] = [";
+        for(int n=0; n<radix_r1; n++){
+            ZZ ROM2_dg;
+            ROM2_dg = group * n;
+            PowerMod(ROM2[group*radix_r1+n], fft_twiddle, ROM2_dg, fft_prime);
+            //------------------for debug-------------------
+            if(debug) ROM2[group*radix_r1+n] = group * n;
+            //----------------------------------------------
+            DTFAG_Test << ROM2[group*radix_r1+n] << ", ";
+        }
+        DTFAG_Test << "]\n";
+    }
+    DTFAG_Test << "**************intital fin****************" << endl;
 
-    vector<int > i_array = DecToBin_test(i, bit_width);
-    int tmp;
-    for(int i=0; i<bit_width; i++){
-        tmp = i_array[i];
-        if(tmp){
-            i_complement_array[i] = 0;
-        }else{
-            i_complement_array[i] = 1;
+    for(int t=0; t<radix_r1; t++){
+        DTFAG_Test << "     t = " << t << endl;
+        for(int i=0; i<radix_r1; i++){
+            DTFAG_Test << "-----------------crossbar for len--------------------"<< endl;
+            DTFAG_Test << "     i = " << i << endl;
+            for(int j=0; j<radix_r1; j++){
+                if(Tw2_display || Tw1_display || Tw0_display){
+                    if(j == Tw_th) DTFAG_Test << "     j = " << j << endl;
+                }else{
+                    DTFAG_Test << "     j = " << j << endl;
+                }
+                MA0 = j;
+                if(t % 2== 0) {
+                    MA1 = radix_r1 * NTTSPMB.Gray(i,radix_r1) + j;
+                }else {
+                    int i_complement = number_complement.number_complement(i, radix_r1);
+                    MA1 = radix_r1 * NTTSPMB.Gray(i_complement,radix_r1) + j;
+                }
+                MA2 = radix_r1 * NTTSPMB.Gray(t, radix_r1) + j;
+                
+                for(int i=0; i<radix_r1; i++){
+                    v0[i] = ROM0[MA0][i];
+                }
+                v1 = ROM1[MA1];
+                v2 = ROM2[MA2];                
+
+                
+                for(int idx=0; idx<radix_r1; idx++){
+                    DTFAG_Test << "v0[" << idx << "] = " << v0[idx];
+                    Tw0[idx] = v0[idx];
+                    DTFAG_Test << ", Tw0[" << idx << "] = " << Tw0[idx] << endl;
+                }
+                
+
+                for(int idx=0; idx<radix_r1; idx++){
+                    //------------for debug--------------------
+                    if(debug) DTFAG_Test << "v0[" << idx << "] = " << v0[idx] << ", v1 = " << v1;
+                    if(debug) Tw1 = v0[idx] + v1;
+                    if(debug) DTFAG_Test << ", Tw1[" << idx << "] = " << Tw1 << endl;
+                    //------------------------------------------
+
+                    //--------------for compute--------------------
+                    if(!debug) DTFAG_Test << "v0[" << idx << "] = " << v0[idx] << ", v1 = " << v1;
+                    if(!debug) MulMod(Tw1, v0[idx], v1, fft_prime);
+                    if(!debug) DTFAG_Test << ", Tw1[" << idx << "] = " << Tw1 << endl;
+                    //---------------------------------------------
+                }
+
+                for(int idx=0; idx<radix_r1; idx++){
+                    //------------for debug--------------------
+                    if(debug) DTFAG_Test << "v0[" << idx << "] = " << v0[idx] << ", v1 = " << v1 << ", v2 = " << v2;
+                    if(debug) Tw2 = v0[idx] + v1 + v2;
+                    if(debug) DTFAG_Test << ", Tw2[" << idx << "] = " << Tw2 << endl;
+                    //------------------------------------------
+
+                    //--------------for compute--------------------
+                    ZZ tmp;
+                    if(!debug) DTFAG_Test << "v0[" << i << "] = " << v0[idx] << ", v1 = " << v1 << ", v2 = " << v2;
+                    if(!debug) MulMod(tmp, v0[idx], v1, fft_prime);
+                    if(!debug) MulMod(Tw2, tmp, v2, fft_prime);
+                    if(!debug) DTFAG_Test << ", Tw2[" << idx << "] = " << Tw2 << endl;
+                    //---------------------------------------------
+                }
+            }          
         }
     }
-    i_complement = VecToInt_test(i_complement_array, radix_r);
 
-    //cout << "i_complement = " << i_complement << endl;
-    return i_complement;
-}
+    
 
-vector<int> DecToBin_test(int data, int bit_width){
-    vector<int> BinVec(bit_width);
-    for(int j=0; j<bit_width; j++){
-        BinVec.at(j) = (data >> j) & 1;
-    }
-    return BinVec;
-}
-int VecToInt_test(vector<int > bit_array, int N){
-    int bit_width = (int)ceil(log2(N));
-    int integer = 0;
-    for(int j=0; j < bit_width; j++){
-        integer += bit_array[j] << j;
-    }
-    return integer;
 }

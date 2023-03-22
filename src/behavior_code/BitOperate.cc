@@ -141,3 +141,30 @@ long long BitOperate::VecToInt_mem_init(long long data_in, long long bit_width_m
     }
     return integer;
 }
+
+long long BitOperate::number_complement(long long i, long long radix_r1){
+
+    BitOperate DecToBin, VecToInt;
+    
+    vector<long long > i_complement_array;
+    long long i_complement;
+    long long bit_width = (long long)ceil(log2(radix_r1));
+    i_complement_array.resize(bit_width);
+
+    //cout << "i = " << i << endl;
+
+    vector<long long > i_array = DecToBin.DecToBin(i, bit_width);
+    long long tmp;
+    for(long long i=0; i<bit_width; i++){
+        tmp = i_array[i];
+        if(tmp){
+            i_complement_array[i] = 0;
+        }else{
+            i_complement_array[i] = 1;
+        }
+    }
+    i_complement = VecToInt.VecToInt(i_complement_array, radix_r1);
+
+    //cout << "i_complement = " << i_complement << endl;
+    return i_complement;
+}

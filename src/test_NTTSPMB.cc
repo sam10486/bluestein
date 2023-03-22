@@ -13,6 +13,8 @@
 #include <time.h>
 #include <bluestein.h>
 #include <BitOperate.h>
+#include "DIT_NTTSPMB.h"
+  
 
 using namespace std;
 
@@ -28,7 +30,6 @@ void test_NTTSPMB()
   unsigned long fft_point;
   int band_memory_size; 
   int radix;
-
   //----------bluestein--------------
   bluestein blue;
   ZZ tmp_prime;
@@ -39,20 +40,21 @@ void test_NTTSPMB()
   cout << "ROU = " << ROU << std::endl;
   //---------------------------------
 
-  radix = 2;
+  radix = 16;
   ZZ fft_prime;
   ZZ fft_twiddle;
   ZZ fft_twiddle_16;
   ZZ fft_IW;
   ZZ fft_twiddle_65536;
   
-  fft_point         = 16;//16
+  fft_point         = 65536;//16
   difference_length = 65536 / fft_point;
   difference_16     = fft_point / 16;
   band_memory_size  = fft_point / 32;
   conv(fft_prime,"18446744069414584321");
   conv(fft_twiddle_65536,"14603442835287214144");  //65536-th twiddle factor
   //-------test--------
+  int debug_for_DIT = 0;
   //conv(fft_prime,"197");
   //conv(fft_twiddle_65536,"8");  //65536-th twiddle factor
   //-------------------
@@ -230,5 +232,33 @@ void test_NTTSPMB()
 	A_INTT_o << A[i];  
 	A_INTT_o << "\n";  
   }
+
+  if(debug_for_DIT){
+    cout << "--------------------DIT FFT part----------------" << std::endl;
+    DIT_NTTSPMB DIT_spmb;
+    BitOperate BitRev;
+    std::vector<ZZ> B;
+    B.resize(fft_point);
+    cout << "fft_twiddle = " << fft_twiddle << endl;
+
+    for(int i = 0;i < fft_point;i++){
+	  	B[i]   = BitRev.BitReserve(i, log2(fft_point));
+    }
+    DIT_spmb.init(fft_point,fft_prime,fft_twiddle,radix);
+    DIT_spmb.DIT_NTT_radix2(B);
+
+
+    std::ofstream B_o("./B_output.txt");
+    for(int i = 0; i < fft_point;i++){
+	    B_o << B[i];  
+      B_o << "\n";
+	    if(B[i] != A_1[i]) {
+	  	  std::cout << "error index: " << i <<"\n";
+	  	  error = error + 1;
+      }
+    }
+    std::cout << "error : " << error << "\n";
+  }
+  
   
 }

@@ -448,13 +448,13 @@ void NTTSPMB::NTT_radix2(std::vector<ZZ> &A){
 			if(bn_tmp == 0){
 				A_B0R0[ma_tmp] = A[BC];
 				A_B0R1[ma_tmp] = A[BC + offset];
-				std::cout <<"A_B0R0["<<ma_tmp<<"]"<<A[BC]<<"\n";
-				std::cout <<"A_B0R1["<<ma_tmp<<"]"<<A[BC+ offset]<<"\n";
+				//std::cout <<"A_B0R0["<<ma_tmp<<"]"<<A[BC]<<"\n";
+				//std::cout <<"A_B0R1["<<ma_tmp<<"]"<<A[BC+ offset]<<"\n";
 			}else {
 				A_B1R0[ma_tmp] = A[BC];
 				A_B1R1[ma_tmp] = A[BC + offset];
-				std::cout <<"A_B1R0["<<ma_tmp<<"]"<<A[BC]<<"\n";
-				std::cout <<"A_B1R1["<<ma_tmp<<"]"<<A[BC+ offset]<<"\n";
+				//std::cout <<"A_B1R0["<<ma_tmp<<"]"<<A[BC]<<"\n";
+				//std::cout <<"A_B1R1["<<ma_tmp<<"]"<<A[BC+ offset]<<"\n";
 			}
 		}
 	}
@@ -481,13 +481,15 @@ void NTTSPMB::NTT_radix2(std::vector<ZZ> &A){
 		spmb_radix2 <<"twiddle factor : "<< factor <<"\n";
 		for(int i = 0 ;i < group;i++){
 			spmb_radix2 << "----------------i =" << i << " ----------------" << std::endl;
+			DATARECORD << "----------------i =" << i << " ----------------" << std::endl;
 			for(int j = 0;j < radix;j++){
+				DATARECORD << "---j =" << j << " ---" << std::endl;
 				DATARECORD <<"twiddle factor : "<< factor <<"\n";
 				DATARECORD <<"p : "<< p <<"\n";
 	    		DATARECORD << "********\n";
 				gray_i  = Gray(i,group);
 				BC_tmp  = j * group + gray_i;
-				DATARECORD << "BC_tmp: " << BC_tmp <<"\n";
+				DATARECORD << "BC_tmp = " << BC_tmp << ", BC = " << BC << ", s = " << s << endl;
 				RR_R2(BC_tmp,s,BC);
 				//std::cout << "BC: " << BC <<"\n";
 				length = BC_tmp >> s;
@@ -513,11 +515,15 @@ void NTTSPMB::NTT_radix2(std::vector<ZZ> &A){
 				//-----------------------------------------
 				
 				if(bn_tmp == 0){
+					DATARECORD << "bn_tmp = " << bn_tmp << ", ma_tmp = " << ma_tmp << std::endl;
 					bn0_bc_tmp = BC_tmp;
+					DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp]<<"\n";
+					DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp]<< ", factor_t = " << factor_t << ", w^" << tw_degree*length << "\n";
 					Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
 					MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],factor_t,p);
-				    //std::cout <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp]<<"\n";
-					//std::cout <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp]<<"\n";
+					DATARECORD << "---after BU compute---" << std::endl;
+				    DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp]<<"\n";
+					DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp]<<"\n";
 					bn0_ma_reg = ma_tmp;
 
 					//----------------DTFAG golden pattern------------------
@@ -540,11 +546,15 @@ void NTTSPMB::NTT_radix2(std::vector<ZZ> &A){
 					//------------------------------------------------------
 				}
 			    else {
+					DATARECORD << "bn_tmp = " << bn_tmp << ", ma_tmp = " << ma_tmp << std::endl;
 					bn1_bc_tmp = BC_tmp;
+					DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<<"\n";
+					DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", factor_t = " << factor_t << ", w^" << tw_degree*length << "\n";
 					Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
 					MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],factor_t,p);
-				    //std::cout <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<<"\n";
-					//std::cout <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<<"\n";
+					DATARECORD << "---after BU compute---" << std::endl;
+				    DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<<"\n";
+					DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<<"\n";
 					bn1_ma_reg = ma_tmp;
 					//----------------DTFAG golden pattern------------------
 					switch(s){
@@ -568,22 +578,24 @@ void NTTSPMB::NTT_radix2(std::vector<ZZ> &A){
 				DATARECORD <<"--------------------------------------------------------------------\n";
 			}
 		//data relocation
-		 if(s < Stage-1){
-		  if(bn1_bc_tmp > bn0_bc_tmp){
-		 	 data_tmp = A_B0R1[bn0_ma_reg];
-		 	 A_B0R1[bn0_ma_reg] = A_B1R0[bn1_ma_reg];
-		 	 A_B1R0[bn1_ma_reg] = data_tmp;
-		  }else {
-		 	 data_tmp = A_B1R1[bn1_ma_reg];
-		 	 A_B1R1[bn1_ma_reg] = A_B0R0[bn0_ma_reg];
-		 	 A_B0R0[bn0_ma_reg] = data_tmp;
-		  }
-		 }
-		 //std::cout <<"A_B0R0["<<bn0_ma_reg<<"]: "<<A_B0R0[bn0_ma_reg]<<"\n";
-		 //std::cout <<"A_B0R1["<<bn0_ma_reg<<"]: "<<A_B0R1[bn0_ma_reg]<<"\n";
-		 //std::cout <<"A_B1R0["<<bn1_ma_reg<<"]: "<<A_B1R0[bn1_ma_reg]<<"\n";
-		 //std::cout <<"A_B1R1["<<bn1_ma_reg<<"]: "<<A_B1R1[bn1_ma_reg]<<"\n";
-         //std::cout <<"------------------------------------------\n";		 
+		if(s < Stage-1){
+			if(bn1_bc_tmp > bn0_bc_tmp){
+				DATARECORD << "bn0_bc_tmp = " << bn0_bc_tmp << ", bn1_bc_tmp = " << bn1_bc_tmp << std::endl;
+				data_tmp = A_B0R1[bn0_ma_reg];
+				A_B0R1[bn0_ma_reg] = A_B1R0[bn1_ma_reg];
+				A_B1R0[bn1_ma_reg] = data_tmp;
+			}else {
+				DATARECORD << "bn0_bc_tmp = " << bn0_bc_tmp << ", bn1_bc_tmp = " << bn1_bc_tmp << std::endl;
+				data_tmp = A_B1R1[bn1_ma_reg];
+				A_B1R1[bn1_ma_reg] = A_B0R0[bn0_ma_reg];
+				A_B0R0[bn0_ma_reg] = data_tmp;
+			}
+		}
+		//std::cout <<"A_B0R0["<<bn0_ma_reg<<"]: "<<A_B0R0[bn0_ma_reg]<<"\n";
+		//std::cout <<"A_B0R1["<<bn0_ma_reg<<"]: "<<A_B0R1[bn0_ma_reg]<<"\n";
+		//std::cout <<"A_B1R0["<<bn1_ma_reg<<"]: "<<A_B1R0[bn1_ma_reg]<<"\n";
+		//std::cout <<"A_B1R1["<<bn1_ma_reg<<"]: "<<A_B1R1[bn1_ma_reg]<<"\n";
+        //std::cout <<"------------------------------------------\n";		 
 		}
 	}
 	

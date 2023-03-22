@@ -18,6 +18,7 @@ public:
     long long unary_xor_mem_init(long long data_in, long long bit_width_m, long long s);
     long long VecToInt_mem_init(long long data_in, long long bit_width_m, long long s);
     long long left_rotate(long long input, long long shift_bit, long long N);
+    long long number_complement(long long i, long long radix_r1);
 };
 
 #endif

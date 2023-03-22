@@ -1,18 +1,15 @@
 #include <iostream>
 #include "NTT.h"
 #include "NTTSPMB.h"
+#include "BitOperate.h"
+#include "DTFAG.h"
 
 using namespace std;
 
-vector<int> DecToBin_DIF(int data, int bit_width);
-int VecToInt_DIF(vector<int > bit_array, int N);
-int number_complement_DIF(int i, int radix_r);
-
-
-void DTFAG_DIF () {
+void DTFAG::DTFAG_DIF () {
     //------- radix sel-----
-    int radix_r = 16;
-    unsigned long fft_point = 65536;
+    int radix_r = 2;
+    unsigned long fft_point = 16;
     ZZ fft_prime ;
     ZZ fft_twiddle_65536 ;
     ZZ fft_twiddle ;
@@ -24,6 +21,8 @@ void DTFAG_DIF () {
     cout << "fft_twiddle = " << fft_twiddle << ", fft_prime = " << fft_prime << endl;
     //-----------------------
     
+    BitOperate number_complement;
+
     int MA0 = 0;
     int MA1 = 0;
     int MA2 = 0;
@@ -130,7 +129,7 @@ void DTFAG_DIF () {
                 MA1 = NTTSPMB.Gray(i,radix_r);
                 DTFAG_DIF << "      MA1 = " << MA1 << endl;
                 if(i % 2 == 1){
-                    int t_complement = number_complement_DIF(t, radix_r);
+                    int t_complement = number_complement.number_complement(t, radix_r);
                     MA2 = NTTSPMB.Gray(t_complement,radix_r);
                     DTFAG_DIF << "      MA2 : " << MA2 << " = " << "G(" << t_complement << ")"<< endl; 
                 }else{
@@ -244,45 +243,4 @@ void DTFAG_DIF () {
             }
         }
     }
-}
-
-int number_complement_DIF(int i, int radix_r){
-    
-    vector<int > i_complement_array;
-    int i_complement;
-    int bit_width = (int)ceil(log2(radix_r));
-    i_complement_array.resize(bit_width);
-
-    //cout << "i = " << i << endl;
-
-    vector<int > i_array = DecToBin_DIF(i, bit_width);
-    int tmp;
-    for(int i=0; i<bit_width; i++){
-        tmp = i_array[i];
-        if(tmp){
-            i_complement_array[i] = 0;
-        }else{
-            i_complement_array[i] = 1;
-        }
-    }
-    i_complement = VecToInt_DIF(i_complement_array, radix_r);
-
-    //cout << "i_complement = " << i_complement << endl;
-    return i_complement;
-}
-
-vector<int> DecToBin_DIF(int data, int bit_width){
-    vector<int> BinVec(bit_width);
-    for(int j=0; j<bit_width; j++){
-        BinVec.at(j) = (data >> j) & 1;
-    }
-    return BinVec;
-}
-int VecToInt_DIF(vector<int > bit_array, int N){
-    int bit_width = (int)ceil(log2(N));
-    int integer = 0;
-    for(int j=0; j < bit_width; j++){
-        integer += bit_array[j] << j;
-    }
-    return integer;
 }

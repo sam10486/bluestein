@@ -1,14 +1,16 @@
 #include <iostream>
 #include "NTT.h"
 #include "NTTSPMB.h"
+#include "DTFAG.h"
 
 using namespace std;
 
-void DTFAG_verify(){
+void DTFAG::DTFAG_verify(){
     //-------setting-------------
-    int radix_r1 = 2;
-    int radix_r2 = 2;
+    int radix_r1 = 16;
+    int radix_r2 = 16;
     int Tw_display = 2;
+    int FFT_version = 1; // 0 is DIT, 1 is DIF
     //---------------------------
 
     ifstream DTFAG_pattern_Tw0;
@@ -229,52 +231,55 @@ void DTFAG_verify(){
     int Tw0_error = 0;
     int Tw1_error = 0;
     int Tw2_error = 0;
-    for(int i=0; i<radix_r2; i++){
-        cout << "   i = " << i << endl; 
-        for(int t=0; t<radix_r1; t++){
-            cout << "   t = " << t << endl;
-            for(int j=0; j<radix_r1; j++){
-                cout << "   j = " << j << endl;
-                for(int idx=0; idx<radix_r1; idx++){
-                    if(Tw0_ROM[i][t][j][idx] != st0_golden[i][t][j][idx]) {
-                        Tw0_error++;
-                        if(Tw_display == 0){
-                            cout << "i = " << i << ", t = " << t << ", j = " << j;
-                            cout << ", Tw0_ROM[" << i << "][" << t << "][" << j << "][" << idx << "] = " << Tw0_ROM[i][t][j][idx]
-                            << ", st0_golden[" << i << "][" << t << "][" << j << "][" << idx << "] = " << st0_golden[i][t][j][idx] 
-                            << ", error = " << Tw0_error << endl;
+    if(FFT_version) { // DIF version compare
+        for(int i=0; i<radix_r2; i++){
+            cout << "   i = " << i << endl; 
+            for(int t=0; t<radix_r1; t++){
+                cout << "   t = " << t << endl;
+                for(int j=0; j<radix_r1; j++){
+                    cout << "   j = " << j << endl;
+                    for(int idx=0; idx<radix_r1; idx++){
+                        if(Tw0_ROM[i][t][j][idx] != st0_golden[i][t][j][idx]) {
+                            Tw0_error++;
+                            if(Tw_display == 0){
+                                cout << "i = " << i << ", t = " << t << ", j = " << j;
+                                cout << ", Tw0_ROM[" << i << "][" << t << "][" << j << "][" << idx << "] = " << Tw0_ROM[i][t][j][idx]
+                                << ", st0_golden[" << i << "][" << t << "][" << j << "][" << idx << "] = " << st0_golden[i][t][j][idx] 
+                                << ", error = " << Tw0_error << endl;
+                            }
+                        }else {
+                            if(Tw_display == 0) cout << Tw0_ROM[i][t][j][idx] << " = " << st0_golden[i][t][j][idx]  << endl;
                         }
-                    }else {
-                        if(Tw_display == 0) cout << Tw0_ROM[i][t][j][idx] << " = " << st0_golden[i][t][j][idx]  << endl;
-                    }
-                    if(Tw1_ROM[i][t][j][idx] != st1_golden[i][t][j][idx]) {
-                        Tw1_error++;
-                        if(Tw_display == 1){
-                            cout << "i = " << i << ", t = " << t << ", j = " << j;
-                            cout << ", Tw1_ROM[" << i << "][" << t << "][" << j << "][" << idx << "] = " << Tw1_ROM[i][t][j][idx]
-                            << ", st1_golden[" << i << "][" << t << "][" << j << "][" << idx << "] = " << st1_golden[i][t][j][idx] 
-                            << ", error = " << Tw1_error << endl;
-                        } 
-                        
-                    }else {
-                        if(Tw_display == 1) cout << Tw1_ROM[i][t][j][idx] << " = " << st1_golden[i][t][j][idx]  << endl;
-                    }
-                    if(Tw2_ROM[i][t][j][idx] != st2_golden[i][t][j][idx]) {
-                        Tw2_error++;
-                        if(Tw_display == 2){
-                            cout << "i = " << i << ", t = " << t << ", j = " << j;
-                            cout << ", Tw2_ROM[" << i << "][" << t << "][" << j << "][" << idx << "] = " << Tw2_ROM[i][t][j][idx]
-                            << ", st2_golden[" << i << "][" << t << "][" << j << "][" << idx << "] = " << st2_golden[i][t][j][idx] 
-                            << ", error = " << Tw0_error << endl;
+                        if(Tw1_ROM[i][t][j][idx] != st1_golden[i][t][j][idx]) {
+                            Tw1_error++;
+                            if(Tw_display == 1){
+                                cout << "i = " << i << ", t = " << t << ", j = " << j;
+                                cout << ", Tw1_ROM[" << i << "][" << t << "][" << j << "][" << idx << "] = " << Tw1_ROM[i][t][j][idx]
+                                << ", st1_golden[" << i << "][" << t << "][" << j << "][" << idx << "] = " << st1_golden[i][t][j][idx] 
+                                << ", error = " << Tw1_error << endl;
+                            } 
+                        }else {
+                            if(Tw_display == 1) cout << Tw1_ROM[i][t][j][idx] << " = " << st1_golden[i][t][j][idx]  << endl;
                         }
-                    }else {
-                        if(Tw_display == 2) cout << Tw2_ROM[i][t][j][idx] << " = " << st2_golden[i][t][j][idx]  << endl;
-                    }
-
+                        if(Tw2_ROM[i][t][j][idx] != st2_golden[i][t][j][idx]) {
+                            Tw2_error++;
+                            if(Tw_display == 2){
+                                cout << "i = " << i << ", t = " << t << ", j = " << j;
+                                cout << ", Tw2_ROM[" << i << "][" << t << "][" << j << "][" << idx << "] = " << Tw2_ROM[i][t][j][idx]
+                                << ", st2_golden[" << i << "][" << t << "][" << j << "][" << idx << "] = " << st2_golden[i][t][j][idx] 
+                                << ", error = " << Tw0_error << endl;
+                            }
+                        }else {
+                            if(Tw_display == 2) cout << Tw2_ROM[i][t][j][idx] << " = " << st2_golden[i][t][j][idx]  << endl;
+                        }
+                    }    
                 }
             }
         }
+    }else { // DIT version compare
+        
     }
+    
 
     if(Tw0_error != 0){
         cout << "DTFAG_Tw0 is error!, and error = " << Tw0_error << endl;

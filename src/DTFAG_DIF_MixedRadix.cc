@@ -2,18 +2,15 @@
 #include "NTT.h"
 #include "NTTSPMB.h"
 #include "SPMB.h"
+#include "BitOperate.h"
+#include "DTFAG.h"
 
 using namespace std;
 
-vector<int> DIF_DecToBin_MixedRadix(int data, int bit_width);
-int DIF_VecToInt_MixedRadix(vector<int > bit_array, int N);
-int DIF_number_complement_MixedRadix(int i, int radix_r1);
-
-
-void DTFAG_DIF_MixedRadix () {
+void DTFAG::DTFAG_DIF_MixedRadix () {
     //------- radix sel-----
-    int radix_r1 = 2;
-    int radix_r2 = 2;
+    int radix_r1 = 16;
+    int radix_r2 = 16;
     unsigned long fft_point = pow(radix_r1, 3) * radix_r2;
     ZZ fft_prime ;
     ZZ fft_twiddle_65536 ;
@@ -27,6 +24,7 @@ void DTFAG_DIF_MixedRadix () {
     //-----------------------
     
     SPMB spmb;
+    BitOperate number_complement;
 
     int MA0 = 0;
     int MA1 = 0;
@@ -141,7 +139,7 @@ void DTFAG_DIF_MixedRadix () {
                 MA1 = NTTSPMB.Gray(i,radix_r1);
                 DTFAG_DIF_MixedRadix << "      MA1 = " << MA1 << endl;
                 if(i % 2 == 1){
-                    int t_complement = DIF_number_complement_MixedRadix(t, radix_r1);
+                    int t_complement = number_complement.number_complement(t, radix_r1);
                     MA2 = NTTSPMB.Gray(t_complement,radix_r1);
                     DTFAG_DIF_MixedRadix << "      MA2 : " << MA2 << " = " << "G(" << t_complement << ")"<< endl; 
                 }else{
@@ -279,45 +277,4 @@ void DTFAG_DIF_MixedRadix () {
             }
         }
     }
-}
-
-int DIF_number_complement_MixedRadix(int i, int radix_r1){
-    
-    vector<int > i_complement_array;
-    int i_complement;
-    int bit_width = (int)ceil(log2(radix_r1));
-    i_complement_array.resize(bit_width);
-
-    //cout << "i = " << i << endl;
-
-    vector<int > i_array = DIF_DecToBin_MixedRadix(i, bit_width);
-    int tmp;
-    for(int i=0; i<bit_width; i++){
-        tmp = i_array[i];
-        if(tmp){
-            i_complement_array[i] = 0;
-        }else{
-            i_complement_array[i] = 1;
-        }
-    }
-    i_complement = DIF_VecToInt_MixedRadix(i_complement_array, radix_r1);
-
-    //cout << "i_complement = " << i_complement << endl;
-    return i_complement;
-}
-
-vector<int> DIF_DecToBin_MixedRadix(int data, int bit_width){
-    vector<int> BinVec(bit_width);
-    for(int j=0; j<bit_width; j++){
-        BinVec.at(j) = (data >> j) & 1;
-    }
-    return BinVec;
-}
-int DIF_VecToInt_MixedRadix(vector<int > bit_array, int N){
-    int bit_width = (int)ceil(log2(N));
-    int integer = 0;
-    for(int j=0; j < bit_width; j++){
-        integer += bit_array[j] << j;
-    }
-    return integer;
 }
