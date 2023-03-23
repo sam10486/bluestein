@@ -3,6 +3,7 @@
 #include "NTTSPMB.h"
 #include "DTFAG.h"
 #include "DIT_NTTSPMB.h"
+#include <vector>
 void test_NTTSPMB();
 void my_test(int argc, char *argv[]);
 
@@ -18,19 +19,31 @@ int main(int argc, char *argv[]){
     cout << "+----------------------------+----------------------------+" << endl;
     cout << "| 1. test_NTTSPMB            | test-NTTSPMB.cc            |" << endl;
     cout << "| 2. my_test                 | my_test.cpp                |" << endl;
-    cout << "| 3. DTFAG_DIT               | DTFAG_DIT.cpp              |" << endl;
+    cout << "| 3. DTFAG_SPMB_DIT          | DTFAG_SPMB_DIT.cpp         |" << endl;
     cout << "| 4. DTFAG_verify            | DTFAG_verify.cpp           |" << endl;
-    cout << "| 5. DTFAG_test              | DTFAG_test.cpp             |" << endl;
+    cout << "| 5. DTFAG_DIT               | DTFAG_DIT.cpp              |" << endl;
     cout << "| 6. DTFAG_DIF_MixedRadix    | DTFAG_DIF_MixedRadix.cpp   |" << endl;
     cout << "+----------------------------+----------------------------+" << endl;
     
     //---------class delcare------------
+    DTFAG DTFAG_SPMB_DIT;
     DTFAG DTFAG_DIT;
-    DTFAG DTFAG_test;
     DTFAG DTFAG_DIF_MixedRadix;
     DTFAG DTFAG_verify;
     //---------class delcare fin---------
     
+
+    //-----------test declare------------
+    int stage = 0;
+    int radix_r1 = 2;
+    vector<ZZ > st0_Tw, st1_Tw, st2_Tw;
+    st0_Tw.resize(radix_r1);
+    st1_Tw.resize(radix_r1);
+    st2_Tw.resize(radix_r1);
+    int DTFAG_t = 0;
+    int DTFAG_i = 0;
+    int DTFAG_j = 0;
+    //------------------------------------
     
     
     int input_parameter = 6;
@@ -74,13 +87,13 @@ int main(int argc, char *argv[]){
             my_test(argc, argv);
             break;
         case 3:
-            DTFAG_DIT.DTFAG_DIT();
+            DTFAG_SPMB_DIT.DTFAG_SPMB_DIT(stage, st0_Tw, st1_Tw, st2_Tw, DTFAG_t, DTFAG_i, DTFAG_j);
             break;
         case 4:
             DTFAG_verify.DTFAG_verify();
             break;
         case 5:
-            DTFAG_test.DTFAG_test();
+            DTFAG_DIT.DTFAG_DIT();
             break;
         case 6:
             DTFAG_DIF_MixedRadix.DTFAG_DIF_MixedRadix();

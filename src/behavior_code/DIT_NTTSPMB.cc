@@ -9,6 +9,7 @@
 #include <vector>
 #include <algorithm>
 #include "BitOperate.h"
+#include "DTFAG.h"
 
 using namespace std;
 
@@ -41,6 +42,17 @@ void DIT_NTTSPMB::DIT_NTT_radix2(std::vector<ZZ> &A){
 	long long bit_width = log2(N);
 	long long bit_width_s = log(radix)/log(2);
 	vector<long long> bit_array;
+	//----------------------------------------
+
+	//------------DTFAG generator-------------
+	DTFAG DTFAG;
+	vector<ZZ > st0_Tw, st1_Tw, st2_Tw;
+	st0_Tw.resize(radix);
+	st1_Tw.resize(radix);
+	st2_Tw.resize(radix);
+	int DTFAG_t = 0;
+	int DTFAG_i = 0;
+	int DTFAG_j = 0;
 	//----------------------------------------
 
 	
@@ -112,6 +124,11 @@ void DIT_NTTSPMB::DIT_NTT_radix2(std::vector<ZZ> &A){
 	std::cout << "init load over! \n";
 	//need modify to mult by twiddle factor
 	for(int s = 0; s < Stage; s++){
+		//----------DTFAG generate---------------
+		int DTFAG_t = 0;
+		int DTFAG_i = 0;
+		int DTFAG_j = 0;
+		//----------DTFAG fin--------------------
         int s_complement = number_complement(s, Stage);
 		if(s == 0){
             PowerMod(factor, factor_tmp, pow(2,s_complement), p);
@@ -160,15 +177,80 @@ void DIT_NTTSPMB::DIT_NTT_radix2(std::vector<ZZ> &A){
 				DIT_spmb_radix2 << ") " ;
 				DIT_spmb_radix2 << ", (w^" << 0 << ", w^" << tw_degree * length << ")" <<std::endl;
 				//-----------------------------------------
-				
+
+				//-----------DFTAG generator--------------
+				//cout << "stage = " << s << ", DTFAG_t: " << DTFAG_t << ", DTFAG_i: " << DTFAG_i << ", DTFAG_j: " << DTFAG_j << endl;
+				DTFAG.DTFAG_SPMB_DIT(s, 
+								st0_Tw, st1_Tw, st2_Tw, 
+								DTFAG_t, DTFAG_i, DTFAG_j);
+				/*switch(s){
+					case 0:
+						for(int i=0; i<radix; i++){
+							cout << "st0_Tw[" << i << "] = w^" << st0_Tw[i] << endl;
+						}
+						break;
+					case 1:
+						for(int i=0; i<radix; i++){
+							cout << "st1_Tw[" << i << "] = w^" << st1_Tw[i] << endl;
+						}
+						break;
+					case 2:
+						for(int i=0; i<radix; i++){
+							cout << "st2_Tw[" << i << "] = w^" << st2_Tw[i] << endl;
+						}
+						break;
+				}*/
+				if(DTFAG_i == radix-1 && DTFAG_j == radix-1 && DTFAG_t == radix-1){
+					DTFAG_t = 0;
+				}else if(DTFAG_i == radix-1 && DTFAG_j == radix-1){
+					DTFAG_t++;
+				}
+				if(DTFAG_j == radix-1 && DTFAG_i == radix-1){
+					DTFAG_i = 0;
+				}else if(DTFAG_j == radix-1){
+					DTFAG_i++;
+				}
+				if(DTFAG_j == radix-1){
+					DTFAG_j = 0;
+				}else{
+					DTFAG_j++;
+				}
+				//-----------DTFAG fin--------------------
+				int debug = 0;
 				if(bn_tmp == 0){
                     DIT_DATARECORD << "bn_tmp = " << bn_tmp << ", ma_tmp = " << ma_tmp << std::endl;
 					bn0_bc_tmp = BC_tmp;
-                    DIT_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp]<<"\n";
-					DIT_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", factor_t = " << factor_t << ", w^" << pow(2,s_complement)*length << "\n";
-					//MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],factor_t,p);
-                    //Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
-                    
+					switch(s){
+						case 0:
+							DIT_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp]<< ", st0_Tw[0] = " << st0_Tw[0] << "\n";
+							DIT_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp]<< ", st0_Tw[1] = " << st0_Tw[1] << "\n";
+							if(!debug) Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
+							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st0_Tw[0],p);
+							if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],st0_Tw[1],p);
+							break;
+						case 1:
+							DIT_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp]<< ", st1_Tw[0] = " << st1_Tw[0] << "\n";
+							DIT_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp]<< ", st1_Tw[1] = " << st1_Tw[1] << "\n";
+							if(!debug) Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
+							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st1_Tw[0],p);
+							if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],st1_Tw[1],p);
+							break;
+						case 2:
+							DIT_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp]<< ", st2_Tw[0] = " << st2_Tw[0] << "\n";
+							DIT_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp]<< ", st2_Tw[1] = " << st2_Tw[1] << "\n";
+							if(!debug) Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
+							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st2_Tw[0],p);
+							if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],st2_Tw[1],p);
+							break;
+						case 3:
+							DIT_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp]<< ", st3_Tw[0] = " << 1 << "\n";
+							DIT_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp]<< ", st3_Tw[1] = " << 1 << "\n";
+							if(!debug) Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
+							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],1,p);
+							if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],1,p);
+							break;
+					}
+					
 					DIT_DATARECORD << "---after BU compute---" << std::endl;
                     DIT_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp]<<"\n";
 					DIT_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp]<<"\n";
@@ -197,10 +279,36 @@ void DIT_NTTSPMB::DIT_NTT_radix2(std::vector<ZZ> &A){
 			    else {
                     DIT_DATARECORD << "bn_tmp = " << bn_tmp << ", ma_tmp = " << ma_tmp << std::endl;
 					bn1_bc_tmp = BC_tmp;
-                    DIT_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<<"\n";
-					DIT_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", factor_t = " << factor_t << ", w^" << pow(2,s_complement)*length << "\n";
-                    //MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],factor_t,p);
-					//Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
+					switch(s){
+						case 0:
+							DIT_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st0_Tw[0] = " << st0_Tw[0] << "\n";
+							DIT_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st0_Tw[1] = " << st0_Tw[1] << "\n";
+							if(!debug) Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
+							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st0_Tw[0],p);
+							if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],st0_Tw[1],p);
+							break;
+						case 1:
+							DIT_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st1_Tw[0] = " << st1_Tw[0] << "\n";
+							DIT_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st1_Tw[1] = " << st1_Tw[1] << "\n";
+							if(!debug) Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
+							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st1_Tw[0],p);
+							if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],st1_Tw[1],p);
+							break;
+						case 2:
+							DIT_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st2_Tw[0] = " << st2_Tw[0] << "\n";
+							DIT_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st2_Tw[1] = " << st2_Tw[1] << "\n";
+							if(!debug) Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
+							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st2_Tw[0],p);
+							if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],st2_Tw[1],p);
+							break;
+						case 3:
+							DIT_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st3_Tw[0] = " << 1 << "\n";
+							DIT_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st3_Tw[1] = " << 1 << "\n";
+							if(!debug) Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
+							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],1,p);
+							if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],1,p);
+							break;
+					}
 					
                     DIT_DATARECORD << "---after BU compute---" << std::endl;
                     DIT_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<<"\n";
@@ -242,11 +350,6 @@ void DIT_NTTSPMB::DIT_NTT_radix2(std::vector<ZZ> &A){
 		    	A_B0R0[bn0_ma_reg] = data_tmp;
 		    }
 		}
-		//std::cout <<"A_B0R0["<<bn0_ma_reg<<"]: "<<A_B0R0[bn0_ma_reg]<<"\n";
-		//std::cout <<"A_B0R1["<<bn0_ma_reg<<"]: "<<A_B0R1[bn0_ma_reg]<<"\n";
-		//std::cout <<"A_B1R0["<<bn1_ma_reg<<"]: "<<A_B1R0[bn1_ma_reg]<<"\n";
-		//std::cout <<"A_B1R1["<<bn1_ma_reg<<"]: "<<A_B1R1[bn1_ma_reg]<<"\n";
-        //std::cout <<"------------------------------------------\n";		 
 		}
 	}
 	
@@ -261,16 +364,12 @@ void DIT_NTTSPMB::DIT_NTT_radix2(std::vector<ZZ> &A){
 			RR_R2(BC_tmp,Stage-1,BC);
 			AGU_R2(BC,bn_tmp,ma_tmp);
 			if(bn_tmp == 0){
-			   //std::cout <<"BC_tmp*2: "<< BC_tmp*2<<"\n";
-			   //std::cout <<"Bit reverse: "<< index_r0<<"\n";
 			   BR_R2(2 * BC_tmp,index0);
 			   BR_R2(2 * BC_tmp + 1,index1);
                A[index0]     = A_B0R0[ma_tmp];
 			   A[index1] = A_B0R1[ma_tmp];
 			}
 			else {
-			   //std::cout <<"BC_tmp*2: "<< BC_tmp*2<<"\n";
-			   //std::cout <<"Bit reverse: "<< index_r0<<"\n";
 			   BR_R2(2 * BC_tmp,index0);
 			   BR_R2(2 * BC_tmp + 1,index1);
                A[index0]     = A_B1R0[ma_tmp];

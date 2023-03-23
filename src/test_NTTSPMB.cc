@@ -40,23 +40,23 @@ void test_NTTSPMB()
   cout << "ROU = " << ROU << std::endl;
   //---------------------------------
 
-  radix = 16;
+  radix = 2;
   ZZ fft_prime;
   ZZ fft_twiddle;
   ZZ fft_twiddle_16;
   ZZ fft_IW;
   ZZ fft_twiddle_65536;
   
-  fft_point         = 65536;//16
+  fft_point         = 16;//16
   difference_length = 65536 / fft_point;
   difference_16     = fft_point / 16;
   band_memory_size  = fft_point / 32;
   conv(fft_prime,"18446744069414584321");
   conv(fft_twiddle_65536,"14603442835287214144");  //65536-th twiddle factor
   //-------test--------
-  int debug_for_DIT = 0;
-  //conv(fft_prime,"197");
-  //conv(fft_twiddle_65536,"8");  //65536-th twiddle factor
+  int debug_for_DIT = 1;
+  conv(fft_prime,"197");
+  conv(fft_twiddle_65536,"8");  //65536-th twiddle factor
   //-------------------
   
   PowerMod(fft_twiddle,fft_twiddle_65536,difference_length,fft_prime);
@@ -242,7 +242,7 @@ void test_NTTSPMB()
     cout << "fft_twiddle = " << fft_twiddle << endl;
 
     for(int i = 0;i < fft_point;i++){
-	  	B[i]   = BitRev.BitReserve(i, log2(fft_point));
+      B[i]   = i;
     }
     DIT_spmb.init(fft_point,fft_prime,fft_twiddle,radix);
     DIT_spmb.DIT_NTT_radix2(B);
