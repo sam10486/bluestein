@@ -19,10 +19,9 @@ int main(int argc, char *argv[]){
     cout << "+----------------------------+----------------------------+" << endl;
     cout << "| 1. test_NTTSPMB            | test-NTTSPMB.cc            |" << endl;
     cout << "| 2. my_test                 | my_test.cpp                |" << endl;
-    cout << "| 3. DTFAG_SPMB_DIT          | DTFAG_SPMB_DIT.cpp         |" << endl;
-    cout << "| 4. DTFAG_verify            | DTFAG_verify.cpp           |" << endl;
-    cout << "| 5. DTFAG_DIT               | DTFAG_DIT.cpp              |" << endl;
-    cout << "| 6. DTFAG_DIF_MixedRadix    | DTFAG_DIF_MixedRadix.cpp   |" << endl;
+    cout << "| 3. DTFAG_verify            | DTFAG_verify.cpp           |" << endl;
+    cout << "| 4. DTFAG_DIT               | DTFAG_DIT.cpp              |" << endl;
+    cout << "| 5. DTFAG_DIF_MixedRadix    | DTFAG_DIF_MixedRadix.cpp   |" << endl;
     cout << "+----------------------------+----------------------------+" << endl;
     
     //---------class delcare------------
@@ -33,9 +32,14 @@ int main(int argc, char *argv[]){
     //---------class delcare fin---------
     
 
-    //-----------test declare------------
-    int stage = 0;
+    int input_parameter = 6;
+    int selection = 0;
+    bool valid = true;
+    //-------for DTFAG--------------
     int radix_r1 = 2;
+    int radix_r2 = 2;
+    unsigned long fft_point = pow(2, radix_r1) * radix_r2;
+    int stage = 0;
     vector<ZZ > st0_Tw, st1_Tw, st2_Tw;
     st0_Tw.resize(radix_r1);
     st1_Tw.resize(radix_r1);
@@ -43,14 +47,6 @@ int main(int argc, char *argv[]){
     int DTFAG_t = 0;
     int DTFAG_i = 0;
     int DTFAG_j = 0;
-    //------------------------------------
-    
-    
-    int input_parameter = 6;
-    int selection = 0;
-    bool valid = true;
-    //-------for DTFAG--------------
-    unsigned long fft_point = 65536;
     ZZ fft_prime ;
     ZZ fft_twiddle_65536 ;
     ZZ fft_twiddle ;
@@ -87,15 +83,12 @@ int main(int argc, char *argv[]){
             my_test(argc, argv);
             break;
         case 3:
-            DTFAG_SPMB_DIT.DTFAG_SPMB_DIT(stage, st0_Tw, st1_Tw, st2_Tw, DTFAG_t, DTFAG_i, DTFAG_j);
-            break;
-        case 4:
             DTFAG_verify.DTFAG_verify();
             break;
-        case 5:
+        case 4:
             DTFAG_DIT.DTFAG_DIT();
             break;
-        case 6:
+        case 5:
             DTFAG_DIF_MixedRadix.DTFAG_DIF_MixedRadix();
             break;    
         case 0:

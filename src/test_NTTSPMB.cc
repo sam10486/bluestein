@@ -40,23 +40,22 @@ void test_NTTSPMB()
   cout << "ROU = " << ROU << std::endl;
   //---------------------------------
 
-  radix = 2;
+  radix = 16;
   ZZ fft_prime;
   ZZ fft_twiddle;
   ZZ fft_twiddle_16;
   ZZ fft_IW;
   ZZ fft_twiddle_65536;
   
-  fft_point         = 16;//16
+  fft_point         = 65536;//16
   difference_length = 65536 / fft_point;
   difference_16     = fft_point / 16;
   band_memory_size  = fft_point / 32;
   conv(fft_prime,"18446744069414584321");
   conv(fft_twiddle_65536,"14603442835287214144");  //65536-th twiddle factor
   //-------test--------
-  int debug_for_DIT = 1;
-  conv(fft_prime,"197");
-  conv(fft_twiddle_65536,"8");  //65536-th twiddle factor
+  //conv(fft_prime,"197");
+  //conv(fft_twiddle_65536,"8");  //65536-th twiddle factor
   //-------------------
   
   PowerMod(fft_twiddle,fft_twiddle_65536,difference_length,fft_prime);
@@ -233,8 +232,10 @@ void test_NTTSPMB()
 	A_INTT_o << "\n";  
   }
 
+  cout << "--------------------DIT FFT part----------------" << std::endl;
+  int debug_for_DIT = 1;
   if(debug_for_DIT){
-    cout << "--------------------DIT FFT part----------------" << std::endl;
+    error = 0;
     DIT_NTTSPMB DIT_spmb;
     BitOperate BitRev;
     std::vector<ZZ> B;
@@ -245,9 +246,19 @@ void test_NTTSPMB()
       B[i]   = i;
     }
     DIT_spmb.init(fft_point,fft_prime,fft_twiddle,radix);
-    DIT_spmb.DIT_NTT_radix2(B);
 
-
+    switch(fft_point){
+      case 65536:
+        DIT_spmb.DIT_NTT_radix16(B);
+        break;
+      case 256:
+        DIT_spmb.DIT_NTT_radix4(B);
+        break;
+      case 16:
+        DIT_spmb.DIT_NTT_radix2(B);
+        break;
+    }
+    
     std::ofstream B_o("./B_output.txt");
     for(int i = 0; i < fft_point;i++){
 	    B_o << B[i];  

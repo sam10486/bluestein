@@ -13,5 +13,7 @@ using namespace NTL;
 class DIT_NTTSPMB : public NTTSPMB, public BitOperate{
 public:
     void DIT_NTT_radix2(std::vector<ZZ> &A); //radix-2 NTT
+    void DIT_NTT_radix4(std::vector<ZZ> &A); //radix-4 NTT
+    void DIT_NTT_radix16(std::vector<ZZ> &A);
 };
 #endif

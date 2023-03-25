@@ -6,13 +6,13 @@
 
 using namespace std;
 
-void DTFAG::DTFAG_SPMB_DIT(  int stage,
+void DTFAG::DTFAG_SPMB_DIT(  
+                        int stage, int fft_point, int radix_r1, int radix_r2, int debug,
+                        vector<vector<ZZ > > &ROM0,  vector<ZZ > &ROM1,  vector<ZZ > &ROM2,
                         vector<ZZ > &st0_Tw, vector<ZZ > &st1_Tw, vector<ZZ > &st2_Tw, 
                         int DTFAG_t, int DTFAG_i, int DTFAG_j) {
     //------- radix sel-----
-    int radix_r1 = 2;
-    int radix_r2 = 2;
-    unsigned long fft_point = 16;
+    //int debug = 0;
     ZZ fft_prime ;
     ZZ fft_twiddle_65536 ;
     ZZ fft_twiddle ;
@@ -21,16 +21,11 @@ void DTFAG::DTFAG_SPMB_DIT(  int stage,
     conv(fft_twiddle_65536, "14603442835287214144"); // twiddle factor based setting by main.cc
     
     //------debug----------
-    int debug_for_DIT = 1;
-    if(debug_for_DIT) conv(fft_prime,"197");
-    if(debug_for_DIT) conv(fft_twiddle_65536,"8");  //65536-th twiddle factor
+    int debug_for_SPMB = 0;
+    if(debug_for_SPMB) conv(fft_prime,"197");
+    if(debug_for_SPMB) conv(fft_twiddle_65536,"8");  //65536-th twiddle factor
     //---------------------
-
-
-
-
     PowerMod(fft_twiddle,fft_twiddle_65536,difference_length,fft_prime);
-    //cout << "fft_twiddle = " << fft_twiddle << ", fft_prime = " << fft_prime << endl;
     //-----------------------
 
 
@@ -53,85 +48,14 @@ void DTFAG::DTFAG_SPMB_DIT(  int stage,
     
     
     NTTSPMB NTTSPMB;
+    DTFAG DTFAG;
     std::ofstream DTFAG_SPMB_DIT("./my_print_data/DTFAG_SPMB_DIT.txt");
-    //std::ofstream DTFAG_pattern_Tw0("./my_print_data/DTFAG_pattern_Tw0.txt");
-    //std::ofstream DTFAG_pattern_Tw1("./my_print_data/DTFAG_pattern_Tw1.txt");
-    //std::ofstream DTFAG_pattern_Tw2("./my_print_data/DTFAG_pattern_Tw2.txt");
 
     int Tw2_display = 0;
     int Tw1_display = 0;
     int Tw0_display = 0;
 
-    int debug = 0;
     int Tw_th = 1;
-
-    vector<vector<ZZ > > ROM0;
-    vector<ZZ > ROM1, ROM2;
-    ROM0.resize(radix_r1);
-    for(int i=0; i<radix_r1; i++){
-        ROM0[i].resize(radix_r1);
-    }
-    ROM1.resize(arr_size);
-    ROM2.resize(arr_size);
-
-    //-------------test pattern array-------------
-    vector<vector<vector<vector<ZZ > > > > Tw0_ROM;
-    Tw0_ROM.resize(radix_r1);
-    for(int t=0; t<radix_r1; t++){
-        Tw0_ROM[t].resize(radix_r1);
-        for(int i=0; i<radix_r1; i++){
-            Tw0_ROM[t][i].resize(radix_r1);
-            for(int j=0; j<radix_r1; j++){
-                Tw0_ROM[t][i][j].resize(radix_r1);
-            }
-        }
-    }
-    //--------------------------------------------
-
-
-    DTFAG_SPMB_DIT << "****************initial ROM********************" << endl;
-    for(int k=0; k<radix_r1; k++){
-        DTFAG_SPMB_DIT << "ROM0[k=" << k <<  "] = [";
-        for(int n=0; n<radix_r1; n++){
-            ZZ ROM0_dg; 
-            ROM0_dg = (radix_r1 * radix_r1) * n * k;
-            PowerMod(ROM0[k][n], fft_twiddle, ROM0_dg, fft_prime);
-            //------------------for debug-------------------
-            if(debug) ROM0[k][n] = (radix_r1 * radix_r1) * k * n;
-            //----------------------------------------------
-            DTFAG_SPMB_DIT << ROM0[k][n] << ", ";
-        }
-        DTFAG_SPMB_DIT << "]\n";
-    }
-    DTFAG_SPMB_DIT << "----------------------------------" << endl;
-    for(int group=0; group<radix_r1; group++){
-        DTFAG_SPMB_DIT << "ROM1[g=" << group <<  "] = [";
-        for(int n=0; n<radix_r1; n++){
-            ZZ ROM1_dg;
-            ROM1_dg = group * radix_r1 * n;
-            PowerMod(ROM1[group*radix_r1+n], fft_twiddle, ROM1_dg, fft_prime);
-            //------------------for debug-------------------
-            if(debug) ROM1[group*radix_r1+n] = group * radix_r1 * n;
-            //----------------------------------------------
-            DTFAG_SPMB_DIT <<  ROM1[group*radix_r1+n] << ", ";
-        }
-        DTFAG_SPMB_DIT << "]\n";
-    }
-    DTFAG_SPMB_DIT << "----------------------------------" << endl;
-    for(int group=0; group<radix_r1; group++){
-        DTFAG_SPMB_DIT << "ROM2[g=" << group <<  "] = [";
-        for(int n=0; n<radix_r1; n++){
-            ZZ ROM2_dg;
-            ROM2_dg = group * n;
-            PowerMod(ROM2[group*radix_r1+n], fft_twiddle, ROM2_dg, fft_prime);
-            //------------------for debug-------------------
-            if(debug) ROM2[group*radix_r1+n] = group * n;
-            //----------------------------------------------
-            DTFAG_SPMB_DIT << ROM2[group*radix_r1+n] << ", ";
-        }
-        DTFAG_SPMB_DIT << "]\n";
-    }
-    DTFAG_SPMB_DIT << "**************intital fin****************" << endl;
 
     DTFAG_SPMB_DIT << "     DTFAG_t = " << DTFAG_t << endl;
     DTFAG_SPMB_DIT << "-----------------crossbar for len--------------------"<< endl;
