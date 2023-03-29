@@ -58,7 +58,7 @@ void DIT_NTTSPMB::DIT_NTT_radix2(std::vector<ZZ> &A){
 	ZZ fft_prime = p;
 	int debug = 0;
 	vector<vector<ZZ > > ROM0;
-    vector<ZZ > ROM1, ROM2;
+    vector<vector<ZZ > > ROM1, ROM2;
 
 
 	int arr_size = radix_r1 * radix_r1;
@@ -67,7 +67,13 @@ void DIT_NTTSPMB::DIT_NTT_radix2(std::vector<ZZ> &A){
         ROM0[i].resize(radix_r1);
     }
     ROM1.resize(arr_size);
+	for(int i=0; i<radix_r1; i++){
+        ROM1[i].resize(radix_r1);
+    }
     ROM2.resize(arr_size);
+	for(int i=0; i<radix_r1; i++){
+        ROM2[i].resize(radix_r1);
+    }
 	DTFAG.DTFAG_ROM_init(
                         radix_r1, radix_r2, fft_twiddle, fft_prime, debug,
                         ROM0, ROM1, ROM2);
@@ -397,7 +403,7 @@ void DIT_NTTSPMB::DIT_NTT_radix4(std::vector<ZZ> &A){
 	ZZ fft_prime = p;
 	int debug = 0;
 	vector<vector<ZZ > > ROM0;
-    vector<ZZ > ROM1, ROM2;
+    vector<vector<ZZ > > ROM1, ROM2;
 
 
 	int arr_size = radix_r1 * radix_r1;
@@ -406,7 +412,13 @@ void DIT_NTTSPMB::DIT_NTT_radix4(std::vector<ZZ> &A){
         ROM0[i].resize(radix_r1);
     }
     ROM1.resize(arr_size);
+	for(int i=0; i<radix_r1; i++){
+        ROM1[i].resize(radix_r1);
+    }
     ROM2.resize(arr_size);
+	for(int i=0; i<radix_r1; i++){
+        ROM2[i].resize(radix_r1);
+    }
 	DTFAG.DTFAG_ROM_init(
                         radix_r1, radix_r2, fft_twiddle, fft_prime, debug,
                         ROM0, ROM1, ROM2);
@@ -863,7 +875,7 @@ void DIT_NTTSPMB::DIT_NTT_radix16(std::vector<ZZ> &A){
 	ZZ fft_prime = p;
 	int debug = 0;
 	vector<vector<ZZ > > ROM0;
-    vector<ZZ > ROM1, ROM2;
+    vector<vector<ZZ > > ROM1, ROM2;
 
 
 	int arr_size = radix_r1 * radix_r1;
@@ -872,7 +884,13 @@ void DIT_NTTSPMB::DIT_NTT_radix16(std::vector<ZZ> &A){
         ROM0[i].resize(radix_r1);
     }
     ROM1.resize(arr_size);
+	for(int i=0; i<radix_r1; i++){
+        ROM1[i].resize(radix_r1);
+    }
     ROM2.resize(arr_size);
+	for(int i=0; i<radix_r1; i++){
+        ROM2[i].resize(radix_r1);
+    }
 	DTFAG.DTFAG_ROM_init(
                         radix_r1, radix_r2, fft_twiddle, fft_prime, debug,
                         ROM0, ROM1, ROM2);

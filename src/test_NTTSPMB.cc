@@ -14,7 +14,7 @@
 #include <bluestein.h>
 #include <BitOperate.h>
 #include "DIT_NTTSPMB.h"
-  
+#include "DIF_NTTSPMB.h" 
 
 using namespace std;
 
@@ -29,7 +29,8 @@ void test_NTTSPMB()
   long difference_16;
   unsigned long fft_point;
   int band_memory_size; 
-  int radix;
+  int radix_r1;
+  int radix_r2;
   //----------bluestein--------------
   bluestein blue;
   ZZ tmp_prime;
@@ -40,14 +41,15 @@ void test_NTTSPMB()
   cout << "ROU = " << ROU << std::endl;
   //---------------------------------
 
-  radix = 16;
+  radix_r1 = 16;
+  radix_r2 = 16;
   ZZ fft_prime;
   ZZ fft_twiddle;
   ZZ fft_twiddle_16;
   ZZ fft_IW;
   ZZ fft_twiddle_65536;
   
-  fft_point         = 65536;//16
+  fft_point         = pow(radix_r1, 3) * radix_r2;//16
   difference_length = 65536 / fft_point;
   difference_16     = fft_point / 16;
   band_memory_size  = fft_point / 32;
@@ -65,7 +67,7 @@ void test_NTTSPMB()
  
   std::cout << "test NTTSPMB Init!!! \n";
   //---
-  test.init(fft_point,fft_prime,fft_twiddle,radix);
+  test.init(fft_point,fft_prime,fft_twiddle,radix_r1);
   NTT_test.NTT_init(fft_point,fft_prime,fft_twiddle);
   //----
 
@@ -166,9 +168,7 @@ void test_NTTSPMB()
   std::ofstream A_o("./A_output.txt");
   std::ofstream A_1_o("./A_1_output.txt");
   std::ofstream A_INTT_o("./A_INTT_output.txt");
-  //std::ofstream Mult_data_o("./MULT_DATA_o.txt");
   
-
   int error = 0;
    
   for(int i = 0; i < fft_point;i++){
@@ -228,8 +228,8 @@ void test_NTTSPMB()
 }
 
   for(int i = 0; i < fft_point;i++){
-	A_INTT_o << A[i];  
-	A_INTT_o << "\n";  
+	  A_INTT_o << A[i];  
+	  A_INTT_o << "\n";  
   }
 
   cout << "--------------------DIT FFT part----------------" << std::endl;
@@ -245,8 +245,9 @@ void test_NTTSPMB()
     for(int i = 0;i < fft_point;i++){
       B[i]   = i;
     }
-    DIT_spmb.init(fft_point,fft_prime,fft_twiddle,radix);
+    DIT_spmb.init(fft_point,fft_prime,fft_twiddle,radix_r1);
 
+    int no_display = 0;
     switch(fft_point){
       case 65536:
         DIT_spmb.DIT_NTT_radix16(B);
@@ -257,6 +258,10 @@ void test_NTTSPMB()
       case 16:
         DIT_spmb.DIT_NTT_radix2(B);
         break;
+      default:
+        no_display = 1;
+        cout << "No this DIT selection" << endl;
+        break;
     }
     
     std::ofstream B_o("./B_output.txt");
@@ -264,12 +269,127 @@ void test_NTTSPMB()
 	    B_o << B[i];  
       B_o << "\n";
 	    if(B[i] != A_1[i]) {
-	  	  std::cout << "error index: " << i <<"\n";
+	  	  if(!no_display) std::cout << "error index: " << i <<"\n";
 	  	  error = error + 1;
       }
     }
     std::cout << "error : " << error << "\n";
   }
   
+  cout << "------------------DIF FFT test-----------------" << endl;
+  int debug_for_DIF = 1;
+  if(debug_for_DIF){
+    error = 0;
+    DIF_NTTSPMB DIF_spmb;
+    BitOperate BitRev;
+    std::vector<ZZ> C;
+    std::vector<ZZ> C_NTT_B0R0;
+    std::vector<ZZ> C_NTT_B0R1;
+    std::vector<ZZ> C_NTT_B0R2;
+    std::vector<ZZ> C_NTT_B0R3;
+    std::vector<ZZ> C_NTT_B0R4;
+    std::vector<ZZ> C_NTT_B0R5;
+    std::vector<ZZ> C_NTT_B0R6;
+    std::vector<ZZ> C_NTT_B0R7;
+    std::vector<ZZ> C_NTT_B0R8;
+    std::vector<ZZ> C_NTT_B0R9;
+    std::vector<ZZ> C_NTT_B0R10;
+    std::vector<ZZ> C_NTT_B0R11;
+    std::vector<ZZ> C_NTT_B0R12;
+    std::vector<ZZ> C_NTT_B0R13;
+    std::vector<ZZ> C_NTT_B0R14;
+    std::vector<ZZ> C_NTT_B0R15;
+    std::vector<ZZ> C_NTT_B1R0;
+    std::vector<ZZ> C_NTT_B1R1;
+    std::vector<ZZ> C_NTT_B1R2;
+    std::vector<ZZ> C_NTT_B1R3;
+    std::vector<ZZ> C_NTT_B1R4;
+    std::vector<ZZ> C_NTT_B1R5;
+    std::vector<ZZ> C_NTT_B1R6;
+    std::vector<ZZ> C_NTT_B1R7;
+    std::vector<ZZ> C_NTT_B1R8;
+    std::vector<ZZ> C_NTT_B1R9;
+    std::vector<ZZ> C_NTT_B1R10;
+    std::vector<ZZ> C_NTT_B1R11;
+    std::vector<ZZ> C_NTT_B1R12;
+    std::vector<ZZ> C_NTT_B1R13;
+    std::vector<ZZ> C_NTT_B1R14;
+    std::vector<ZZ> C_NTT_B1R15;
+
+    C.resize(fft_point);
+    cout << "fft_twiddle = " << fft_twiddle << endl;
+
+    for(int i = 0;i < fft_point;i++){
+      C[i]   = i;
+    }
+    DIF_spmb.init(fft_point,fft_prime,fft_twiddle,radix_r1);
+
+    switch(fft_point){
+      case 65536:
+        DIF_spmb.DIF_NTT_radix16(C);
+        break;
+      case 32768:
+        DIF_spmb.DIF_NTT_r16_r8(
+          C,
+          C_NTT_B0R0, C_NTT_B0R1, C_NTT_B0R2, C_NTT_B0R3,
+			    C_NTT_B0R4, C_NTT_B0R5, C_NTT_B0R6, C_NTT_B0R7,
+          C_NTT_B0R8, C_NTT_B0R9, C_NTT_B0R10,C_NTT_B0R11,
+          C_NTT_B0R12,C_NTT_B0R13,C_NTT_B0R14,C_NTT_B0R15,
+          C_NTT_B1R0, C_NTT_B1R1, C_NTT_B1R2, C_NTT_B1R3,
+				  C_NTT_B1R4, C_NTT_B1R5, C_NTT_B1R6, C_NTT_B1R7,
+          C_NTT_B1R8, C_NTT_B1R9, C_NTT_B1R10,C_NTT_B1R11,
+				  C_NTT_B1R12,C_NTT_B1R13,C_NTT_B1R14,C_NTT_B1R15
+        );
+        break;
+      case 16384:
+        DIF_spmb.DIF_NTT_r16_r4(
+          C,
+          C_NTT_B0R0,   C_NTT_B0R1, C_NTT_B0R2, C_NTT_B0R3,
+    	    C_NTT_B0R4,   C_NTT_B0R5, C_NTT_B0R6, C_NTT_B0R7,
+          C_NTT_B0R8,   C_NTT_B0R9, C_NTT_B0R10,C_NTT_B0R11,
+          C_NTT_B0R12,  C_NTT_B0R13,C_NTT_B0R14,C_NTT_B0R15,
+          C_NTT_B1R0,   C_NTT_B1R1, C_NTT_B1R2, C_NTT_B1R3,
+    		  C_NTT_B1R4,   C_NTT_B1R5, C_NTT_B1R6, C_NTT_B1R7,
+          C_NTT_B1R8,   C_NTT_B1R9, C_NTT_B1R10,C_NTT_B1R11,
+    		  C_NTT_B1R12,  C_NTT_B1R13,C_NTT_B1R14,C_NTT_B1R15
+        );
+        break;
+      case 8192:
+        DIF_spmb.DIF_NTT_r16_r2(
+          C,          C_NTT_B0R0, C_NTT_B0R1, C_NTT_B0R2,A_NTT_B0R3,
+			    C_NTT_B0R4, C_NTT_B0R5, C_NTT_B0R6, C_NTT_B0R7,
+          C_NTT_B0R8, C_NTT_B0R9, C_NTT_B0R10,C_NTT_B0R11,
+          C_NTT_B0R12,C_NTT_B0R13,C_NTT_B0R14,C_NTT_B0R15,
+          C_NTT_B1R0, C_NTT_B1R1, C_NTT_B1R2, C_NTT_B1R3,
+				  C_NTT_B1R4, C_NTT_B1R5, C_NTT_B1R6, C_NTT_B1R7,
+          C_NTT_B1R8, C_NTT_B1R9, C_NTT_B1R10,C_NTT_B1R11,
+				  C_NTT_B1R12,C_NTT_B1R13,C_NTT_B1R14,C_NTT_B1R15);
+        break;
+      case 256:
+        DIF_spmb.DIF_NTT_radix4(C);
+        break;
+      case 128:
+        DIF_spmb.DIF_NTT_r4_r2(C,C_NTT_B0R0,C_NTT_B0R1,C_NTT_B0R2,C_NTT_B0R3,
+              C_NTT_B1R0,C_NTT_B1R1,C_NTT_B1R2,C_NTT_B1R3);
+        break;
+      case 16:
+        DIF_spmb.DIF_NTT_radix2(C);
+        break;
+      default:
+        cout << "No this DIF selection" << endl;
+        break;
+    }
+    
+    std::ofstream C_o("./C_output.txt");
+    for(int i = 0; i < fft_point;i++){
+	    C_o << C[i];  
+      C_o << "\n";
+	    if(C[i] != A_1[i]) {
+	  	  std::cout << "error index: " << i <<"\n";
+	  	  error = error + 1;
+      }
+    }
+    std::cout << "error : " << error << "\n";
+  }
   
 }

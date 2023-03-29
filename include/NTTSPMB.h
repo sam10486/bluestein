@@ -12,6 +12,7 @@ class NTTSPMB{
 public:
 	unsigned long  N; // NTT ponit
 	int radix;
+	int radix_r2;
 
 	ZZ N_ZZ; 
 	ZZ IN; // inverse of N (mod p)

@@ -7,10 +7,10 @@
 using namespace std;
 
 void DTFAG::DTFAG_SPMB_DIT(  
-                        int stage, int fft_point, int radix_r1, int radix_r2, int debug,
-                        vector<vector<ZZ > > &ROM0,  vector<ZZ > &ROM1,  vector<ZZ > &ROM2,
-                        vector<ZZ > &st0_Tw, vector<ZZ > &st1_Tw, vector<ZZ > &st2_Tw, 
-                        int DTFAG_t, int DTFAG_i, int DTFAG_j) {
+        int stage, int fft_point, int radix_r1, int radix_r2, int debug,
+        vector<vector<ZZ > > &ROM0,  vector<vector<ZZ > > &ROM1,  vector<vector<ZZ > > &ROM2,
+        vector<ZZ > &st0_Tw, vector<ZZ > &st1_Tw, vector<ZZ > &st2_Tw, 
+        int DTFAG_t, int DTFAG_i, int DTFAG_j) {
     //------- radix sel-----
     //int debug = 0;
     ZZ fft_prime ;
@@ -80,8 +80,12 @@ void DTFAG::DTFAG_SPMB_DIT(
     for(int i=0; i<radix_r1; i++){
         v0[i] = ROM0[MA0][i];
     }
-    v1 = ROM1[MA1];
-    v2 = ROM2[MA2];                
+    int BN_v1 = MA1 / radix_r1;
+    int MA_v1 = MA1 % radix_r1;
+    int BN_v2 = MA2 / radix_r2;
+    int MA_v2 = MA2 % radix_r2;
+    v1 = ROM1[BN_v1][MA_v1];
+    v2 = ROM2[BN_v2][MA_v2];                
     
     for(int idx=0; idx<radix_r1; idx++){
         DTFAG_SPMB_DIT << "v0[" << idx << "] = " << v0[idx];

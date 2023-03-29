@@ -2531,6 +2531,7 @@ std::vector<ZZ> &B1R0,std::vector<ZZ> &B1R1,std::vector<ZZ> &B1R2,std::vector<ZZ
 	long long bit_width = log2(N);
 	long long bit_width_s = log(radix)/log(2);
 	vector<long long> bit_array;
+	int debug = 0;
 	//----------------------------------------
 
     Stage = (unsigned long)ceil(log2(N));
@@ -2686,20 +2687,20 @@ std::vector<ZZ> &B1R0,std::vector<ZZ> &B1R1,std::vector<ZZ> &B1R2,std::vector<ZZ
 					DATARECORD <<"A_B0R1[" << ma_tmp << "] = " << A_B0R1[ma_tmp] << std::endl;
 					DATARECORD <<"A_B0R2[" << ma_tmp << "] = " << A_B0R2[ma_tmp] << std::endl;
 					DATARECORD <<"A_B0R3[" << ma_tmp << "] = " << A_B0R3[ma_tmp] << std::endl;
-					Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
+					if(!debug) Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
 					DATARECORD << "*****after BU*****" << std::endl;
 					DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp] << ", factor_0 : w^" << tw_degree*0<<"\n";
-					DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", facotr_1 : w^" << tw_degree*length  <<"\n";
-					DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<<A_B0R2[ma_tmp] << ", facotr_2 : w^" << tw_degree*length*2 <<"\n";
-					DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<<A_B0R3[ma_tmp] << ", facotr_3 : w^" << tw_degree*length*3 <<"\n";
-					MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],factor_t,p);
-					MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],factor_2t,p);
-					MulMod(A_B0R3[ma_tmp],A_B0R3[ma_tmp],factor_3t,p);
+					DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", facotr_t : w^" << tw_degree*length  <<"\n";
+					DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<<A_B0R2[ma_tmp] << ", facotr_2t : w^" << tw_degree*length*2 <<"\n";
+					DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<<A_B0R3[ma_tmp] << ", facotr_3t : w^" << tw_degree*length*3 <<"\n";
+					if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],factor_t,p);
+					if(!debug) MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],factor_2t,p);
+					if(!debug) MulMod(A_B0R3[ma_tmp],A_B0R3[ma_tmp],factor_3t,p);
 					DATARECORD << "*****after Mul*****" << std::endl;
 					DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<< A_B0R0[ma_tmp] << std::endl;
-					DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<< A_B0R1[ma_tmp] << ", facotr_1 : " << factor_t  << ", length = " << length * 1 << std::endl;
-					DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<< A_B0R2[ma_tmp] << ", facotr_2 : " << factor_2t << ", length = " << length * 2 << std::endl;
-					DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<< A_B0R3[ma_tmp] << ", facotr_3 : " << factor_3t << ", length = " << length * 3 << std::endl;
+					DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<< A_B0R1[ma_tmp] << ", facotr_t : " << factor_t  << ", length = " << length * 1 << std::endl;
+					DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<< A_B0R2[ma_tmp] << ", facotr_2t : " << factor_2t << ", length = " << length * 2 << std::endl;
+					DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<< A_B0R3[ma_tmp] << ", facotr_3t : " << factor_3t << ", length = " << length * 3 << std::endl;
 
 					if(j <  2)bn0_ma_reg1 = ma_tmp;
 					if(j >= 2)bn0_ma_reg2 = ma_tmp;
@@ -2737,19 +2738,20 @@ std::vector<ZZ> &B1R0,std::vector<ZZ> &B1R1,std::vector<ZZ> &B1R2,std::vector<ZZ
 					DATARECORD <<"A_B1R1[" << ma_tmp << "] = " << A_B1R1[ma_tmp] << std::endl;
 					DATARECORD <<"A_B1R2[" << ma_tmp << "] = " << A_B1R2[ma_tmp] << std::endl;
 					DATARECORD <<"A_B1R3[" << ma_tmp << "] = " << A_B1R3[ma_tmp] << std::endl;
-					Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
+					if(!debug) Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
 					DATARECORD << "*****after BU*****" << std::endl;
-					DATARECORD << "A_B1R1[" << ma_tmp << "] = " << A_B1R1[ma_tmp] <<", facotr_1 : " << factor_t  << ", length = " << length * 1 << std::endl;
-					DATARECORD << "A_B1R2[" << ma_tmp << "] = " << A_B1R2[ma_tmp] <<", facotr_2 : " << factor_2t << ", length = " << length * 2 << std::endl;
-					DATARECORD << "A_B1R3[" << ma_tmp << "] = " << A_B1R3[ma_tmp] <<", facotr_3 : " << factor_3t << ", length = " << length * 3 << std::endl;
-					MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],factor_t,p);
-					MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],factor_2t,p);
-					MulMod(A_B1R3[ma_tmp],A_B1R3[ma_tmp],factor_3t,p);
+					DATARECORD << "A_B1R0[" << ma_tmp << "] = " << A_B1R0[ma_tmp] << ", factor_0 : w^" << tw_degree*0<<"\n";
+					DATARECORD << "A_B1R1[" << ma_tmp << "] = " << A_B1R1[ma_tmp] << ", facotr_t : w^" << tw_degree*length  <<"\n";
+					DATARECORD << "A_B1R2[" << ma_tmp << "] = " << A_B1R2[ma_tmp] << ", facotr_2t : w^" << tw_degree*length*2 <<"\n";
+					DATARECORD << "A_B1R3[" << ma_tmp << "] = " << A_B1R3[ma_tmp] << ", facotr_3t : w^" << tw_degree*length*3 <<"\n";
+					if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],factor_t,p);
+					if(!debug) MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],factor_2t,p);
+					if(!debug) MulMod(A_B1R3[ma_tmp],A_B1R3[ma_tmp],factor_3t,p);
 					DATARECORD << "*****after mul*****" << std::endl;
 					DATARECORD << "A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp] << std::endl;
-					DATARECORD << "A_B1R1[" << ma_tmp << "] = " << A_B1R1[ma_tmp] <<", facotr_1 : " << factor_t  << ", length = " << length * 1 << std::endl;
-					DATARECORD << "A_B1R2[" << ma_tmp << "] = " << A_B1R2[ma_tmp] <<", facotr_2 : " << factor_2t << ", length = " << length * 2 << std::endl;
-					DATARECORD << "A_B1R3[" << ma_tmp << "] = " << A_B1R3[ma_tmp] <<", facotr_3 : " << factor_3t << ", length = " << length * 3 << std::endl;
+					DATARECORD << "A_B1R1[" << ma_tmp << "] = " << A_B1R1[ma_tmp] <<", facotr_t : " << factor_t  << ", length = " << length * 1 << std::endl;
+					DATARECORD << "A_B1R2[" << ma_tmp << "] = " << A_B1R2[ma_tmp] <<", facotr_2t : " << factor_2t << ", length = " << length * 2 << std::endl;
+					DATARECORD << "A_B1R3[" << ma_tmp << "] = " << A_B1R3[ma_tmp] <<", facotr_3t : " << factor_3t << ", length = " << length * 3 << std::endl;
 					if(j < 2) bn1_ma_reg1 = ma_tmp;
 					if(j >= 2)bn1_ma_reg2 = ma_tmp;
 

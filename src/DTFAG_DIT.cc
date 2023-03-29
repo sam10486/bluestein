@@ -117,13 +117,17 @@ void DTFAG::DTFAG_DIT() {
                     DTFAG_DIT << "     j = " << j << endl;
                 }
                 MA0 = j;
+                DTFAG_DIT << "MA0 = " << MA0 << endl;
                 if(t % 2== 0) {
                     MA1 = radix_r1 * NTTSPMB.Gray(i,radix_r1) + j;
+                    DTFAG_DIT << "MA1 = " << MA1 << endl;
                 }else {
                     int i_complement = number_complement.number_complement(i, radix_r1);
                     MA1 = radix_r1 * NTTSPMB.Gray(i_complement,radix_r1) + j;
+                    DTFAG_DIT << "MA1 = " << MA1 << endl;
                 }
                 MA2 = radix_r1 * NTTSPMB.Gray(t, radix_r1) + j;
+                DTFAG_DIT << "MA2 = " << MA2 << endl;
                 
                 for(int i=0; i<radix_r1; i++){
                     v0[i] = ROM0[MA0][i];
