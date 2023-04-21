@@ -6,6 +6,7 @@
 #include <vector>
 void test_NTTSPMB();
 void my_test(int argc, char *argv[]);
+void BU_based_NTT();
 
 
 using namespace std;
@@ -22,6 +23,7 @@ int main(int argc, char *argv[]){
     cout << "| 3. DTFAG_verify            | DTFAG_verify.cpp           |" << endl;
     cout << "| 4. DTFAG_DIT               | DTFAG_DIT.cpp              |" << endl;
     cout << "| 5. DTFAG_DIF_MixedRadix    | DTFAG_DIF_MixedRadix.cpp   |" << endl;
+    cout << "| 6. BU_based_NTT            | BU_based_NTT.cpp           |" << endl;
     cout << "+----------------------------+----------------------------+" << endl;
     
     //---------class delcare------------
@@ -91,6 +93,9 @@ int main(int argc, char *argv[]){
         case 5:
             DTFAG_DIF_MixedRadix.DTFAG_DIF_MixedRadix();
             break;    
+        case 6:
+            BU_based_NTT();
+            break;
         case 0:
             return 0;
     }

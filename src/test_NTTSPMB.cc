@@ -41,8 +41,8 @@ void test_NTTSPMB()
   cout << "ROU = " << ROU << std::endl;
   //---------------------------------
 
-  radix_r1 = 16;
-  radix_r2 = 16;
+  radix_r1 = 2;
+  radix_r2 = 2;
   ZZ fft_prime;
   ZZ fft_twiddle;
   ZZ fft_twiddle_16;
@@ -225,7 +225,7 @@ void test_NTTSPMB()
     default:
       cout << "NO INTT function exist!!" << std::endl;
       break;
-}
+  }
 
   for(int i = 0; i < fft_point;i++){
 	  A_INTT_o << A[i];  
@@ -238,7 +238,39 @@ void test_NTTSPMB()
     error = 0;
     DIT_NTTSPMB DIT_spmb;
     BitOperate BitRev;
-    std::vector<ZZ> B;
+    vector<ZZ> B;
+    vector<ZZ> B_NTT_B0R0;
+    vector<ZZ> B_NTT_B0R1;
+    vector<ZZ> B_NTT_B0R2;
+    vector<ZZ> B_NTT_B0R3;
+    vector<ZZ> B_NTT_B0R4;
+    vector<ZZ> B_NTT_B0R5;
+    vector<ZZ> B_NTT_B0R6;
+    vector<ZZ> B_NTT_B0R7;
+    vector<ZZ> B_NTT_B0R8;
+    vector<ZZ> B_NTT_B0R9;
+    vector<ZZ> B_NTT_B0R10;
+    vector<ZZ> B_NTT_B0R11;
+    vector<ZZ> B_NTT_B0R12;
+    vector<ZZ> B_NTT_B0R13;
+    vector<ZZ> B_NTT_B0R14;
+    vector<ZZ> B_NTT_B0R15;
+    vector<ZZ> B_NTT_B1R0;
+    vector<ZZ> B_NTT_B1R1;
+    vector<ZZ> B_NTT_B1R2;
+    vector<ZZ> B_NTT_B1R3;
+    vector<ZZ> B_NTT_B1R4;
+    vector<ZZ> B_NTT_B1R5;
+    vector<ZZ> B_NTT_B1R6;
+    vector<ZZ> B_NTT_B1R7;
+    vector<ZZ> B_NTT_B1R8;
+    vector<ZZ> B_NTT_B1R9;
+    vector<ZZ> B_NTT_B1R10;
+    vector<ZZ> B_NTT_B1R11;
+    vector<ZZ> B_NTT_B1R12;
+    vector<ZZ> B_NTT_B1R13;
+    vector<ZZ> B_NTT_B1R14;
+    vector<ZZ> B_NTT_B1R15;
     B.resize(fft_point);
     cout << "fft_twiddle = " << fft_twiddle << endl;
 
@@ -254,9 +286,17 @@ void test_NTTSPMB()
         break;
       case 256:
         DIT_spmb.DIT_NTT_radix4(B);
+        //DIT_spmb.test_radix4(B);
         break;
+      /*case 128:
+        DIT_spmb.DIT_NTT_r4_r2(
+          B,
+          B_NTT_B0R0,B_NTT_B0R1,B_NTT_B0R2,B_NTT_B0R3,
+          B_NTT_B1R0,B_NTT_B1R1,B_NTT_B1R2,B_NTT_B1R3);
+        break;*/
       case 16:
         DIT_spmb.DIT_NTT_radix2(B);
+        //DIT_spmb.test_radix2(B);
         break;
       default:
         no_display = 1;
@@ -271,9 +311,13 @@ void test_NTTSPMB()
 	    if(B[i] != A_1[i]) {
 	  	  if(!no_display) std::cout << "error index: " << i <<"\n";
 	  	  error = error + 1;
+      }else if (B[i] == A_1[i])
+      {
+        //cout << "B[" << i << "] = " << B[i] << endl;
       }
+      
     }
-    std::cout << "error : " << error << "\n";
+    if(!no_display) std::cout << "error : " << error << "\n";
   }
   
   cout << "------------------DIF FFT test-----------------" << endl;
@@ -392,4 +436,19 @@ void test_NTTSPMB()
     std::cout << "error : " << error << "\n";
   }
   
+
+
+  //--------find inv------------
+  ZZ val_A;
+  ZZ val_B;
+  ZZ val_inv_A;
+  ZZ mul_ans;
+  conv(val_A,"18446603329778778113");
+  conv(val_B,"18446744035054321673");
+  InvMod(val_inv_A, val_A, fft_prime);
+  MulMod(mul_ans, val_B, val_inv_A, fft_prime);
+  
+  //cout << "val_inv_A = " << val_inv_A << endl;
+  //cout << "mul_ans = " << mul_ans << endl;
+
 }

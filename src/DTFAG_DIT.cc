@@ -106,28 +106,28 @@ void DTFAG::DTFAG_DIT() {
     DTFAG_DIT << "**************intital fin****************" << endl;
 
     for(int t=0; t<radix_r1; t++){
-        DTFAG_DIT << "     t = " << t << endl;
+        DTFAG_DIT << "  t = " << t << endl;
         for(int i=0; i<radix_r1; i++){
-            DTFAG_DIT << "-----------------crossbar for len--------------------"<< endl;
-            DTFAG_DIT << "     i = " << i << endl;
+            DTFAG_DIT << "  i = " << i << endl; 
             for(int j=0; j<radix_r1; j++){
+                DTFAG_DIT << "----------------------------" << endl;
                 if(Tw2_display || Tw1_display || Tw0_display){
-                    if(j == Tw_th) DTFAG_DIT << "     j = " << j << endl;
+                    if(j == Tw_th) DTFAG_DIT << "       j = " << j << endl;
                 }else{
-                    DTFAG_DIT << "     j = " << j << endl;
+                    DTFAG_DIT << "      j = " << j << endl;
                 }
                 MA0 = j;
-                DTFAG_DIT << "MA0 = " << MA0 << endl;
+                DTFAG_DIT << "      MA0 = " << MA0 << endl;
                 if(t % 2== 0) {
                     MA1 = radix_r1 * NTTSPMB.Gray(i,radix_r1) + j;
-                    DTFAG_DIT << "MA1 = " << MA1 << endl;
+                    DTFAG_DIT << "      MA1 = " << MA1 << endl;
                 }else {
                     int i_complement = number_complement.number_complement(i, radix_r1);
                     MA1 = radix_r1 * NTTSPMB.Gray(i_complement,radix_r1) + j;
-                    DTFAG_DIT << "MA1 = " << MA1 << endl;
+                    DTFAG_DIT << "      MA1 = " << MA1 << endl;
                 }
                 MA2 = radix_r1 * NTTSPMB.Gray(t, radix_r1) + j;
-                DTFAG_DIT << "MA2 = " << MA2 << endl;
+                DTFAG_DIT << "      MA2 = " << MA2 << endl;
                 
                 for(int i=0; i<radix_r1; i++){
                     v0[i] = ROM0[MA0][i];

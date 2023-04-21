@@ -233,30 +233,30 @@ void DIF_NTTSPMB::DIF_NTT_radix2(std::vector<ZZ> &A){
                         case 0:
                             DIF_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp] << ", st0_Tw[0] = " << st0_Tw[0] << endl;
 					        DIF_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", st0_Tw[1] = " << st0_Tw[1] << endl;
-					        Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
-                            MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st0_Tw[0],p);
-					        MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],st0_Tw[1],p);
+					        if(!debug) Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
+                            if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st0_Tw[0],p);
+					        if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],st0_Tw[1],p);
                             break;
                         case 1:
                             DIF_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp] << ", st1_Tw[0] = " << st1_Tw[0] << endl;
 					        DIF_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", st1_Tw[1] = " << st1_Tw[1] << endl;
-					        Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
-                            MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st1_Tw[0],p);
-					        MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],st1_Tw[1],p);
+					        if(!debug) Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
+                            if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st1_Tw[0],p);
+					        if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],st1_Tw[1],p);
                             break;
                         case 2:
                             DIF_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp] << ", st2_Tw[0] = " << st2_Tw[0] << endl;
 					        DIF_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", st2_Tw[1] = " << st2_Tw[1] << endl;
-					        Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
-                            MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st2_Tw[0],p);
-					        MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],st2_Tw[1],p);
+					        if(!debug) Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
+                            if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st2_Tw[0],p);
+					        if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],st2_Tw[1],p);
                             break;
                         case 3:
                             DIF_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp] << ", st3_Tw[0] = " << 1 << endl;
 					        DIF_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", st3_Tw[1] = " << 1 << endl;
-					        Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
-                            MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],1,p);
-					        MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],1,p);			
+					        if(!debug) Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
+                            if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],1,p);
+					        if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],1,p);			
                             break;
                     }
                     
@@ -273,30 +273,30 @@ void DIF_NTTSPMB::DIF_NTT_radix2(std::vector<ZZ> &A){
                         case 0:
                             DIF_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st0_Tw[0] = " << st0_Tw[0] << endl;
 					        DIF_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st0_Tw[1] = " << st0_Tw[1] << endl;
-					        Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
-                            MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st0_Tw[0],p);
-					        MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],st0_Tw[1],p);    
+					        if(!debug) Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
+                            if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st0_Tw[0],p);
+					        if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],st0_Tw[1],p);    
                             break;
                         case 1:
                             DIF_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st1_Tw[0] = " << st1_Tw[0] << endl;
 					        DIF_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st1_Tw[1] = " << st1_Tw[1] << endl;
-					        Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
-                            MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st1_Tw[0],p);
-					        MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],st1_Tw[1],p);
+					        if(!debug) Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
+                            if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st1_Tw[0],p);
+					        if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],st1_Tw[1],p);
                             break;
                         case 2:
                             DIF_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st2_Tw[0] = " << st2_Tw[0] << endl;
 					        DIF_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st2_Tw[1] = " << st2_Tw[1] << endl;
-					        Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
-                            MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st2_Tw[0],p);
-					        MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],st2_Tw[1],p);
+					        if(!debug) Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
+                            if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st2_Tw[0],p);
+					        if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],st2_Tw[1],p);
                             break;
                         case 3:
                             DIF_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st3_Tw[0] = " << 1 << endl;
 					        DIF_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st3_Tw[1] = " << 1 << endl;
-					        Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
-                            MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],1,p);
-					        MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],1,p);
+					        if(!debug) Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
+                            if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],1,p);
+					        if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],1,p);
                             break;
                     }
 					DIF_DATARECORD << "---after BU compute---" << std::endl;

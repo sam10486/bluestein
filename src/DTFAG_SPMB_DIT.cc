@@ -82,11 +82,16 @@ void DTFAG::DTFAG_SPMB_DIT(
     }
     int BN_v1 = MA1 / radix_r1;
     int MA_v1 = MA1 % radix_r1;
-    int BN_v2 = MA2 / radix_r2;
-    int MA_v2 = MA2 % radix_r2;
+    int BN_v2 = MA2 / radix_r1;
+    int MA_v2 = MA2 % radix_r1;
+    //cout << "stage = " << stage << endl;
+    //cout << "   MA1 = " << MA1 << ", BN_v1 = " << BN_v1 << ", MA_v1 = " << MA_v1 << endl;
+    //cout << "   MA2 = " << MA2 << ", BN_v2 = " << BN_v2 << ", MA_v2 = " << MA_v2 << endl;
+
     v1 = ROM1[BN_v1][MA_v1];
     v2 = ROM2[BN_v2][MA_v2];                
     
+
     for(int idx=0; idx<radix_r1; idx++){
         DTFAG_SPMB_DIT << "v0[" << idx << "] = " << v0[idx];
         Tw0[idx] = v0[idx];

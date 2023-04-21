@@ -9,8 +9,8 @@ using namespace std;
 
 void DTFAG::DTFAG_DIF_MixedRadix () {
     //------- radix sel-----
-    int radix_r1 = 16;
-    int radix_r2 = 4;
+    int radix_r1 = 2;
+    int radix_r2 = 2;
     unsigned long fft_point = pow(radix_r1, 3) * radix_r2;
     ZZ fft_prime ;
     ZZ fft_twiddle_65536 ;
@@ -65,7 +65,7 @@ void DTFAG::DTFAG_DIF_MixedRadix () {
     int Tw1_display = 0;
     int Tw0_display = false;
     int Tw_th = 1;
-    int debug = 0;
+    int debug = 1;
 
     vector<vector<ZZ > > ROM0;
     vector<vector<ZZ > > ROM1, ROM2;
