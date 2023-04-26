@@ -41,8 +41,8 @@ void test_NTTSPMB()
   cout << "ROU = " << ROU << std::endl;
   //---------------------------------
 
-  radix_r1 = 2;
-  radix_r2 = 2;
+  radix_r1 = 16;
+  radix_r2 = 16;
   ZZ fft_prime;
   ZZ fft_twiddle;
   ZZ fft_twiddle_16;

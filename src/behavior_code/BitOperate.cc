@@ -6,6 +6,7 @@
 #include <bitset>
 #include "BitOperate.h"
 #include "math.h"
+#include <NTT.h>
 
 using namespace std;
 
@@ -167,4 +168,12 @@ long long BitOperate::number_complement(long long i, long long radix_r1){
 
     //cout << "i_complement = " << i_complement << endl;
     return i_complement;
+}
+
+vector<ZZ > BitOperate::ZZ_DecToBin(ZZ data, long long bit_width){
+    vector<ZZ > BinVec(bit_width);
+    for(long long int j=0; j<bit_width; j++){
+        BinVec.at(j) = (data >> j) & 1;
+    }
+    return BinVec;
 }

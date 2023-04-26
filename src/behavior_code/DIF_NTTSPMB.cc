@@ -2332,6 +2332,7 @@ void DIF_NTTSPMB::DIF_NTT_radix16(std::vector<ZZ> &A){
 			   A[index13] = A_B0R13[ma_tmp];
 			   A[index14] = A_B0R14[ma_tmp];
 			   A[index15] = A_B0R15[ma_tmp];
+			   //std::cout << "BC_tmp = " << BC_tmp << ", idx0 = " << index0 << ", MA = " << ma_tmp << endl;
 			}
 			else {
 			   BR_R16(16 * BC_tmp    ,index0);
@@ -2366,6 +2367,7 @@ void DIF_NTTSPMB::DIF_NTT_radix16(std::vector<ZZ> &A){
                A[index13]    = A_B1R13[ma_tmp];
                A[index14]    = A_B1R14[ma_tmp];
                A[index15]    = A_B1R15[ma_tmp];
+			   //std::cout << "BC_tmp = " << BC_tmp << ", idx0 = " << index0 << ", MA = " << ma_tmp << endl;
 			}			
 		}		
 	}

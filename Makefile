@@ -52,4 +52,9 @@ clean:
 	rm -rf test_input/*.txt
 	rm -rf ROM_Data/*.txt
 	rm -rf my_print_data/*.txt
+	rm -rf my_print_data/v_code_gen/*.txt
 	rm -rf SPMB_tw/*.txt
+	rm -rf ROM_Data/ROM0/*.txt
+	rm -rf ROM_Data/ROM1/*.txt
+	rm -rf ROM_Data/ROM2/*.txt
+	
