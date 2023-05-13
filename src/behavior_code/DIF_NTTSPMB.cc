@@ -1129,7 +1129,7 @@ void DIF_NTTSPMB::DIF_NTT_radix16(std::vector<ZZ> &A){
 						}
 						break;
 				}*/
-                //cout << "stage = " << s << ", DTFAG_i = " << DTFAG_i << ", DTFAG_t = " << DTFAG_t << ", DTFAG_j = " << DTFAG_j << endl;
+                DIF_DATARECORD << "stage = " << s << ", DTFAG_i = " << DTFAG_i << ", DTFAG_t = " << DTFAG_t << ", DTFAG_j = " << DTFAG_j << endl;
                 if(DTFAG_i == radix_r2-1 && DTFAG_j == radix_r1-1 && DTFAG_t == radix_r1-1){
 					DTFAG_i = 0;
 				}else if(DTFAG_t == radix_r1-1 && DTFAG_j == radix_r1-1){

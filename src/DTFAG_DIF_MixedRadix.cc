@@ -94,7 +94,7 @@ void DTFAG::DTFAG_DIF_MixedRadix () {
     int Tw1_display = 0;
     int Tw0_display = false;
     int Tw_th = 1;
-    int debug = 1;
+    int debug = 0;
 
     vector<vector<ZZ > > ROM0;
     vector<vector<ZZ > > ROM1, ROM2;
@@ -485,7 +485,8 @@ void DTFAG::DTFAG_DIF_MixedRadix () {
                         //-----------for debug-------------------
                         if(debug) DTFAG_DIF_MixedRadix << "v0[" << i << "] = " << v0[i] << ", v1[" << i << "] = " << v1[i] << ", v2[" << i << "] = " << v2[i];
                         if(debug) Tw0[i] = v0[i] + v1[i] + v2[i];
-                        if(debug) DTFAG_DIF_MixedRadix << ", Tw0[" << i << "] = " << Tw0[i] << endl;
+                        if(debug) DTFAG_DIF_MixedRadix << ", Tw0[" << i << "] = " << Tw0[i] ;
+                        if(debug) DTFAG_DIF_MixedRadix << ", v1[" << i << "] + v2[" << i << "] = " << v1[i] + v2[i] << endl;
                         //----------------------------------------
 
                         //--------real compute------------
@@ -494,7 +495,8 @@ void DTFAG::DTFAG_DIF_MixedRadix () {
                         if(!debug) MulMod(tmp, v1[i], v2[i], fft_prime);
                         if(!debug) MulMod(Tw0[i], v0[i], tmp, fft_prime);
                         if(!debug) DTFAG_DIF_MixedRadix << ", Tw0[" << i << "] = " << Tw0[i] << endl;
-                        DTFAG_TestPattern_Tw0 << Tw0[i] << endl;
+                        DTFAG_TestPattern_Tw0 << Tw0[i] ;
+                        //if(!debug) DTFAG_DIF_MixedRadix << ",------------------------------v1[" << i << "] * v2[" << i << "] = " << tmp << endl;
                         //---------------------------------
                     }
                     

@@ -83,7 +83,7 @@ void DTFAG::DTFAG_ROM_init(
     }
     DTFAG_ROM_init << "**************intital fin****************" << endl;
 
-
+    /*
     // -----------------------ZZ To Bin-------------------------
     // ROM0
     for(int k=0; k<radix_r1; k++){
@@ -344,6 +344,7 @@ void DTFAG::DTFAG_ROM_init(
         Bin_DTFAG_DIF_ROM2_B6 << endl;
         Bin_DTFAG_DIF_ROM2_B7 << endl;
     }
+    */
     //------------------------------------------------------------
 }
 

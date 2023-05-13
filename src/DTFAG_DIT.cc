@@ -10,7 +10,7 @@ void DTFAG::DTFAG_DIT() {
     //------- radix sel-----
     int radix_r1 = 2;
     int radix_r2 = 2;
-    unsigned long fft_point = 16;
+    unsigned long fft_point = 65536;
     ZZ fft_prime ;
     ZZ fft_twiddle_65536 ;
     ZZ fft_twiddle ;
