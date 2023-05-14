@@ -4,9 +4,12 @@
 #include "DTFAG.h"
 #include "DIT_NTTSPMB.h"
 #include <vector>
+#include "NWC_util.h"
+
 void test_NTTSPMB();
 void my_test(int argc, char *argv[]);
 void BU_based_NTT();
+void INWC_behavior();
 
 
 using namespace std;
@@ -24,6 +27,7 @@ int main(int argc, char *argv[]){
     cout << "| 4. DTFAG_DIT               | DTFAG_DIT.cpp              |" << endl;
     cout << "| 5. DTFAG_DIF_MixedRadix    | DTFAG_DIF_MixedRadix.cpp   |" << endl;
     cout << "| 6. BU_based_NTT            | BU_based_NTT.cpp           |" << endl;
+    cout << "| 7. INWC_behavior           | INWC_behavior.cpp          |" << endl;
     cout << "+----------------------------+----------------------------+" << endl;
     
     //---------class delcare------------
@@ -34,7 +38,7 @@ int main(int argc, char *argv[]){
     //---------class delcare fin---------
     
 
-    int input_parameter = 6;
+    int input_parameter = 7;
     int selection = 0;
     bool valid = true;
     //-------for DTFAG--------------
@@ -95,6 +99,9 @@ int main(int argc, char *argv[]){
             break;    
         case 6:
             BU_based_NTT();
+            break;
+        case 7:
+            INWC_behavior();
             break;
         case 0:
             return 0;
