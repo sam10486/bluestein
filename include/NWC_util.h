@@ -14,14 +14,14 @@ private:
     long long Radix_r2;
     long long N;           // polynomial degree
     ZZ Modular;     // polynomial modulus
-    ZZ W;           // polynomial twiddle factor
-    ZZ IW;          // polynomial inverse twiddle factor
+    ZZ Phi;           // polynomial twiddle factor
+    ZZ InvPhi;          // polynomial inverse twiddle factor
 
 public:
     NWC_util(long long Radix_r1, long long Radix_r2, long long N, ZZ Modular);
     ~NWC_util();
-    void setValue(long long Radix_r1, long long Radix_r2, long long N, ZZ Modular, ZZ W, ZZ IW);
-    void getValue(long long *Radix_r1, long long *Radix_r2, long long *N, ZZ *Modular, ZZ *W, ZZ *IW);
+    void setValue(long long Radix_r1, long long Radix_r2, long long N, ZZ Modular, ZZ Phi, ZZ InvPhi);
+    void getValue(long long *Radix_r1, long long *Radix_r2, long long *N, ZZ *Modular, ZZ *Phi, ZZ *InvPhi);
     ZZ find_n_rou(ZZ base, long long N, ZZ Modular);
     ZZ find_phi(long long N, ZZ Modular);
     bool check_prou(ZZ n_rou, long long N, ZZ Modular);
