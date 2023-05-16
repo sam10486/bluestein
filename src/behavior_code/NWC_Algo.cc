@@ -30,7 +30,7 @@ vector<ZZ > NWC_Algo::NWC(vector<ZZ > &arr){
         Arr_scramble[i] = arr[rev_index];
     }
     for (int s = 1; s <= log2(N); s++){
-        cout << "stage = " << s << endl;
+        //cout << "stage = " << s << endl;
         int m = pow(2, s);
         for (int j = 0; j <= (m/2)-1; j++){
             ZZ TF;
@@ -44,8 +44,8 @@ vector<ZZ > NWC_Algo::NWC(vector<ZZ > &arr){
                 //cout << "t[" << k*m+j+(m/2) << "] = " << t << ", TF = " << TF << endl;
                 Arr_scramble[k*m+j] = AddMod(u, t, Modular);
                 Arr_scramble[k*m+j+(m/2)] = SubMod(u, t, Modular);
-                cout << "Arr_scramble[" << k*m+j << "] = " << Arr_scramble[k*m+j] << endl;
-                cout << "Arr_scramble[" << k*m+j+(m/2) << "] = " << Arr_scramble[k*m+j+(m/2)] << endl;
+                //cout << "Arr_scramble[" << k*m+j << "] = " << Arr_scramble[k*m+j] << endl;
+                //cout << "Arr_scramble[" << k*m+j+(m/2) << "] = " << Arr_scramble[k*m+j+(m/2)] << endl;
             }
         }
     }
@@ -71,9 +71,9 @@ vector<ZZ > NWC_Algo::INWC(vector<ZZ> &arr){
     BitOperate Bitrev;
     ZZ Inv_two;
     InvMod(Inv_two, (ZZ)2, Modular);
-    cout << "Inv_two = " << Inv_two << endl;
+    //cout << "Inv_two = " << Inv_two << endl;
     for (int s = log2(N); s >= 1; s--){
-        cout << "stage = " << s << endl;
+        //cout << "stage = " << s << endl;
         int m = pow(2, s);
         for (int j = 0; j <= (m/2)-1; j++){
             ZZ TF;
@@ -81,14 +81,16 @@ vector<ZZ > NWC_Algo::INWC(vector<ZZ> &arr){
             TF = PowerMod(InvPhi, TF_deg, Modular);
             for (int k = 0; k <= (N/m)-1 ; k++){
                 ZZ u, t;
-                u = arr[k*m+j];
-                t = arr[k*m+j+(m/2)];
+                u = A_arr[k*m+j];
+                t = A_arr[k*m+j+(m/2)];
+                //cout << "u[" << k*m+j << "] = " << u << endl;
+                //cout << "t[" << k*m+j+(m/2) << "] = " << t << endl;
                 A_arr[k*m+j] = AddMod(u, t, Modular);
                 A_arr[k*m+j] = MulMod(A_arr[k*m+j], Inv_two, Modular);
                 A_arr[k*m+j+(m/2)] = MulMod(TF, SubMod(u, t, Modular), Modular);
                 A_arr[k*m+j+(m/2)] = MulMod(A_arr[k*m+j+(m/2)], Inv_two, Modular);
-                cout << "A_arr[" << k*m+j << "] = " << A_arr[k*m+j] << endl;
-                cout << "A_arr[" << k*m+j+(m/2) << "] = " << A_arr[k*m+j+(m/2)] << endl;
+                //cout << "A_arr[" << k*m+j << "] = " << A_arr[k*m+j] << endl;
+                //cout << "A_arr[" << k*m+j+(m/2) << "] = " << A_arr[k*m+j+(m/2)] << endl;
             }
         }
     }
