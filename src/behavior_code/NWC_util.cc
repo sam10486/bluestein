@@ -13,43 +13,50 @@ NWC_util::NWC_util(long long Radix_r1, long long Radix_r2, long long N, ZZ Modul
     this->N = 0;
     this->Modular = 0;
     this->Phi = 0;
-    ZZ Phi, InvPhi;
+	this->W = 0;
+	this->IW = 0;
     Phi = find_phi(N, Modular);
 	InvMod(InvPhi, Phi, Modular);
-    setValue(Radix_r1, Radix_r2, N, Modular, Phi, InvPhi);
+	PowerMod(W, Phi, 2, Modular);
+	InvMod(IW, W, Modular);
+    setValue(Radix_r1, Radix_r2, N, Modular, Phi, InvPhi, W, IW);
 }
 
 NWC_util::~NWC_util(){
 	// TO DO
 }
 
-void NWC_util::setValue(long long Radix_r1, long long Radix_r2, long long N, ZZ Modular, ZZ Phi, ZZ InvPhi){
+void NWC_util::setValue(long long Radix_r1, long long Radix_r2, long long N, 
+						ZZ Modular, ZZ Phi, ZZ InvPhi, ZZ W, ZZ IW){
     this->Radix_r1 = Radix_r1;
     this->Radix_r2 = Radix_r2;
     this->N = N;
     this->Modular = Modular;
 	this->Phi = Phi;
 	this->InvPhi = InvPhi;
+	this->W = W;
+	this->IW = IW;
 
 }
-void NWC_util::getValue(long long *Radix_r1, long long *Radix_r2, long long *N, ZZ *Modular, ZZ *Phi, ZZ *InvPhi){
+void NWC_util::getValue(long long *Radix_r1, long long *Radix_r2, long long *N, ZZ *Modular, 
+						ZZ *Phi, ZZ *InvPhi, ZZ *W, ZZ *IW){
 	*Radix_r1 = this->Radix_r1;
 	*Radix_r2 = this->Radix_r2;
 	*N = this->N;
 	*Modular = this->Modular;
 	*Phi = this->Phi;
 	*InvPhi = this->InvPhi;
+	*W = this->W;
+	*IW = this->IW;
 }
 
 void NWC_util::showInfo(){
 	long long Radix_r1, Radix_r2, N;
 	ZZ Modular, Phi, InvPhi;
-	getValue(&Radix_r1, &Radix_r2, &N, &Modular, &Phi, &InvPhi);
 	ZZ W, IW;
 	ZZ W1, W2, W3, W4, W5, W6, W7;
 	ZZ IW1, IW2, IW3, IW4, IW5, IW6, IW7;
-	PowerMod(W, Phi, 2, Modular);
-	InvMod(IW, W, Modular);
+	getValue(&Radix_r1, &Radix_r2, &N, &Modular, &Phi, &InvPhi, &W, &IW);
 	PowerMod(W1, W, 1, Modular);
 	PowerMod(W2, W, 2, Modular);
 	PowerMod(W3, W, 3, Modular);
@@ -124,6 +131,8 @@ void NWC_util::showInfo(){
 	cout << "| The Modular  = " << Modular << endl;
 	cout << "| The Phi factor = " << Phi << endl;
 	cout << "| The Inverse Phi = " << InvPhi << endl;
+	cout << "| The W = " << W << endl;
+	cout << "| The IW = " << IW << endl;
 	cout << "+-----------------------------" << endl;
 }
 

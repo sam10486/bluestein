@@ -15,6 +15,7 @@
 #include <BitOperate.h>
 #include "DIT_NTTSPMB.h"
 #include "DIF_NTTSPMB.h" 
+#include "NWC_Algo.h"
 
 using namespace std;
 
@@ -32,13 +33,13 @@ void test_NTTSPMB()
   int radix_r1;
   int radix_r2;
   //----------bluestein--------------
-  bluestein blue;
-  ZZ tmp_prime;
-  conv(tmp_prime, "97");
-  ZZ ROU;
-  unsigned int u_n = 16;
-  blue.N_ROU(tmp_prime, u_n, ROU);
-  cout << "ROU = " << ROU << std::endl;
+  //bluestein blue;
+  //ZZ tmp_prime;
+  //conv(tmp_prime, "97");
+  //ZZ ROU;
+  //unsigned int u_n = 16;
+  //blue.N_ROU(tmp_prime, u_n, ROU);
+  //cout << "ROU = " << ROU << std::endl;
   //---------------------------------
 
   radix_r1 = 2;
@@ -65,6 +66,51 @@ void test_NTTSPMB()
    
   InvMod(fft_IW,fft_twiddle,fft_prime);
  
+
+  //-------------NWC PART---------------------
+  ZZ Phi, InvPhi, IW;
+  SqrRootMod(Phi, fft_twiddle, fft_prime);
+  InvMod(InvPhi, Phi, fft_prime);
+  InvMod(IW, fft_twiddle, fft_prime);
+  cout << "Phi = " << Phi << ", InvPhi = " << InvPhi << endl;
+  NWC_Algo nwc_algo(radix_r1, radix_r2, fft_point, fft_prime);
+  nwc_algo.setValue(radix_r1, radix_r2, fft_point, fft_prime, Phi, InvPhi, fft_twiddle, IW);
+  nwc_algo.showInfo();
+  vector<ZZ > NWC_arr, NWC_golden;
+  NWC_arr.resize(fft_point);
+  NWC_golden.resize(fft_point);
+  for (int i = 0; i < fft_point; i++){
+    NWC_golden[i] = i;
+    NWC_arr[i] = i;
+  }
+  nwc_algo.NWC(NWC_arr);
+  nwc_algo.INWC(NWC_arr);
+  int err = 0;
+  for (int i = 0; i < fft_point; i++){
+    if (NWC_golden[i] != NWC_arr[i]){
+      err++;
+    }
+  }
+  cout << "err = " << err << endl;
+  
+  //------------------------------------------
+
+  //----------For INTT-----------
+  std::ofstream INTT_output("./NWC_PrintData/INTT_output.txt");
+  NTT     INTT_instance;
+  vector<ZZ > INTT_arr;
+  INTT_arr.resize(fft_point);
+  for(int i=0; i<fft_point; i++){
+    INTT_arr[i] = i;
+  }
+  INTT_instance.NTT_init(fft_point,fft_prime,fft_IW);
+  INTT_instance.NTT_t(INTT_arr);
+  for (int i = 0; i < fft_point; i++){
+    INTT_output << INTT_arr[i] << endl;
+  }
+  
+  //-----------------------------
+
   std::cout << "test NTTSPMB Init!!! \n";
   //---
   test.init(fft_point,fft_prime,fft_twiddle,radix_r1);
@@ -110,10 +156,12 @@ void test_NTTSPMB()
   //modify 2020/08/12
   A.resize(fft_point);
   A_1.resize(fft_point);
+
   
   for(int i = 0;i < fft_point;i++){
 		  A[i]   = i;
 		  A_1[i] = i;
+      
   }
 
   switch(fft_point){
@@ -162,8 +210,9 @@ void test_NTTSPMB()
       break;
   }
   
-    //multipler
+  //multipler
   NTT_test.NTT_t(A_1);
+  
   
   std::ofstream A_o("./A_output.txt");
   std::ofstream A_1_o("./A_1_output.txt");
@@ -436,19 +485,4 @@ void test_NTTSPMB()
     std::cout << "error : " << error << "\n";
   }
   
-
-
-  //--------find inv------------
-  ZZ val_A;
-  ZZ val_B;
-  ZZ val_inv_A;
-  ZZ mul_ans;
-  conv(val_A,"18446603329778778113");
-  conv(val_B,"18446744035054321673");
-  InvMod(val_inv_A, val_A, fft_prime);
-  MulMod(mul_ans, val_B, val_inv_A, fft_prime);
-  
-  //cout << "val_inv_A = " << val_inv_A << endl;
-  //cout << "mul_ans = " << mul_ans << endl;
-
 }

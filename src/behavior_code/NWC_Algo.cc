@@ -20,7 +20,8 @@ NWC_Algo::~NWC_Algo(){
 vector<ZZ > NWC_Algo::NWC(vector<ZZ > &arr){
     long long Radix_r1, Radix_r2, N;
     ZZ Modular, Phi, InvPhi;
-    getValue(&Radix_r1, &Radix_r2, &N, &Modular , &Phi, &InvPhi);
+    ZZ W, IW;
+    getValue(&Radix_r1, &Radix_r2, &N, &Modular , &Phi, &InvPhi, &W, &IW);
     BitOperate Bitrev;
     vector<ZZ> Arr_scramble;
     Arr_scramble.resize(N);
@@ -59,7 +60,8 @@ vector<ZZ > NWC_Algo::NWC(vector<ZZ > &arr){
 vector<ZZ > NWC_Algo::INWC(vector<ZZ> &arr){
     long long Radix_r1, Radix_r2, N;
     ZZ Modular, Phi, InvPhi;
-    getValue(&Radix_r1, &Radix_r2, &N, &Modular , &Phi, &InvPhi);
+    ZZ W, IW;
+    getValue(&Radix_r1, &Radix_r2, &N, &Modular , &Phi, &InvPhi, &W, &IW);
     
     vector<ZZ > A_arr;
     A_arr.resize(N);

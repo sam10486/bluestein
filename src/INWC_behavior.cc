@@ -12,7 +12,7 @@ using namespace NTL;
 int INWC_behavior(){
     long long Radix_r1 = 2;
     long long Radix_r2 = 2;
-    long long N = 1024;
+    long long N = 4096;
     ZZ Modular;
     conv(Modular, "65537");
 
