@@ -14,7 +14,9 @@ int INWC_behavior(){
     long long Radix_r2 = 2;
     long long N = 4096;
     ZZ Modular;
-    conv(Modular, "65537");
+    ZZ Phi, InvPhi, W, IW;
+    conv(Modular, "18446744069414584321");
+    //conv(Phi, "")
 
     NWC_util NWC(Radix_r1, Radix_r2, N, Modular);
     NWC.showInfo();
@@ -24,6 +26,7 @@ int INWC_behavior(){
     arr.resize(N);
     golden_arr.resize(N);
     NWC_Algo nwc_algo(Radix_r1, Radix_r2, N, Modular);
+    //nwc_algo.setValue(Radix_r1, Radix_r2, N, Modular, )
     for (int i = 0; i < N; i++){
         golden_arr[i] = i;
         arr[i] = i;

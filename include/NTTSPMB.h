@@ -21,8 +21,10 @@ public:
 	ZZ  W; // primitive nth root of unity in Zp
 	       // W^(N) (mod p) = 1
 	ZZ  IW;// inverse of W  (mod p)
+	ZZ  Phi;
+	ZZ  InvPhi;
 		
-	void init(unsigned long n, ZZ prime, ZZ root,int r); //init parameters  
+	void init(unsigned long n, ZZ prime, ZZ root,int r, ZZ phi); //init parameters  
 	void Radix2_BU(ZZ &a, ZZ &b); //Radix-2 buterfly unit
 	void Radix4_BU(ZZ &a, ZZ &b,ZZ &c,ZZ &d); //Radix-4 buterfly unit
 	void Radix4_BU_INTT(ZZ &a, ZZ &b,ZZ &c,ZZ &d); //Radix-4 buterfly unit

@@ -71,26 +71,38 @@ vector<ZZ > NWC_Algo::INWC(vector<ZZ> &arr){
     long long bit_num = ceil(log2(N));
 
     BitOperate Bitrev;
-    ZZ Inv_two;
-    InvMod(Inv_two, (ZZ)2, Modular);
-    //cout << "Inv_two = " << Inv_two << endl;
+    ZZ InvTwo;
+    InvMod(InvTwo, (ZZ)2, Modular);
+    //cout << "InvTwo = " << InvTwo << endl;
     for (int s = log2(N); s >= 1; s--){
         //cout << "stage = " << s << endl;
         int m = pow(2, s);
         for (int j = 0; j <= (m/2)-1; j++){
-            ZZ TF;
-            int TF_deg = (2*j+1) * (N/m);
-            TF = PowerMod(InvPhi, TF_deg, Modular);
+            //ZZ TF;
+            //int TF_deg = (2*j+1) * (N/m);
+            //TF = PowerMod(InvPhi, TF_deg, Modular);
+            int Phi_deg, W_deg;
+            Phi_deg = (N/m);
+            W_deg = (j) * (N/m);
+            ZZ InvPhi_Order = PowerMod(InvPhi, Phi_deg, Modular);
+            ZZ IW_Order = PowerMod(IW, W_deg, Modular);
+            //cout << "Phi_deg = " << Phi_deg << ", W_deg = " << W_deg << endl;
+            //cout << "TF = " << TF << ", InvPhi_Order = " << InvPhi_Order << ", IW = " << IW_Order << endl;
+            //cout << "---------------" << endl;
             for (int k = 0; k <= (N/m)-1 ; k++){
                 ZZ u, t;
                 u = A_arr[k*m+j];
                 t = A_arr[k*m+j+(m/2)];
                 //cout << "u[" << k*m+j << "] = " << u << endl;
                 //cout << "t[" << k*m+j+(m/2) << "] = " << t << endl;
+                // upper
                 A_arr[k*m+j] = AddMod(u, t, Modular);
-                A_arr[k*m+j] = MulMod(A_arr[k*m+j], Inv_two, Modular);
-                A_arr[k*m+j+(m/2)] = MulMod(TF, SubMod(u, t, Modular), Modular);
-                A_arr[k*m+j+(m/2)] = MulMod(A_arr[k*m+j+(m/2)], Inv_two, Modular);
+                A_arr[k*m+j] = MulMod(A_arr[k*m+j], InvTwo, Modular);
+                // down
+                ZZ InvPhi_dot_IW = MulMod(InvPhi_Order, IW_Order, Modular);
+                ZZ InvPhi_dot_IW_dot_Inv_two = MulMod(InvPhi_dot_IW, InvTwo, Modular);
+                A_arr[k*m+j+(m/2)] = SubMod(u, t, Modular);
+                A_arr[k*m+j+(m/2)] = MulMod(A_arr[k*m+j+(m/2)], InvPhi_dot_IW_dot_Inv_two, Modular);
                 //cout << "A_arr[" << k*m+j << "] = " << A_arr[k*m+j] << endl;
                 //cout << "A_arr[" << k*m+j+(m/2) << "] = " << A_arr[k*m+j+(m/2)] << endl;
             }

@@ -12,7 +12,7 @@
 
 using namespace NTL;
 
-void NTTSPMB::init(unsigned long n, ZZ prime, ZZ root,int r){
+void NTTSPMB::init(unsigned long n, ZZ prime, ZZ root,int r, ZZ phi){
 	N = n;
 	radix = r;
 	ZZ N_ZZ;
@@ -21,6 +21,10 @@ void NTTSPMB::init(unsigned long n, ZZ prime, ZZ root,int r){
 	W = root;
 	InvMod(IW, W, p); //calculate inverse of w
 	InvMod(IN, N_ZZ, p); //calculate Inverse of N
+	SqrRootMod(Phi, W, p);
+	Phi = phi;
+	cout << "456" << endl;
+	InvMod(InvPhi, Phi, p);
 }
 
 void NTTSPMB::Radix2_BU(ZZ &a,ZZ &b){

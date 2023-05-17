@@ -16,6 +16,7 @@
 #include "DIT_NTTSPMB.h"
 #include "DIF_NTTSPMB.h" 
 #include "NWC_Algo.h"
+#include "DIF_INWC.h"
 
 using namespace std;
 
@@ -63,11 +64,9 @@ void test_NTTSPMB()
   
   PowerMod(fft_twiddle,fft_twiddle_65536,difference_length,fft_prime);
   std::cout << "difference_length = " << difference_length << ", fft_twiddle = " << fft_twiddle << std::endl;
-   
-  InvMod(fft_IW,fft_twiddle,fft_prime);
- 
-
+  InvMod(fft_IW,fft_twiddle,fft_prime); 
   //-------------NWC PART---------------------
+  std::ofstream INWC_golden_o("./NWC_PrintData/INWC_golden.txt"); 
   ZZ Phi, InvPhi, IW;
   SqrRootMod(Phi, fft_twiddle, fft_prime);
   InvMod(InvPhi, Phi, fft_prime);
@@ -75,16 +74,19 @@ void test_NTTSPMB()
   cout << "Phi = " << Phi << ", InvPhi = " << InvPhi << endl;
   NWC_Algo nwc_algo(radix_r1, radix_r2, fft_point, fft_prime);
   nwc_algo.setValue(radix_r1, radix_r2, fft_point, fft_prime, Phi, InvPhi, fft_twiddle, IW);
-  nwc_algo.showInfo();
-  vector<ZZ > NWC_arr, NWC_golden;
+  //nwc_algo.showInfo();
+  vector<ZZ > NWC_arr, NWC_golden, INWC_golden;
   NWC_arr.resize(fft_point);
   NWC_golden.resize(fft_point);
+  INWC_golden.resize(fft_point);
   for (int i = 0; i < fft_point; i++){
     NWC_golden[i] = i;
     NWC_arr[i] = i;
+    INWC_golden[i] = i;
   }
   nwc_algo.NWC(NWC_arr);
   nwc_algo.INWC(NWC_arr);
+  nwc_algo.INWC(INWC_golden);
   int err = 0;
   for (int i = 0; i < fft_point; i++){
     if (NWC_golden[i] != NWC_arr[i]){
@@ -93,27 +95,17 @@ void test_NTTSPMB()
   }
   cout << "err = " << err << endl;
   
-  //------------------------------------------
-
-  //----------For INTT-----------
-  std::ofstream INTT_output("./NWC_PrintData/INTT_output.txt");
-  NTT     INTT_instance;
-  vector<ZZ > INTT_arr;
-  INTT_arr.resize(fft_point);
-  for(int i=0; i<fft_point; i++){
-    INTT_arr[i] = i;
-  }
-  INTT_instance.NTT_init(fft_point,fft_prime,fft_IW);
-  INTT_instance.NTT_t(INTT_arr);
   for (int i = 0; i < fft_point; i++){
-    INTT_output << INTT_arr[i] << endl;
+    INWC_golden_o << INWC_golden[i] << endl;
   }
   
-  //-----------------------------
+
+  //------------------------------------------
+
 
   std::cout << "test NTTSPMB Init!!! \n";
   //---
-  test.init(fft_point,fft_prime,fft_twiddle,radix_r1);
+  test.init(fft_point,fft_prime,fft_twiddle,radix_r1, Phi);
   NTT_test.NTT_init(fft_point,fft_prime,fft_twiddle);
   //----
 
@@ -326,7 +318,7 @@ void test_NTTSPMB()
     for(int i = 0;i < fft_point;i++){
       B[i]   = i;
     }
-    DIT_spmb.init(fft_point,fft_prime,fft_twiddle,radix_r1);
+    DIT_spmb.init(fft_point,fft_prime,fft_twiddle,radix_r1, Phi);
 
     int no_display = 0;
     switch(fft_point){
@@ -415,7 +407,7 @@ void test_NTTSPMB()
     for(int i = 0;i < fft_point;i++){
       C[i]   = i;
     }
-    DIF_spmb.init(fft_point,fft_prime,fft_twiddle,radix_r1);
+    DIF_spmb.init(fft_point,fft_prime,fft_twiddle,radix_r1, Phi);
 
     switch(fft_point){
       case 65536:
@@ -485,4 +477,33 @@ void test_NTTSPMB()
     std::cout << "error : " << error << "\n";
   }
   
+
+  cout << "------------------DIF NWC test-----------------" << endl;
+  DIF_INWC DIF_inwc;
+  std::vector<ZZ> INWC_arr;
+  INWC_arr.resize(fft_point);
+  error = 0;
+  cout << "fft_IW = " << fft_IW << endl;
+  for(int i = 0;i < fft_point;i++){
+    INWC_arr[i]   = i;
+  }
+  DIF_inwc.init(fft_point,fft_prime,fft_twiddle,radix_r1, Phi);
+  switch (fft_point){
+  case 16:
+    DIF_inwc.DIF_INWC_radix2(INWC_arr);
+    break;
+  default:
+    break;
+  }
+  std::ofstream DIF_INWC_o("./NWC_PrintData/DIF_INWC_output.txt");
+    for(int i = 0; i < fft_point;i++){
+	    DIF_INWC_o << INWC_arr[i];  
+      DIF_INWC_o << "\n";
+	    if(INWC_golden[i] != INWC_arr[i]) {
+	  	  std::cout << "error index: " << i <<"\n";
+	  	  error = error + 1;
+      }
+    }
+    std::cout << "error : " << error << "\n";
+
 }
