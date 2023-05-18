@@ -12,11 +12,14 @@ using namespace NTL;
 int INWC_behavior(){
     long long Radix_r1 = 2;
     long long Radix_r2 = 2;
-    long long N = 4096;
+    long long N = 256;
     ZZ Modular;
     ZZ Phi, InvPhi, W, IW;
     conv(Modular, "18446744069414584321");
-    //conv(Phi, "")
+    conv(Phi, "12573252732142656207");
+    conv(InvPhi, "10006174791165856646");
+    conv(W, "11147770252432840497");
+    conv(IW, "7059463857684370340");
 
     NWC_util NWC(Radix_r1, Radix_r2, N, Modular);
     NWC.showInfo();
@@ -26,7 +29,7 @@ int INWC_behavior(){
     arr.resize(N);
     golden_arr.resize(N);
     NWC_Algo nwc_algo(Radix_r1, Radix_r2, N, Modular);
-    //nwc_algo.setValue(Radix_r1, Radix_r2, N, Modular, )
+    nwc_algo.setValue(Radix_r1, Radix_r2, N, Modular, Phi, InvPhi, W, IW);
     for (int i = 0; i < N; i++){
         golden_arr[i] = i;
         arr[i] = i;

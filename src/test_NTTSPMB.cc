@@ -489,11 +489,14 @@ void test_NTTSPMB()
   }
   DIF_inwc.init(fft_point,fft_prime,fft_twiddle,radix_r1, Phi);
   switch (fft_point){
-  case 16:
-    DIF_inwc.DIF_INWC_radix2(INWC_arr);
-    break;
-  default:
-    break;
+    case 256:
+      DIF_inwc.DIF_INWC_radix4(INWC_arr);
+      break;
+    case 16:
+      DIF_inwc.DIF_INWC_radix2(INWC_arr);
+      break;
+    default:
+      break;
   }
   std::ofstream DIF_INWC_o("./NWC_PrintData/DIF_INWC_output.txt");
     for(int i = 0; i < fft_point;i++){
@@ -502,6 +505,8 @@ void test_NTTSPMB()
 	    if(INWC_golden[i] != INWC_arr[i]) {
 	  	  std::cout << "error index: " << i <<"\n";
 	  	  error = error + 1;
+      }else{
+        //std::cout << "INWC_arr[" << i  << "] = " <<  INWC_arr[i] << "\n";
       }
     }
     std::cout << "error : " << error << "\n";

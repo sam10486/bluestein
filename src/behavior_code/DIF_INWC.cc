@@ -13,6 +13,75 @@
 
 using namespace std;
 
+void DIF_INWC::INWC_Radix2_BU(ZZ &a,ZZ &b){
+	ZZ tmp_a;
+	ZZ tmp_b;
+	AddMod(tmp_a, a, b, p);
+	if (b < 0)b = b + p;
+	SubMod(tmp_b, a, b, p);
+	a = tmp_a;
+	b = tmp_b;
+}
+
+//radix 2^(2) DIF
+void DIF_INWC::INWC_Radix4_BU(ZZ &a,ZZ &b,ZZ &c,ZZ &d){
+	//a: x[n] b:[n+N/4] c:[n+N/2] d: 
+	ZZ IW_1_4; // W^(N/4)
+	ZZ twiddle_3_4; // W^(3N/4)
+	unsigned long len_1_4; // N/4
+	unsigned long len_3_4; // N/4
+	len_1_4 = N / 4;
+	PowerMod(IW_1_4, IW, len_1_4, p);
+	
+	ZZ tmp_a;
+	ZZ tmp_b;
+    ZZ tmp_c;
+    ZZ tmp_d;
+	
+	//stage 0
+	AddMod(tmp_a,a,c,p);
+	SubMod(tmp_c,a,c,p);
+	AddMod(tmp_b,b,d,p);
+	SubMod(tmp_d,b,d,p);
+	MulMod(tmp_d,tmp_d,IW_1_4,p);
+	
+	//std::cout << "tmp_a = " << tmp_a << ", a = " << a << ", c = " << c << std::endl;
+	//std::cout << "tmp_c = " << tmp_c << ", a = " << a << ", c = " << c << std::endl;
+	//std::cout << "tmp_b = " << tmp_b << ", b = " << b << ", d = " << d << std::endl;
+	//std::cout << "tmp_a = " << tmp_d << ", b = " << b << ", d = " << d << std::endl;
+
+	
+	
+	ZZ tmp_a_1;
+	ZZ tmp_b_1;
+	ZZ tmp_c_1;
+	ZZ tmp_d_1;
+	
+	//stage 1
+	AddMod(tmp_a_1,tmp_a,tmp_b,p);
+	SubMod(tmp_b_1,tmp_a,tmp_b,p);
+	AddMod(tmp_c_1,tmp_c,tmp_d,p);
+	SubMod(tmp_d_1,tmp_c,tmp_d,p);
+
+	//std::cout << "tmp_a_1 = " << tmp_a_1 << ", mp_a = " << tmp_a << ", tmp_b = " << tmp_b << std::endl;
+	//std::cout << "tmp_b_1 = " << tmp_b_1 << ", mp_a = " << tmp_a << ", tmp_b = " << tmp_b << std::endl;
+	//std::cout << "tmp_c_1 = " << tmp_c_1 << ", mp_c = " << tmp_c << ", tmp_d = " << tmp_d << std::endl;
+	//std::cout << "tmp_d_1 = " << tmp_d_1 << ", mp_c = " << tmp_c << ", tmp_d = " << tmp_d << std::endl;
+	
+	//data relocation  
+	//bit-reverse
+	a = tmp_a_1;
+	c = tmp_b_1;
+	b = tmp_c_1;
+	d = tmp_d_1;
+	
+	//a = tmp_a_1;
+	//b = tmp_b_1;
+	//c = tmp_c_1;
+	//d = tmp_d_1;
+	
+}
+
 
 void DIF_INWC::DIF_INWC_radix2(std::vector<ZZ> &A){
 	int            Stage;//stage	
@@ -245,7 +314,7 @@ void DIF_INWC::DIF_INWC_radix2(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", st0_Tw[1] = " << st0_Tw[1] << endl;
 							if(!debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_Order << endl;
 							if(debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_deg << endl;
-					        if(!debug) Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
+					        if(!debug) INWC_Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
 							// upper
                             if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st0_Tw[0],p);
 					        if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],InvTwo,p);
@@ -260,7 +329,7 @@ void DIF_INWC::DIF_INWC_radix2(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", st1_Tw[1] = " << st1_Tw[1] << endl;
 							if(!debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_Order << endl;
 							if(debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_deg << endl;
-					        if(!debug) Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
+					        if(!debug) INWC_Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
 							// upper
                             if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st1_Tw[0],p);
 							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],InvTwo,p);
@@ -275,7 +344,7 @@ void DIF_INWC::DIF_INWC_radix2(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", st2_Tw[1] = " << st2_Tw[1] << endl;
 							if(!debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_Order << endl;
 							if(debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_deg << endl;
-					        if(!debug) Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
+					        if(!debug) INWC_Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
 							// upper
                             if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st2_Tw[0],p);
 							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],InvTwo,p);
@@ -290,7 +359,7 @@ void DIF_INWC::DIF_INWC_radix2(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", st3_Tw[1] = " << 1 << endl;
 							if(!debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_Order << endl;
 							if(debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_deg << endl;
-					        if(!debug) Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
+					        if(!debug) INWC_Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
 							// upper
                             if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],1,p);
 							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],InvTwo,p);
@@ -318,7 +387,7 @@ void DIF_INWC::DIF_INWC_radix2(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st0_Tw[1] = " << st0_Tw[1] << endl;
 							if(!debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_Order << endl;
 							if(debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_deg << endl;
-					        if(!debug) Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
+					        if(!debug) INWC_Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
 							// upper
                             if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st0_Tw[0],p);
 							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],InvTwo,p);
@@ -333,7 +402,7 @@ void DIF_INWC::DIF_INWC_radix2(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st1_Tw[1] = " << st1_Tw[1] << endl;
 							if(!debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_Order << endl;
 							if(debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_deg << endl;
-					        if(!debug) Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
+					        if(!debug) INWC_Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
 							// upper
                             if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st1_Tw[0],p);
 							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],InvTwo,p);
@@ -348,7 +417,7 @@ void DIF_INWC::DIF_INWC_radix2(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st2_Tw[1] = " << st2_Tw[1] << endl;
 							if(!debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_Order << endl;
 							if(debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_deg << endl;
-					        if(!debug) Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
+					        if(!debug) INWC_Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
 							// upper
                             if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st2_Tw[0],p);
 							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],InvTwo,p);
@@ -363,7 +432,7 @@ void DIF_INWC::DIF_INWC_radix2(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st3_Tw[1] = " << 1 << endl;
 							if(!debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_Order << endl;
 							if(debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_deg << endl;
-					        if(!debug) Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
+					        if(!debug) INWC_Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
 							// upper
                             if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],1,p);
 							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],InvTwo,p);
@@ -467,7 +536,7 @@ void DIF_INWC::DIF_INWC_radix4(std::vector<ZZ> &A){
 	int fft_point = N;
 	int radix_r1 = radix;
 	int radix_r2 = radix;
-	ZZ fft_twiddle = IW;
+	ZZ fft_twiddle = IW;  //***due to INWC, this ways use Inverse fft_twiddle***
 	ZZ fft_prime = p;
 	int debug = 0;
 	vector<vector<ZZ > > ROM0;
@@ -494,8 +563,11 @@ void DIF_INWC::DIF_INWC_radix4(std::vector<ZZ> &A){
 
 	//-----------NWC PART-----------------------
 	ZZ InvTwo;
-	ZZ InvPhi_dot_IW, InvPhi_dot_IW_dot_InvTwo;
-	InvMod(InvTwo, (ZZ)2, p);
+	ZZ InvPhi_0t_dot_IW, InvPhi_0t_dot_IW_dot_InvTwo;
+	ZZ InvPhi_1t_dot_IW, InvPhi_1t_dot_IW_dot_InvTwo;
+	ZZ InvPhi_2t_dot_IW, InvPhi_2t_dot_IW_dot_InvTwo;
+	ZZ InvPhi_3t_dot_IW, InvPhi_3t_dot_IW_dot_InvTwo;
+	InvMod(InvTwo, (ZZ)4, p);
 	cout << "W = " << W << ", IW = " << IW <<  ", Phi = " << Phi << ", InvPhi = " << InvPhi << ", Inv_2 = " << InvTwo << endl;
 	cout << "p = " << p << endl;
 	//------------------------------------------
@@ -594,6 +666,8 @@ void DIF_INWC::DIF_INWC_radix4(std::vector<ZZ> &A){
 		for(int i = 0 ;i < group;i++){
 			INWC_DATARECORD <<"twiddle factor : "<< factor <<"\n";
 			INWC_DATARECORD <<"p : "<< p <<"\n";
+			INWC_DATARECORD << "W = " << W << ", IW = " << IW <<  ", Phi = " << Phi << ", InvPhi = " << InvPhi << ", Inv_2 = " << InvTwo << endl;
+			INWC_DATARECORD << "p = " << p << endl;
 	    	INWC_DATARECORD << "********\n";
 			bn0_bc_tmp  = 0;
 			bn1_bc_tmp  = 0;
@@ -675,8 +749,17 @@ void DIF_INWC::DIF_INWC_radix4(std::vector<ZZ> &A){
 				}
                 //---------------------------------------
                 //---------NWC PART-------------
-				ZZ InvPhi_deg = PowerMod((ZZ)2, s, p);
-				ZZ InvPhi_Order = PowerMod(InvPhi, InvPhi_deg, p);
+				ZZ InvPhi_0t, InvPhi_1t, InvPhi_2t, InvPhi_3t;
+				ZZ InvPhi_0t_Order, InvPhi_1t_Order, InvPhi_2t_Order, InvPhi_3t_Order;
+				ZZ InvPhi_deg = PowerMod((ZZ)4, s, p);
+				InvPhi_0t = PowerMod(InvPhi, 0, p);
+				InvPhi_1t = PowerMod(InvPhi, 1, p);
+				InvPhi_2t = PowerMod(InvPhi, 2, p);
+				InvPhi_3t = PowerMod(InvPhi, 3, p);
+				InvPhi_0t_Order = PowerMod(InvPhi_0t, InvPhi_deg, p);
+				InvPhi_1t_Order = PowerMod(InvPhi_1t, InvPhi_deg, p);
+				InvPhi_2t_Order = PowerMod(InvPhi_2t, InvPhi_deg, p);
+				InvPhi_3t_Order = PowerMod(InvPhi_3t, InvPhi_deg, p);
 				//------------------------------
                 if(bn_tmp == 0){
 					if(j < 2)bn0_bc_tmp = BC_tmp;
@@ -684,64 +767,123 @@ void DIF_INWC::DIF_INWC_radix4(std::vector<ZZ> &A){
 					PowerMod(factor_3t,factor_t,3,p);
                     switch(s){
                         case 0:
-                            if(debug) INWC_DATARECORD <<"Before butterfly unit operation! \n";
-                            if(debug) INWC_DATARECORD <<" A_B0R0["<<ma_tmp<<"]: " <<A_B0R0[ma_tmp] << ", st0_Tw[0] = " << st0_Tw[0] << endl;
-					        if(debug) INWC_DATARECORD <<" A_B0R1["<<ma_tmp<<"]: " <<A_B0R1[ma_tmp] << ", st0_Tw[1] = " << st0_Tw[1] << endl;
-					        if(debug) INWC_DATARECORD <<" A_B0R2["<<ma_tmp<<"]: " <<A_B0R2[ma_tmp] << ", st0_Tw[2] = " << st0_Tw[2] << endl;
-					        if(debug) INWC_DATARECORD <<" A_B0R3["<<ma_tmp<<"]: " <<A_B0R3[ma_tmp] << ", st0_Tw[3] = " << st0_Tw[3] << endl;   
-					        if(!debug) Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
-					        INWC_DATARECORD <<" -------------------" << std::endl;
-                            if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st0_Tw[0],p);
-                            if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],st0_Tw[1],p);
-					        if(!debug) MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],st0_Tw[2],p);
-					        if(!debug) MulMod(A_B0R3[ma_tmp],A_B0R3[ma_tmp],st0_Tw[3],p);
-							
+                            INWC_DATARECORD <<"Before butterfly unit operation! \n";
+                            INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: " <<A_B0R0[ma_tmp] << ", st0_Tw[0] = " << st0_Tw[0] << endl;
+					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: " <<A_B0R1[ma_tmp] << ", st0_Tw[1] = " << st0_Tw[1] << endl;
+					        INWC_DATARECORD <<"A_B0R2["<<ma_tmp<<"]: " <<A_B0R2[ma_tmp] << ", st0_Tw[2] = " << st0_Tw[2] << endl;
+					        INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: " <<A_B0R3[ma_tmp] << ", st0_Tw[3] = " << st0_Tw[3] << endl;   
+							if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_0t_Order << endl; else INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_deg*0 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_1t_Order << endl; else INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_deg*1 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_2t_Order << endl; else INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_deg*2 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_3t_Order << endl; else INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_deg*3 << endl;   
+							if(!debug) INWC_Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
+					        INWC_DATARECORD <<"-------------------" << std::endl;
+							//------------compute for INWC---------------
+							if(!debug) MulMod(InvPhi_0t_dot_IW, InvPhi_0t_Order, st0_Tw[0], p);
+							if(!debug) MulMod(InvPhi_1t_dot_IW, InvPhi_1t_Order, st0_Tw[1], p);
+							if(!debug) MulMod(InvPhi_2t_dot_IW, InvPhi_2t_Order, st0_Tw[2], p);
+							if(!debug) MulMod(InvPhi_3t_dot_IW, InvPhi_3t_Order, st0_Tw[3], p);
+
+							if(!debug) MulMod(InvPhi_0t_dot_IW_dot_InvTwo, InvPhi_0t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_1t_dot_IW_dot_InvTwo, InvPhi_1t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_2t_dot_IW_dot_InvTwo, InvPhi_2t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_3t_dot_IW_dot_InvTwo, InvPhi_3t_dot_IW, InvTwo, p);
+							//-------------------------------------------
+                            if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],InvPhi_0t_dot_IW_dot_InvTwo,p);
+                            if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],InvPhi_1t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],InvPhi_2t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B0R3[ma_tmp],A_B0R3[ma_tmp],InvPhi_3t_dot_IW_dot_InvTwo,p);			
                             break;
                         case 1:
-                            if(debug) INWC_DATARECORD <<"Before butterfly unit operation! \n";
-					        if(debug) INWC_DATARECORD <<" A_B0R0["<<ma_tmp<<"]: " <<A_B0R0[ma_tmp] << ", st1_Tw[0] = " << st1_Tw[0] << endl;
-					        if(debug) INWC_DATARECORD <<" A_B0R1["<<ma_tmp<<"]: " <<A_B0R1[ma_tmp] << ", st1_Tw[1] = " << st1_Tw[1] << endl;
-					        if(debug) INWC_DATARECORD <<" A_B0R2["<<ma_tmp<<"]: " <<A_B0R2[ma_tmp] << ", st1_Tw[2] = " << st1_Tw[2] << endl;
-					        if(debug) INWC_DATARECORD <<" A_B0R3["<<ma_tmp<<"]: " <<A_B0R3[ma_tmp] << ", st1_Tw[3] = " << st1_Tw[3] << endl;
-					        if(!debug) Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
-					        INWC_DATARECORD <<" -------------------" << std::endl;
-                            if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st1_Tw[0],p);
-                            if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],st1_Tw[1],p);
-					        if(!debug) MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],st1_Tw[2],p);
-					        if(!debug) MulMod(A_B0R3[ma_tmp],A_B0R3[ma_tmp],st1_Tw[3],p);
+                            INWC_DATARECORD <<"Before butterfly unit operation! \n";
+					        INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: " <<A_B0R0[ma_tmp] << ", st1_Tw[0] = " << st1_Tw[0] << endl;
+					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: " <<A_B0R1[ma_tmp] << ", st1_Tw[1] = " << st1_Tw[1] << endl;
+					        INWC_DATARECORD <<"A_B0R2["<<ma_tmp<<"]: " <<A_B0R2[ma_tmp] << ", st1_Tw[2] = " << st1_Tw[2] << endl;
+					        INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: " <<A_B0R3[ma_tmp] << ", st1_Tw[3] = " << st1_Tw[3] << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_0t_Order << endl; else INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_deg*0 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_1t_Order << endl; else INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_deg*1 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_2t_Order << endl; else INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_deg*2 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_3t_Order << endl; else INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_deg*3 << endl;   
+					        if(!debug) INWC_Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
+					        INWC_DATARECORD <<"-------------------" << std::endl;
+							//------------compute for INWC---------------
+							if(!debug) MulMod(InvPhi_0t_dot_IW, InvPhi_0t_Order, st1_Tw[0], p);
+							if(!debug) MulMod(InvPhi_1t_dot_IW, InvPhi_1t_Order, st1_Tw[1], p);
+							if(!debug) MulMod(InvPhi_2t_dot_IW, InvPhi_2t_Order, st1_Tw[2], p);
+							if(!debug) MulMod(InvPhi_3t_dot_IW, InvPhi_3t_Order, st1_Tw[3], p);
+
+							if(!debug) MulMod(InvPhi_0t_dot_IW_dot_InvTwo, InvPhi_0t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_1t_dot_IW_dot_InvTwo, InvPhi_1t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_2t_dot_IW_dot_InvTwo, InvPhi_2t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_3t_dot_IW_dot_InvTwo, InvPhi_3t_dot_IW, InvTwo, p);
+							//-------------------------------------------
+                            if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],InvPhi_0t_dot_IW_dot_InvTwo,p);
+                            if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],InvPhi_1t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],InvPhi_2t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B0R3[ma_tmp],A_B0R3[ma_tmp],InvPhi_3t_dot_IW_dot_InvTwo,p);
                             break;
                         case 2:
-                            if(debug) INWC_DATARECORD <<"Before butterfly unit operation! \n";
-					        if(debug) INWC_DATARECORD <<" A_B0R0["<<ma_tmp<<"]: " <<A_B0R0[ma_tmp] << ", st2_Tw[0] = " << st2_Tw[0] << endl;
-					        if(debug) INWC_DATARECORD <<" A_B0R1["<<ma_tmp<<"]: " <<A_B0R1[ma_tmp] << ", st2_Tw[1] = " << st2_Tw[1] << endl;
-					        if(debug) INWC_DATARECORD <<" A_B0R2["<<ma_tmp<<"]: " <<A_B0R2[ma_tmp] << ", st2_Tw[2] = " << st2_Tw[2] << endl;
-					        if(debug) INWC_DATARECORD <<" A_B0R3["<<ma_tmp<<"]: " <<A_B0R3[ma_tmp] << ", st2_Tw[3] = " << st2_Tw[3] << endl;
-					        if(!debug) Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
-					        INWC_DATARECORD <<" -------------------" << std::endl;
-                            if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st2_Tw[0],p);
-                            if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],st2_Tw[1],p);
-					        if(!debug) MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],st2_Tw[2],p);
-					        if(!debug) MulMod(A_B0R3[ma_tmp],A_B0R3[ma_tmp],st2_Tw[3],p);
+                            INWC_DATARECORD <<"Before butterfly unit operation! \n";
+					        INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: " <<A_B0R0[ma_tmp] << ", st2_Tw[0] = " << st2_Tw[0] << endl;
+					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: " <<A_B0R1[ma_tmp] << ", st2_Tw[1] = " << st2_Tw[1] << endl;
+					        INWC_DATARECORD <<"A_B0R2["<<ma_tmp<<"]: " <<A_B0R2[ma_tmp] << ", st2_Tw[2] = " << st2_Tw[2] << endl;
+					        INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: " <<A_B0R3[ma_tmp] << ", st2_Tw[3] = " << st2_Tw[3] << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_0t_Order << endl; else INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_deg*0 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_1t_Order << endl; else INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_deg*1 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_2t_Order << endl; else INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_deg*2 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_3t_Order << endl; else INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_deg*3 << endl;
+					        if(!debug) INWC_Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
+					        INWC_DATARECORD <<"-------------------" << std::endl;
+							//------------compute for INWC---------------
+							if(!debug) MulMod(InvPhi_0t_dot_IW, InvPhi_0t_Order, st2_Tw[0], p);
+							if(!debug) MulMod(InvPhi_1t_dot_IW, InvPhi_1t_Order, st2_Tw[1], p);
+							if(!debug) MulMod(InvPhi_2t_dot_IW, InvPhi_2t_Order, st2_Tw[2], p);
+							if(!debug) MulMod(InvPhi_3t_dot_IW, InvPhi_3t_Order, st2_Tw[3], p);
+
+							if(!debug) MulMod(InvPhi_0t_dot_IW_dot_InvTwo, InvPhi_0t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_1t_dot_IW_dot_InvTwo, InvPhi_1t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_2t_dot_IW_dot_InvTwo, InvPhi_2t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_3t_dot_IW_dot_InvTwo, InvPhi_3t_dot_IW, InvTwo, p);
+							//-------------------------------------------
+                            if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],InvPhi_0t_dot_IW_dot_InvTwo,p);
+                            if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],InvPhi_1t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],InvPhi_2t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B0R3[ma_tmp],A_B0R3[ma_tmp],InvPhi_3t_dot_IW_dot_InvTwo,p);
                             break;
                         case 3:
-                            if(debug) INWC_DATARECORD <<"Before butterfly unit operation! \n";
-					        if(debug) INWC_DATARECORD <<" A_B0R0["<<ma_tmp<<"]: " <<A_B0R0[ma_tmp] << ", st3_Tw[0] = " << 1 << endl;
-					        if(debug) INWC_DATARECORD <<" A_B0R1["<<ma_tmp<<"]: " <<A_B0R1[ma_tmp] << ", st3_Tw[1] = " << 1 << endl;
-					        if(debug) INWC_DATARECORD <<" A_B0R2["<<ma_tmp<<"]: " <<A_B0R2[ma_tmp] << ", st3_Tw[2] = " << 1 << endl;
-					        if(debug) INWC_DATARECORD <<" A_B0R3["<<ma_tmp<<"]: " <<A_B0R3[ma_tmp] << ", st3_Tw[3] = " << 1 << endl;
-					        if(!debug) Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
-					        INWC_DATARECORD <<" -------------------" << std::endl;
-                            if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],1,p);
-                            if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],1,p);
-					        if(!debug) MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],1,p);
-					        if(!debug) MulMod(A_B0R3[ma_tmp],A_B0R3[ma_tmp],1,p);
+                            INWC_DATARECORD <<"Before butterfly unit operation! \n";
+					        INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: " <<A_B0R0[ma_tmp] << ", st3_Tw[0] = " << 1 << endl;
+					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: " <<A_B0R1[ma_tmp] << ", st3_Tw[1] = " << 1 << endl;
+					        INWC_DATARECORD <<"A_B0R2["<<ma_tmp<<"]: " <<A_B0R2[ma_tmp] << ", st3_Tw[2] = " << 1 << endl;
+					        INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: " <<A_B0R3[ma_tmp] << ", st3_Tw[3] = " << 1 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_0t_Order << endl; else INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_deg*0 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_1t_Order << endl; else INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_deg*1 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_2t_Order << endl; else INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_deg*2 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_3t_Order << endl; else INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_deg*3 << endl;
+					        if(!debug) INWC_Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
+					        INWC_DATARECORD <<"-------------------" << std::endl;
+							//------------compute for INWC---------------
+							if(!debug) MulMod(InvPhi_0t_dot_IW, InvPhi_0t_Order, 1, p);
+							if(!debug) MulMod(InvPhi_1t_dot_IW, InvPhi_1t_Order, 1, p);
+							if(!debug) MulMod(InvPhi_2t_dot_IW, InvPhi_2t_Order, 1, p);
+							if(!debug) MulMod(InvPhi_3t_dot_IW, InvPhi_3t_Order, 1, p);
+
+							if(!debug) MulMod(InvPhi_0t_dot_IW_dot_InvTwo, InvPhi_0t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_1t_dot_IW_dot_InvTwo, InvPhi_1t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_2t_dot_IW_dot_InvTwo, InvPhi_2t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_3t_dot_IW_dot_InvTwo, InvPhi_3t_dot_IW, InvTwo, p);
+							//-------------------------------------------
+                            if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],InvPhi_0t_dot_IW_dot_InvTwo,p);
+                            if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],InvPhi_1t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],InvPhi_2t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B0R3[ma_tmp],A_B0R3[ma_tmp],InvPhi_3t_dot_IW_dot_InvTwo,p);
                             break;
                     }
-					INWC_DATARECORD <<" ------after BU compute and Mul-------" << std::endl;
-					INWC_DATARECORD <<" A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp] << endl;
-					INWC_DATARECORD <<" A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << endl;
-					INWC_DATARECORD <<" A_B0R2["<<ma_tmp<<"]: "<<A_B0R2[ma_tmp] << endl;
-					INWC_DATARECORD <<" A_B0R3["<<ma_tmp<<"]: "<<A_B0R3[ma_tmp] << endl;
+					INWC_DATARECORD <<"------after BU compute and Mul-------" << std::endl;
+					INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp] << endl;
+					INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << endl;
+					INWC_DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<<A_B0R2[ma_tmp] << endl;
+					INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<<A_B0R3[ma_tmp] << endl;
 				
 					
 					INWC_DATARECORD <<"--------------------------------------------------------------------\n";
@@ -754,59 +896,123 @@ void DIF_INWC::DIF_INWC_radix4(std::vector<ZZ> &A){
 					PowerMod(factor_3t,factor_t,3,p);
                     switch(s){
                         case 0:
-                            if(debug) INWC_DATARECORD <<" A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st0_Tw[0] = " << st0_Tw[0] << endl;
-					        if(debug) INWC_DATARECORD <<" A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st0_Tw[1] = " << st0_Tw[1] << endl;
-					        if(debug) INWC_DATARECORD <<" A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<< ", st0_Tw[2] = " << st0_Tw[2] << endl;
-					        if(debug) INWC_DATARECORD <<" A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<< ", st0_Tw[3] = " << st0_Tw[3] << endl;
-                            if(!debug) Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
-					        INWC_DATARECORD <<" -------------------" << std::endl;
-                            if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st0_Tw[0],p);
-					        if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],st0_Tw[1],p);
-					        if(!debug) MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],st0_Tw[2],p);
-					        if(!debug) MulMod(A_B1R3[ma_tmp],A_B1R3[ma_tmp],st0_Tw[3],p);
+							INWC_DATARECORD <<"Before butterfly unit operation! \n";
+                            INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st0_Tw[0] = " << st0_Tw[0] << endl;
+					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st0_Tw[1] = " << st0_Tw[1] << endl;
+					        INWC_DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<< ", st0_Tw[2] = " << st0_Tw[2] << endl;
+					        INWC_DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<< ", st0_Tw[3] = " << st0_Tw[3] << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_0t_Order << endl; else INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_deg*0 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_1t_Order << endl; else INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_deg*1 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_2t_Order << endl; else INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_deg*2 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_3t_Order << endl; else INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_deg*3 << endl;
+                            if(!debug) INWC_Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
+					        INWC_DATARECORD <<"-------------------" << std::endl;
+							//------------compute for INWC---------------
+							if(!debug) MulMod(InvPhi_0t_dot_IW, InvPhi_0t_Order, st0_Tw[0], p);
+							if(!debug) MulMod(InvPhi_1t_dot_IW, InvPhi_1t_Order, st0_Tw[1], p);
+							if(!debug) MulMod(InvPhi_2t_dot_IW, InvPhi_2t_Order, st0_Tw[2], p);
+							if(!debug) MulMod(InvPhi_3t_dot_IW, InvPhi_3t_Order, st0_Tw[3], p);
+
+							if(!debug) MulMod(InvPhi_0t_dot_IW_dot_InvTwo, InvPhi_0t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_1t_dot_IW_dot_InvTwo, InvPhi_1t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_2t_dot_IW_dot_InvTwo, InvPhi_2t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_3t_dot_IW_dot_InvTwo, InvPhi_3t_dot_IW, InvTwo, p);
+							//-------------------------------------------
+                            if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],InvPhi_0t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],InvPhi_1t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],InvPhi_2t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B1R3[ma_tmp],A_B1R3[ma_tmp],InvPhi_3t_dot_IW_dot_InvTwo,p);
                             break;
                         case 1:
-                            if(debug) INWC_DATARECORD <<" A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st1_Tw[0] = " << st1_Tw[0] << endl;
-					        if(debug) INWC_DATARECORD <<" A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st1_Tw[1] = " << st1_Tw[1] << endl;
-					        if(debug) INWC_DATARECORD <<" A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<< ", st1_Tw[2] = " << st1_Tw[2] << endl;
-					        if(debug) INWC_DATARECORD <<" A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<< ", st1_Tw[3] = " << st1_Tw[3] << endl;
-                            if(!debug) Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
-					        INWC_DATARECORD <<" -------------------" << std::endl;
-                            if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st1_Tw[0],p);
-					        if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],st1_Tw[1],p);
-					        if(!debug) MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],st1_Tw[2],p);
-					        if(!debug) MulMod(A_B1R3[ma_tmp],A_B1R3[ma_tmp],st1_Tw[3],p);
+							INWC_DATARECORD <<"Before butterfly unit operation! \n";
+                            INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st1_Tw[0] = " << st1_Tw[0] << endl;
+					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st1_Tw[1] = " << st1_Tw[1] << endl;
+					        INWC_DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<< ", st1_Tw[2] = " << st1_Tw[2] << endl;
+					        INWC_DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<< ", st1_Tw[3] = " << st1_Tw[3] << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_0t_Order << endl; else INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_deg*0 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_1t_Order << endl; else INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_deg*1 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_2t_Order << endl; else INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_deg*2 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_3t_Order << endl; else INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_deg*3 << endl;
+                            if(!debug) INWC_Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
+					        INWC_DATARECORD <<"-------------------" << std::endl;
+							//------------compute for INWC---------------
+							if(!debug) MulMod(InvPhi_0t_dot_IW, InvPhi_0t_Order, st1_Tw[0], p);
+							if(!debug) MulMod(InvPhi_1t_dot_IW, InvPhi_1t_Order, st1_Tw[1], p);
+							if(!debug) MulMod(InvPhi_2t_dot_IW, InvPhi_2t_Order, st1_Tw[2], p);
+							if(!debug) MulMod(InvPhi_3t_dot_IW, InvPhi_3t_Order, st1_Tw[3], p);
+
+							if(!debug) MulMod(InvPhi_0t_dot_IW_dot_InvTwo, InvPhi_0t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_1t_dot_IW_dot_InvTwo, InvPhi_1t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_2t_dot_IW_dot_InvTwo, InvPhi_2t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_3t_dot_IW_dot_InvTwo, InvPhi_3t_dot_IW, InvTwo, p);
+							//-------------------------------------------
+                            if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],InvPhi_0t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],InvPhi_1t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],InvPhi_2t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B1R3[ma_tmp],A_B1R3[ma_tmp],InvPhi_3t_dot_IW_dot_InvTwo,p);
                             break;
                         case 2:
-                            if(debug) INWC_DATARECORD <<" A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st2_Tw[0] = " << st2_Tw[0] << endl;
-					        if(debug) INWC_DATARECORD <<" A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st2_Tw[1] = " << st2_Tw[1] << endl;
-					        if(debug) INWC_DATARECORD <<" A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<< ", st2_Tw[2] = " << st2_Tw[2] << endl;
-					        if(debug) INWC_DATARECORD <<" A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<< ", st2_Tw[3] = " << st2_Tw[3] << endl;
-                            if(!debug) Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
-					        INWC_DATARECORD <<" -------------------" << std::endl;
-                            if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st2_Tw[0],p);
-					        if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],st2_Tw[1],p);
-					        if(!debug) MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],st2_Tw[2],p);
-					        if(!debug) MulMod(A_B1R3[ma_tmp],A_B1R3[ma_tmp],st2_Tw[3],p);
+							INWC_DATARECORD <<"Before butterfly unit operation! \n";
+                            INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st2_Tw[0] = " << st2_Tw[0] << endl;
+					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st2_Tw[1] = " << st2_Tw[1] << endl;
+					        INWC_DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<< ", st2_Tw[2] = " << st2_Tw[2] << endl;
+					        INWC_DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<< ", st2_Tw[3] = " << st2_Tw[3] << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_0t_Order << endl; else INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_deg*0 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_1t_Order << endl; else INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_deg*1 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_2t_Order << endl; else INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_deg*2 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_3t_Order << endl; else INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_deg*3 << endl;
+                            if(!debug) INWC_Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
+					        INWC_DATARECORD <<"-------------------" << std::endl;
+							//------------compute for INWC---------------
+							if(!debug) MulMod(InvPhi_0t_dot_IW, InvPhi_0t_Order, st2_Tw[0], p);
+							if(!debug) MulMod(InvPhi_1t_dot_IW, InvPhi_1t_Order, st2_Tw[1], p);
+							if(!debug) MulMod(InvPhi_2t_dot_IW, InvPhi_2t_Order, st2_Tw[2], p);
+							if(!debug) MulMod(InvPhi_3t_dot_IW, InvPhi_3t_Order, st2_Tw[3], p);
+
+							if(!debug) MulMod(InvPhi_0t_dot_IW_dot_InvTwo, InvPhi_0t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_1t_dot_IW_dot_InvTwo, InvPhi_1t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_2t_dot_IW_dot_InvTwo, InvPhi_2t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_3t_dot_IW_dot_InvTwo, InvPhi_3t_dot_IW, InvTwo, p);
+							//-------------------------------------------
+                            if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],InvPhi_0t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],InvPhi_1t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],InvPhi_2t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B1R3[ma_tmp],A_B1R3[ma_tmp],InvPhi_3t_dot_IW_dot_InvTwo,p);
                             break;
                         case 3:
-                            if(debug) INWC_DATARECORD <<" A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st3_Tw[0] = " << 1 << endl;
-					        if(debug) INWC_DATARECORD <<" A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st3_Tw[1] = " << 1 << endl;
-					        if(debug) INWC_DATARECORD <<" A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<< ", st3_Tw[2] = " << 1 << endl;
-					        if(debug) INWC_DATARECORD <<" A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<< ", st3_Tw[3] = " << 1 << endl;
-                            if(!debug) Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
-					        INWC_DATARECORD <<" -------------------" << std::endl;
-                            if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],1,p);
-					        if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],1,p);
-					        if(!debug) MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],1,p);
-					        if(!debug) MulMod(A_B1R3[ma_tmp],A_B1R3[ma_tmp],1,p);
+							INWC_DATARECORD <<"Before butterfly unit operation! \n";
+                            INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st3_Tw[0] = " << 1 << endl;
+					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st3_Tw[1] = " << 1 << endl;
+					        INWC_DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<< ", st3_Tw[2] = " << 1 << endl;
+					        INWC_DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<< ", st3_Tw[3] = " << 1 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_0t_Order << endl; else INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_deg*0 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_1t_Order << endl; else INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_deg*1 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_2t_Order << endl; else INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_deg*2 << endl;
+							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_3t_Order << endl; else INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_deg*3 << endl;
+                            if(!debug) INWC_Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
+					        INWC_DATARECORD <<"-------------------" << std::endl;
+							//------------compute for INWC---------------
+							if(!debug) MulMod(InvPhi_0t_dot_IW, InvPhi_0t_Order, 1, p);
+							if(!debug) MulMod(InvPhi_1t_dot_IW, InvPhi_1t_Order, 1, p);
+							if(!debug) MulMod(InvPhi_2t_dot_IW, InvPhi_2t_Order, 1, p);
+							if(!debug) MulMod(InvPhi_3t_dot_IW, InvPhi_3t_Order, 1, p);
+
+							if(!debug) MulMod(InvPhi_0t_dot_IW_dot_InvTwo, InvPhi_0t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_1t_dot_IW_dot_InvTwo, InvPhi_1t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_2t_dot_IW_dot_InvTwo, InvPhi_2t_dot_IW, InvTwo, p);
+							if(!debug) MulMod(InvPhi_3t_dot_IW_dot_InvTwo, InvPhi_3t_dot_IW, InvTwo, p);
+							//-------------------------------------------
+                            if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],InvPhi_0t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],InvPhi_1t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],InvPhi_2t_dot_IW_dot_InvTwo,p);
+					        if(!debug) MulMod(A_B1R3[ma_tmp],A_B1R3[ma_tmp],InvPhi_3t_dot_IW_dot_InvTwo,p);
                             break;
                     }
-                    INWC_DATARECORD <<" ------after BU compute and Mul-------" << std::endl;
-					INWC_DATARECORD <<" A_B1R0["<<ma_tmp<<"]: " << A_B1R0[ma_tmp] << endl;
-					INWC_DATARECORD <<" A_B1R1["<<ma_tmp<<"]: " << A_B1R1[ma_tmp] << endl;
-					INWC_DATARECORD <<" A_B1R2["<<ma_tmp<<"]: " << A_B1R2[ma_tmp] << endl;
-					INWC_DATARECORD <<" A_B1R3["<<ma_tmp<<"]: " << A_B1R3[ma_tmp] << endl;
+                    INWC_DATARECORD <<"------after BU compute and Mul-------" << std::endl;
+					INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: " << A_B1R0[ma_tmp] << endl;
+					INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: " << A_B1R1[ma_tmp] << endl;
+					INWC_DATARECORD <<"A_B1R2["<<ma_tmp<<"]: " << A_B1R2[ma_tmp] << endl;
+					INWC_DATARECORD <<"A_B1R3["<<ma_tmp<<"]: " << A_B1R3[ma_tmp] << endl;
 					
 					INWC_DATARECORD <<"--------------------------------------------------------------------\n";
 					if(j < 2) bn1_ma_reg1 = ma_tmp;

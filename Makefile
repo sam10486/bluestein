@@ -57,4 +57,5 @@ clean:
 	rm -rf ROM_Data/ROM0/*.txt
 	rm -rf ROM_Data/ROM1/*.txt
 	rm -rf ROM_Data/ROM2/*.txt
+	rm -rf NWC_PrintData/*.txt
 	

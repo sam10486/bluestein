@@ -114,3 +114,4 @@ vector<ZZ > NWC_Algo::INWC(vector<ZZ> &arr){
     }
     return arr;
 }
+
