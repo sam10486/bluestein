@@ -31,7 +31,7 @@ vector<ZZ > NWC_Algo::NWC(vector<ZZ > &arr){
         Arr_scramble[i] = arr[rev_index];
     }
     for (int s = 1; s <= log2(N); s++){
-        //cout << "stage = " << s << endl;
+        //cout << "-------------stage = " << s << "---------------" << endl;
         int m = pow(2, s);
         for (int j = 0; j <= (m/2)-1; j++){
             ZZ TF;

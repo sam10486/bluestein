@@ -93,7 +93,9 @@ void test_NTTSPMB()
       err++;
     }
   }
+  cout << "--------------NWC function test----------------" << endl;
   cout << "err = " << err << endl;
+  cout << "--------------NWC function test fin------------" << endl;
   
   for (int i = 0; i < fft_point; i++){
     INWC_golden_o << INWC_golden[i] << endl;
@@ -472,6 +474,8 @@ void test_NTTSPMB()
 	    if(C[i] != A_1[i]) {
 	  	  std::cout << "error index: " << i <<"\n";
 	  	  error = error + 1;
+      }else{
+        //std::cout << "DIF_arr[" << i  << "] = " <<  C[i] << "\n";
       }
     }
     std::cout << "error : " << error << "\n";
@@ -479,6 +483,41 @@ void test_NTTSPMB()
   
 
   cout << "------------------DIF NWC test-----------------" << endl;
+  std::vector<ZZ> INWC_B0R0;
+  std::vector<ZZ> INWC_B0R1;
+  std::vector<ZZ> INWC_B0R2;
+  std::vector<ZZ> INWC_B0R3;
+  std::vector<ZZ> INWC_B0R4;
+  std::vector<ZZ> INWC_B0R5;
+  std::vector<ZZ> INWC_B0R6;
+  std::vector<ZZ> INWC_B0R7;
+  std::vector<ZZ> INWC_B0R8;
+  std::vector<ZZ> INWC_B0R9;
+  std::vector<ZZ> INWC_B0R10;
+  std::vector<ZZ> INWC_B0R11;
+  std::vector<ZZ> INWC_B0R12;
+  std::vector<ZZ> INWC_B0R13;
+  std::vector<ZZ> INWC_B0R14;
+  std::vector<ZZ> INWC_B0R15;
+
+  std::vector<ZZ> INWC_B1R0;
+  std::vector<ZZ> INWC_B1R1;
+  std::vector<ZZ> INWC_B1R2;
+  std::vector<ZZ> INWC_B1R3;
+  std::vector<ZZ> INWC_B1R4;
+  std::vector<ZZ> INWC_B1R5;
+  std::vector<ZZ> INWC_B1R6;
+  std::vector<ZZ> INWC_B1R7;
+  std::vector<ZZ> INWC_B1R8;
+  std::vector<ZZ> INWC_B1R9;
+  std::vector<ZZ> INWC_B1R10;
+  std::vector<ZZ> INWC_B1R11;
+  std::vector<ZZ> INWC_B1R12;
+  std::vector<ZZ> INWC_B1R13;
+  std::vector<ZZ> INWC_B1R14;
+  std::vector<ZZ> INWC_B1R15;
+
+
   DIF_INWC DIF_inwc;
   std::vector<ZZ> INWC_arr;
   INWC_arr.resize(fft_point);
@@ -492,8 +531,42 @@ void test_NTTSPMB()
     case 65536:
       DIF_inwc.DIF_INWC_radix16(INWC_arr);
       break;
+    case 32768:
+       DIF_inwc.DIF_INWC_r16_r8(INWC_arr, INWC_B0R0, INWC_B0R1, INWC_B0R2,INWC_B0R3,
+			    INWC_B0R4, INWC_B0R5, INWC_B0R6, INWC_B0R7,
+          INWC_B0R8, INWC_B0R9, INWC_B0R10,INWC_B0R11,
+          INWC_B0R12,INWC_B0R13,INWC_B0R14,INWC_B0R15,
+          INWC_B1R0, INWC_B1R1, INWC_B1R2, INWC_B1R3,
+				  INWC_B1R4, INWC_B1R5, INWC_B1R6, INWC_B1R7,
+          INWC_B1R8, INWC_B1R9, INWC_B1R10,INWC_B1R11,
+				  INWC_B1R12,INWC_B1R13,INWC_B1R14,INWC_B1R15);
+      break;
+    case 16384:
+      DIF_inwc.DIF_INWC_r16_r4(INWC_arr, INWC_B0R0, INWC_B0R1, INWC_B0R2,INWC_B0R3,
+			    INWC_B0R4, INWC_B0R5, INWC_B0R6, INWC_B0R7,
+          INWC_B0R8, INWC_B0R9, INWC_B0R10,INWC_B0R11,
+          INWC_B0R12,INWC_B0R13,INWC_B0R14,INWC_B0R15,
+          INWC_B1R0, INWC_B1R1, INWC_B1R2, INWC_B1R3,
+				  INWC_B1R4, INWC_B1R5, INWC_B1R6, INWC_B1R7,
+          INWC_B1R8, INWC_B1R9, INWC_B1R10,INWC_B1R11,
+				  INWC_B1R12,INWC_B1R13,INWC_B1R14,INWC_B1R15);
+      break;
+    case 8192:
+      DIF_inwc.DIF_INWC_r16_r2(INWC_arr, INWC_B0R0, INWC_B0R1, INWC_B0R2,INWC_B0R3,
+			    INWC_B0R4, INWC_B0R5, INWC_B0R6, INWC_B0R7,
+          INWC_B0R8, INWC_B0R9, INWC_B0R10,INWC_B0R11,
+          INWC_B0R12,INWC_B0R13,INWC_B0R14,INWC_B0R15,
+          INWC_B1R0, INWC_B1R1, INWC_B1R2, INWC_B1R3,
+				  INWC_B1R4, INWC_B1R5, INWC_B1R6, INWC_B1R7,
+          INWC_B1R8, INWC_B1R9, INWC_B1R10,INWC_B1R11,
+				  INWC_B1R12,INWC_B1R13,INWC_B1R14,INWC_B1R15);
+      break;
     case 256:
       DIF_inwc.DIF_INWC_radix4(INWC_arr);
+      break;
+    case 128:
+      DIF_inwc.DIF_INWC_r4_r2(INWC_arr, INWC_B0R0, INWC_B0R1, INWC_B0R2, INWC_B0R3,
+                                INWC_B1R0, INWC_B1R1, INWC_B1R2, INWC_B1R3);
       break;
     case 16:
       DIF_inwc.DIF_INWC_radix2(INWC_arr);
@@ -509,7 +582,7 @@ void test_NTTSPMB()
 	  	  std::cout << "error index: " << i <<"\n";
 	  	  error = error + 1;
       }else{
-        std::cout << "INWC_arr[" << i  << "] = " <<  INWC_arr[i] << "\n";
+        //std::cout << "INWC_arr[" << i  << "] = " <<  INWC_arr[i] << "\n";
       }
     }
     std::cout << "error : " << error << "\n";
