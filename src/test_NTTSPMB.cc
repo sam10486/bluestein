@@ -43,8 +43,8 @@ void test_NTTSPMB()
   //cout << "ROU = " << ROU << std::endl;
   //---------------------------------
 
-  radix_r1 = 2;
-  radix_r2 = 2;
+  radix_r1 = 16;
+  radix_r2 = 16;
   ZZ fft_prime;
   ZZ fft_twiddle;
   ZZ fft_twiddle_16;
@@ -489,6 +489,9 @@ void test_NTTSPMB()
   }
   DIF_inwc.init(fft_point,fft_prime,fft_twiddle,radix_r1, Phi);
   switch (fft_point){
+    case 65536:
+      DIF_inwc.DIF_INWC_radix16(INWC_arr);
+      break;
     case 256:
       DIF_inwc.DIF_INWC_radix4(INWC_arr);
       break;
@@ -506,7 +509,7 @@ void test_NTTSPMB()
 	  	  std::cout << "error index: " << i <<"\n";
 	  	  error = error + 1;
       }else{
-        //std::cout << "INWC_arr[" << i  << "] = " <<  INWC_arr[i] << "\n";
+        std::cout << "INWC_arr[" << i  << "] = " <<  INWC_arr[i] << "\n";
       }
     }
     std::cout << "error : " << error << "\n";
