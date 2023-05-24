@@ -71,7 +71,7 @@ void test_NTTSPMB()
   SqrRootMod(Phi, fft_twiddle, fft_prime);
   InvMod(InvPhi, Phi, fft_prime);
   InvMod(IW, fft_twiddle, fft_prime);
-  cout << "Phi = " << Phi << ", InvPhi = " << InvPhi << endl;
+  std::cout << "Phi = " << Phi << ", InvPhi = " << InvPhi << endl;
   NWC_Algo nwc_algo(radix_r1, radix_r2, fft_point, fft_prime);
   nwc_algo.setValue(radix_r1, radix_r2, fft_point, fft_prime, Phi, InvPhi, fft_twiddle, IW);
   //nwc_algo.showInfo();
@@ -93,9 +93,9 @@ void test_NTTSPMB()
       err++;
     }
   }
-  cout << "--------------NWC function test----------------" << endl;
-  cout << "err = " << err << endl;
-  cout << "--------------NWC function test fin------------" << endl;
+  std::cout << "--------------NWC function test----------------" << endl;
+  std::cout << "err = " << err << endl;
+  std::cout << "--------------NWC function test fin------------" << endl;
   
   for (int i = 0; i < fft_point; i++){
     INWC_golden_o << INWC_golden[i] << endl;
@@ -275,7 +275,7 @@ void test_NTTSPMB()
 	  A_INTT_o << "\n";  
   }
 
-  cout << "--------------------DIT FFT part----------------" << std::endl;
+  std::cout << "--------------------DIT FFT part----------------" << std::endl;
   int debug_for_DIT = 1;
   if(debug_for_DIT){
     error = 0;
@@ -315,7 +315,7 @@ void test_NTTSPMB()
     vector<ZZ> B_NTT_B1R14;
     vector<ZZ> B_NTT_B1R15;
     B.resize(fft_point);
-    cout << "fft_twiddle = " << fft_twiddle << endl;
+    std::cout << "fft_twiddle = " << fft_twiddle << endl;
 
     for(int i = 0;i < fft_point;i++){
       B[i]   = i;
@@ -343,7 +343,7 @@ void test_NTTSPMB()
         break;
       default:
         no_display = 1;
-        cout << "No this DIT selection" << endl;
+        std::cout << "No this DIT selection" << endl;
         break;
     }
     
@@ -363,7 +363,7 @@ void test_NTTSPMB()
     if(!no_display) std::cout << "error : " << error << "\n";
   }
   
-  cout << "------------------DIF FFT test-----------------" << endl;
+  std::cout << "------------------DIF FFT test-----------------" << endl;
   int debug_for_DIF = 1;
   if(debug_for_DIF){
     error = 0;
@@ -404,7 +404,7 @@ void test_NTTSPMB()
     std::vector<ZZ> C_NTT_B1R15;
 
     C.resize(fft_point);
-    cout << "fft_twiddle = " << fft_twiddle << endl;
+    std::cout << "fft_twiddle = " << fft_twiddle << endl;
 
     for(int i = 0;i < fft_point;i++){
       C[i]   = i;
@@ -463,7 +463,7 @@ void test_NTTSPMB()
         DIF_spmb.DIF_NTT_radix2(C);
         break;
       default:
-        cout << "No this DIF selection" << endl;
+        std::cout << "No this DIF selection" << endl;
         break;
     }
     
@@ -522,7 +522,7 @@ void test_NTTSPMB()
   std::vector<ZZ> INWC_arr;
   INWC_arr.resize(fft_point);
   error = 0;
-  cout << "fft_IW = " << fft_IW << endl;
+  std::cout << "fft_IW = " << fft_IW << endl;
   for(int i = 0;i < fft_point;i++){
     INWC_arr[i]   = i;
   }
@@ -587,4 +587,234 @@ void test_NTTSPMB()
     }
     std::cout << "error : " << error << "\n";
 
+
+  //std::cout << "------------------DIF NWC MergeFactor test-----------------" << endl;
+  //std::vector<ZZ> INWC_MergeFactor_B0R0;
+  //std::vector<ZZ> INWC_MergeFactor_B0R1;
+  //std::vector<ZZ> INWC_MergeFactor_B0R2;
+  //std::vector<ZZ> INWC_MergeFactor_B0R3;
+  //std::vector<ZZ> INWC_MergeFactor_B0R4;
+  //std::vector<ZZ> INWC_MergeFactor_B0R5;
+  //std::vector<ZZ> INWC_MergeFactor_B0R6;
+  //std::vector<ZZ> INWC_MergeFactor_B0R7;
+  //std::vector<ZZ> INWC_MergeFactor_B0R8;
+  //std::vector<ZZ> INWC_MergeFactor_B0R9;
+  //std::vector<ZZ> INWC_MergeFactor_B0R10;
+  //std::vector<ZZ> INWC_MergeFactor_B0R11;
+  //std::vector<ZZ> INWC_MergeFactor_B0R12;
+  //std::vector<ZZ> INWC_MergeFactor_B0R13;
+  //std::vector<ZZ> INWC_MergeFactor_B0R14;
+  //std::vector<ZZ> INWC_MergeFactor_B0R15;
+//
+  //std::vector<ZZ> INWC_MergeFactor_B1R0;
+  //std::vector<ZZ> INWC_MergeFactor_B1R1;
+  //std::vector<ZZ> INWC_MergeFactor_B1R2;
+  //std::vector<ZZ> INWC_MergeFactor_B1R3;
+  //std::vector<ZZ> INWC_MergeFactor_B1R4;
+  //std::vector<ZZ> INWC_MergeFactor_B1R5;
+  //std::vector<ZZ> INWC_MergeFactor_B1R6;
+  //std::vector<ZZ> INWC_MergeFactor_B1R7;
+  //std::vector<ZZ> INWC_MergeFactor_B1R8;
+  //std::vector<ZZ> INWC_MergeFactor_B1R9;
+  //std::vector<ZZ> INWC_MergeFactor_B1R10;
+  //std::vector<ZZ> INWC_MergeFactor_B1R11;
+  //std::vector<ZZ> INWC_MergeFactor_B1R12;
+  //std::vector<ZZ> INWC_MergeFactor_B1R13;
+  //std::vector<ZZ> INWC_MergeFactor_B1R14;
+  //std::vector<ZZ> INWC_MergeFactor_B1R15;
+//
+//
+  //DIF_INWC DIF_inwc_MergeFactor;
+  //std::vector<ZZ> INWC_MergeFactor_arr;
+  //INWC_MergeFactor_arr.resize(fft_point);
+  //error = 0;
+  //std::cout << "fft_IW = " << fft_IW << endl;
+  //for(int i = 0;i < fft_point;i++){
+  //  INWC_MergeFactor_arr[i]   = i;
+  //}
+  //DIF_inwc_MergeFactor.init(fft_point,fft_prime,fft_twiddle,radix_r1, Phi);
+  //switch (fft_point){
+  //  case 65536:
+  //    
+  //    break;
+  //  case 32768:
+  //     
+  //    break;
+  //  case 16384:
+  //    
+  //    break;
+  //  case 8192:
+  //    
+  //    break;
+  //  case 256:
+  //    
+  //    break;
+  //  case 128:
+  //    
+  //    break;
+  //  case 16:
+  //    DIF_inwc_MergeFactor.DIF_INWC_MergeFactor_radix2(INWC_MergeFactor_arr);
+  //    break;
+  //  default:
+  //    break;
+  //}
+  //std::ofstream DIF_INWC_MergeFactor_o("./NWC_PrintData/DIF_INWC_MergeFactor_output.txt");
+  //  for(int i = 0; i < fft_point;i++){
+	//    DIF_INWC_MergeFactor_o << INWC_MergeFactor_arr[i];  
+  //    DIF_INWC_MergeFactor_o << "\n";
+	//    if(INWC_golden[i] != INWC_MergeFactor_arr[i]) {
+	//  	  std::cout << "error index: " << i <<"\n";
+	//  	  error = error + 1;
+  //    }else{
+  //      //std::cout << "INWC_MergeFactor_arr[" << i  << "] = " <<  INWC_MergeFactor_arr[i] << "\n";
+  //    }
+  //  }
+  //  std::cout << "error : " << error << "\n";
+
+  std::cout << "------------------DIF NWC seperateInvN test-----------------" << endl;
+  std::vector<ZZ> INWC_seperateInvN_B0R0;
+  std::vector<ZZ> INWC_seperateInvN_B0R1;
+  std::vector<ZZ> INWC_seperateInvN_B0R2;
+  std::vector<ZZ> INWC_seperateInvN_B0R3;
+  std::vector<ZZ> INWC_seperateInvN_B0R4;
+  std::vector<ZZ> INWC_seperateInvN_B0R5;
+  std::vector<ZZ> INWC_seperateInvN_B0R6;
+  std::vector<ZZ> INWC_seperateInvN_B0R7;
+  std::vector<ZZ> INWC_seperateInvN_B0R8;
+  std::vector<ZZ> INWC_seperateInvN_B0R9;
+  std::vector<ZZ> INWC_seperateInvN_B0R10;
+  std::vector<ZZ> INWC_seperateInvN_B0R11;
+  std::vector<ZZ> INWC_seperateInvN_B0R12;
+  std::vector<ZZ> INWC_seperateInvN_B0R13;
+  std::vector<ZZ> INWC_seperateInvN_B0R14;
+  std::vector<ZZ> INWC_seperateInvN_B0R15;
+
+  std::vector<ZZ> INWC_seperateInvN_B1R0;
+  std::vector<ZZ> INWC_seperateInvN_B1R1;
+  std::vector<ZZ> INWC_seperateInvN_B1R2;
+  std::vector<ZZ> INWC_seperateInvN_B1R3;
+  std::vector<ZZ> INWC_seperateInvN_B1R4;
+  std::vector<ZZ> INWC_seperateInvN_B1R5;
+  std::vector<ZZ> INWC_seperateInvN_B1R6;
+  std::vector<ZZ> INWC_seperateInvN_B1R7;
+  std::vector<ZZ> INWC_seperateInvN_B1R8;
+  std::vector<ZZ> INWC_seperateInvN_B1R9;
+  std::vector<ZZ> INWC_seperateInvN_B1R10;
+  std::vector<ZZ> INWC_seperateInvN_B1R11;
+  std::vector<ZZ> INWC_seperateInvN_B1R12;
+  std::vector<ZZ> INWC_seperateInvN_B1R13;
+  std::vector<ZZ> INWC_seperateInvN_B1R14;
+  std::vector<ZZ> INWC_seperateInvN_B1R15;
+
+
+  DIF_INWC DIF_inwc_seperateInvN;
+  std::vector<ZZ> INWC_seperateInvN_arr;
+  INWC_seperateInvN_arr.resize(fft_point);
+  error = 0;
+  cout << "fft_IW = " << fft_IW << endl;
+  for(int i = 0;i < fft_point;i++){
+    INWC_seperateInvN_arr[i]   = i;
+  }
+  DIF_inwc_seperateInvN.init(fft_point,fft_prime,fft_twiddle,radix_r1, Phi);
+  switch (fft_point){
+    case 65536:
+      DIF_inwc_seperateInvN.DIF_INWC_seperateInvN_radix16(INWC_seperateInvN_arr);
+      break;
+    case 32768:
+       DIF_inwc_seperateInvN.DIF_INWC_seperateInvN_r16_r8(INWC_seperateInvN_arr, 
+          INWC_seperateInvN_B0R0, INWC_seperateInvN_B0R1, INWC_seperateInvN_B0R2, INWC_seperateInvN_B0R3,
+			    INWC_seperateInvN_B0R4, INWC_seperateInvN_B0R5, INWC_seperateInvN_B0R6, INWC_seperateInvN_B0R7,
+          INWC_seperateInvN_B0R8, INWC_seperateInvN_B0R9, INWC_seperateInvN_B0R10,INWC_seperateInvN_B0R11,
+          INWC_seperateInvN_B0R12,INWC_seperateInvN_B0R13,INWC_seperateInvN_B0R14,INWC_seperateInvN_B0R15,
+          INWC_seperateInvN_B1R0, INWC_seperateInvN_B1R1, INWC_seperateInvN_B1R2, INWC_seperateInvN_B1R3,
+				  INWC_seperateInvN_B1R4, INWC_seperateInvN_B1R5, INWC_seperateInvN_B1R6, INWC_seperateInvN_B1R7,
+          INWC_seperateInvN_B1R8, INWC_seperateInvN_B1R9, INWC_seperateInvN_B1R10,INWC_seperateInvN_B1R11,
+				  INWC_seperateInvN_B1R12,INWC_seperateInvN_B1R13,INWC_seperateInvN_B1R14,INWC_seperateInvN_B1R15);
+      break;
+    case 16384:
+      DIF_inwc_seperateInvN.DIF_INWC_seperateInvN_r16_r4(INWC_seperateInvN_arr, 
+          INWC_seperateInvN_B0R0, INWC_seperateInvN_B0R1, INWC_seperateInvN_B0R2, INWC_seperateInvN_B0R3,
+			    INWC_seperateInvN_B0R4, INWC_seperateInvN_B0R5, INWC_seperateInvN_B0R6, INWC_seperateInvN_B0R7,
+          INWC_seperateInvN_B0R8, INWC_seperateInvN_B0R9, INWC_seperateInvN_B0R10,INWC_seperateInvN_B0R11,
+          INWC_seperateInvN_B0R12,INWC_seperateInvN_B0R13,INWC_seperateInvN_B0R14,INWC_seperateInvN_B0R15,
+          INWC_seperateInvN_B1R0, INWC_seperateInvN_B1R1, INWC_seperateInvN_B1R2, INWC_seperateInvN_B1R3,
+				  INWC_seperateInvN_B1R4, INWC_seperateInvN_B1R5, INWC_seperateInvN_B1R6, INWC_seperateInvN_B1R7,
+          INWC_seperateInvN_B1R8, INWC_seperateInvN_B1R9, INWC_seperateInvN_B1R10,INWC_seperateInvN_B1R11,
+				  INWC_seperateInvN_B1R12,INWC_seperateInvN_B1R13,INWC_seperateInvN_B1R14,INWC_seperateInvN_B1R15);
+      break;
+    case 8192:
+      DIF_inwc_seperateInvN.DIF_INWC_seperateInvN_r16_r2(INWC_seperateInvN_arr, 
+          INWC_seperateInvN_B0R0, INWC_seperateInvN_B0R1, INWC_seperateInvN_B0R2, INWC_seperateInvN_B0R3,
+			    INWC_seperateInvN_B0R4, INWC_seperateInvN_B0R5, INWC_seperateInvN_B0R6, INWC_seperateInvN_B0R7,
+          INWC_seperateInvN_B0R8, INWC_seperateInvN_B0R9, INWC_seperateInvN_B0R10,INWC_seperateInvN_B0R11,
+          INWC_seperateInvN_B0R12,INWC_seperateInvN_B0R13,INWC_seperateInvN_B0R14,INWC_seperateInvN_B0R15,
+          INWC_seperateInvN_B1R0, INWC_seperateInvN_B1R1, INWC_seperateInvN_B1R2, INWC_seperateInvN_B1R3,
+				  INWC_seperateInvN_B1R4, INWC_seperateInvN_B1R5, INWC_seperateInvN_B1R6, INWC_seperateInvN_B1R7,
+          INWC_seperateInvN_B1R8, INWC_seperateInvN_B1R9, INWC_seperateInvN_B1R10,INWC_seperateInvN_B1R11,
+				  INWC_seperateInvN_B1R12,INWC_seperateInvN_B1R13,INWC_seperateInvN_B1R14,INWC_seperateInvN_B1R15);
+      break;
+    case 256:
+      DIF_inwc_seperateInvN.DIF_INWC_seperateInvN_radix4(INWC_seperateInvN_arr);
+      break;
+    case 128:
+      cout << "No this one!" << endl;
+      break;
+    case 16:
+      DIF_inwc_seperateInvN.DIF_INWC_seperateInvN_radix2(INWC_seperateInvN_arr);
+      break;
+    default:
+      break;
+  }
+  std::ofstream DIF_INWC_seperateInvN_o("./NWC_PrintData/DIF_INWC_seperateInvN_output.txt");
+    for(int i = 0; i < fft_point;i++){
+	    DIF_INWC_seperateInvN_o << INWC_seperateInvN_arr[i];  
+      DIF_INWC_seperateInvN_o << "\n";
+	    if(INWC_golden[i] != INWC_seperateInvN_arr[i]) {
+	  	  std::cout << "error index: " << i <<"\n";
+	  	  error = error + 1;
+      }else{
+        //std::cout << "INWC_seperateInvN_arr[" << i  << "] = " <<  INWC_seperateInvN_arr[i] << "\n";
+      }
+    }
+    std::cout << "error : " << error << "\n";
+
+  //---------------test R16 BU---------------
+  int test_N = 8;
+  vector<ZZ > R16_arr;
+  R16_arr.resize(test_N);
+   vector<ZZ > R16_golden;
+  R16_golden.resize(test_N);
+  for(int i=0; i<test_N; i++){
+    R16_arr[i] = i;
+    R16_golden[i] = i;
+  }
+
+  //DIF_inwc_seperateInvN.INWC_seperateInvN_Radix8_BU(
+  //  R16_arr[0], R16_arr[1], R16_arr[2], R16_arr[3], 
+  //  R16_arr[4], R16_arr[5], R16_arr[6], R16_arr[7]
+  //);
+
+  //DIF_inwc_seperateInvN.INWC_seperateInvN_Radix16_BU(
+  //  R16_arr[0], R16_arr[1], R16_arr[2], R16_arr[3], 
+  //  R16_arr[4], R16_arr[5], R16_arr[6], R16_arr[7], 
+  //  R16_arr[8], R16_arr[9], R16_arr[10], R16_arr[11],
+  //  R16_arr[12], R16_arr[13], R16_arr[14], R16_arr[15]
+  //);
+
+  //for (int i = 0; i < test_N; i++){
+  //  cout << "R16_arr[" << i << "] = " << R16_arr[i] << endl;
+  //}
+  //
+  //NTT R16_test_golden;
+  //R16_test_golden.NTT_init(test_N,(ZZ)97,(ZZ)8);
+  //R16_test_golden.NTT_t(R16_golden);
+  //error = 0;
+  //for(int i = 0; i < test_N;i++){
+	// if(R16_arr[i] != R16_golden[i]) {
+	//	 std::cout << "error index: " << i <<"\n";
+  //   cout << "R16_arr = " << R16_arr[i] << " != " << "R16_golden = " << R16_golden[i] << endl;
+	//	 error = error + 1;
+	// }
+  //}
+  //std::cout << "error : " << error << "\n";
 }

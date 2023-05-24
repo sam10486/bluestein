@@ -28,6 +28,12 @@ public:
         vector<vector<ZZ > > &ROM0,  vector<vector<ZZ > > &ROM1,  vector<vector<ZZ > > &ROM2,
         vector<ZZ > &st0_Tw, vector<ZZ > &st1_Tw, vector<ZZ > &st2_Tw,
         int DTFAG_i, int DTFAG_t, int DTFAG_j);
+
+    //---------------for INWC--------------------
+    void DTFAG_INWC_MergeFactor_ROM_init(
+    int radix_r1, int radix_r2, ZZ fft_twiddle, ZZ fft_prime, int debug, int stage, ZZ InvPhi,
+    vector<vector<ZZ > > &ROM0,  vector<vector<ZZ > > &ROM1,  vector<vector<ZZ > > &ROM2);
+    //-------------------------------------------
 };
 
 #endif
