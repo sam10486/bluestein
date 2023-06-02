@@ -13,74 +13,77 @@ void DTFAG::DTFAG_INWC_MergeFactor_ROM_init(
 
     BitOperate DecToBin;
     std::ofstream DTFAG_ROM_init("./NWC_PrintData/DTFAG_INWC_ROM_init.txt");
+    std::ofstream DTFAG_ROM0_0_init("./NWC_PrintData/DTFAG_INWC_ROM0_0_init.txt");
+    std::ofstream DTFAG_ROM0_1_init("./NWC_PrintData/DTFAG_INWC_ROM0_1_init.txt");
+    std::ofstream DTFAG_ROM0_2_init("./NWC_PrintData/DTFAG_INWC_ROM0_2_init.txt");
 
-    ZZ InvPhi_deg = PowerMod((ZZ)radix_r1, stage, fft_prime);
-	ZZ InvPhi_Order;
-    ZZ InvTwo;
-    InvMod(InvTwo, (ZZ)2, fft_prime);
+    ZZ InvPhi_deg_st0 = PowerMod((ZZ)radix_r1, 0, fft_prime);
+    ZZ InvPhi_deg_st1 = PowerMod((ZZ)radix_r1, 1, fft_prime);
+    ZZ InvPhi_deg_st2 = PowerMod((ZZ)radix_r1, 2, fft_prime);
+	ZZ InvPhi_Order_st0;
+    ZZ InvPhi_Order_st1;
+    ZZ InvPhi_Order_st2;
+    ZZ InvN;
+    InvMod(InvN, (ZZ)radix_r1, fft_prime);
+    vector<vector<ZZ > > ROM0_st0;
+    vector<vector<ZZ > > ROM0_st1;
+    vector<vector<ZZ > > ROM0_st2;
+    ROM0_st0.resize(radix_r1);
+    for(int i=0; i<radix_r1; i++){
+        ROM0_st0[i].resize(radix_r1);
+    }
+    ROM0_st1.resize(radix_r1);
+	for(int i=0; i<radix_r1; i++){
+        ROM0_st1[i].resize(radix_r1);
+    }
+    ROM0_st2.resize(radix_r1);
+	for(int i=0; i<radix_r1; i++){
+        ROM0_st2[i].resize(radix_r1);
+    }
 
     DTFAG_ROM_init << "****************initial ROM********************" << endl;
     for(int k=0; k<radix_r1; k++){
         DTFAG_ROM_init << "ROM0[" << "k=" << k <<  "] = [";
-        //cout << "stage" << stage <<  endl;
-        //cout << "ROM0[" << "k=" << k <<  "] = [";
         for(int n=0; n<radix_r1; n++){
             ZZ ROM0_dg; 
-            switch (stage){
-            case 0:
-                ROM0[k][n] = (radix_r1 * radix_r2) * k * n * 2;
-                ROM0_dg = (radix_r1 * radix_r2) * k * n * 2;
-                InvPhi_Order = PowerMod(InvPhi, InvPhi_deg*n, fft_prime);
-                if(!debug) PowerMod(ROM0[k][n], InvPhi, ROM0_dg, fft_prime);
-                //--------------for INWC-------------------
-                if(!debug) MulMod(ROM0[k][n], ROM0[k][n], InvPhi_Order, fft_prime); else ROM0[k][n] = ROM0[k][n] + InvPhi_deg*n;
-                if(!debug) MulMod(ROM0[k][n], ROM0[k][n], InvTwo, fft_prime);
-                //-----------------------------------------
-                DTFAG_ROM_init << ROM0[k][n] << ", ";
-                //cout << ROM0[k][n] << ", ";
-                break;
-            case 1:
-                ROM0[k][n] = (radix_r1 * radix_r2) * k * n * 2;
-                ROM0_dg = (radix_r1 * radix_r2) * k * n * 2;
-                InvPhi_Order = PowerMod(InvPhi, InvPhi_deg*n, fft_prime);
-                if(!debug) PowerMod(ROM0[k][n], InvPhi, ROM0_dg, fft_prime);
-                //--------------for INWC-------------------
-                if(!debug) MulMod(ROM0[k][n], ROM0[k][n], InvPhi_Order, fft_prime); else ROM0[k][n] = ROM0[k][n] + InvPhi_deg*n;
-                if(!debug) MulMod(ROM0[k][n], ROM0[k][n], InvTwo, fft_prime);
-                //-----------------------------------------
-                DTFAG_ROM_init << ROM0[k][n] << ", ";
-                //cout << ROM0[k][n] << ", ";
-                break;
-            case 2:
-                ROM0[k][n] = (radix_r1 * radix_r2) * k * n * 2;
-                ROM0_dg = (radix_r1 * radix_r2) * k * n * 2;
-                InvPhi_Order = PowerMod(InvPhi, InvPhi_deg*n, fft_prime);
-                if(!debug) PowerMod(ROM0[k][n], InvPhi, ROM0_dg, fft_prime);
-                //--------------for INWC-------------------
-                if(!debug) MulMod(ROM0[k][n], ROM0[k][n], InvPhi_Order, fft_prime); else ROM0[k][n] = ROM0[k][n] + InvPhi_deg*n;
-                if(!debug) MulMod(ROM0[k][n], ROM0[k][n], InvTwo, fft_prime);
-                //-----------------------------------------
-                DTFAG_ROM_init << ROM0[k][n] << ", ";
-                //cout << ROM0[k][n] << ", ";
-                break;
-            case 3:
-                ROM0[k][n] = (radix_r1 * radix_r2) * k * n * 2;
-                ROM0_dg = (radix_r1 * radix_r2) * k * n * 2;
-                InvPhi_Order = PowerMod(InvPhi, InvPhi_deg*n, fft_prime);
-                if(!debug) PowerMod(ROM0[k][n], InvPhi, ROM0_dg, fft_prime);
-                //--------------for INWC-------------------
-                if(!debug) MulMod(ROM0[k][n], ROM0[k][n], InvPhi_Order, fft_prime); else ROM0[k][n] = ROM0[k][n] + InvPhi_deg*n;
-                if(!debug) MulMod(ROM0[k][n], ROM0[k][n], InvTwo, fft_prime);
-                //-----------------------------------------
-                DTFAG_ROM_init << ROM0[k][n] << ", ";
-                //cout << ROM0[k][n] << ", ";
-                break;
-            default:
-                break;
-            }
+            ROM0[k][n] = (radix_r1 * radix_r2) * k * n * 2;
+            ROM0_dg = (radix_r1 * radix_r2) * k * n * 2;
+            InvPhi_Order_st0 = PowerMod(InvPhi, InvPhi_deg_st0*n, fft_prime);
+            InvPhi_Order_st1 = PowerMod(InvPhi, InvPhi_deg_st1*n, fft_prime);
+            InvPhi_Order_st2 = PowerMod(InvPhi, InvPhi_deg_st2*n, fft_prime);
+            if(!debug) PowerMod(ROM0[k][n], InvPhi, ROM0_dg, fft_prime);
+            //--------------for INWC-------------------
+            if(!debug) MulMod(ROM0_st0[k][n], ROM0[k][n], InvPhi_Order_st0, fft_prime); else ROM0[k][n] = ROM0[k][n] + InvPhi_deg_st0*n;
+            if(!debug) MulMod(ROM0_st1[k][n], ROM0[k][n], InvPhi_Order_st1, fft_prime); else ROM0[k][n] = ROM0[k][n] + InvPhi_deg_st1*n;
+            if(!debug) MulMod(ROM0_st2[k][n], ROM0[k][n], InvPhi_Order_st2, fft_prime); else ROM0[k][n] = ROM0[k][n] + InvPhi_deg_st2*n;
+            if(!debug) MulMod(ROM0_st0[k][n], ROM0_st0[k][n], InvN, fft_prime);
+            if(!debug) MulMod(ROM0_st1[k][n], ROM0_st1[k][n], InvN, fft_prime);
+            if(!debug) MulMod(ROM0_st2[k][n], ROM0_st2[k][n], InvN, fft_prime);
+            //-----------------------------------------
+            DTFAG_ROM_init << ROM0[k][n] << ", ";
         }
         DTFAG_ROM_init << "]\n";
-        //cout << "]\n";
+    }
+    
+    for(int k=0; k<radix_r1; k++){
+        for(int n=0; n<radix_r1; n++){
+            switch(stage){
+                case 0:
+                    ROM0[k][n] = ROM0_st0[k][n];
+                    break;
+                case 1:
+                    ROM0[k][n] = ROM0_st1[k][n];
+                    break;
+                case 2:
+                    ROM0[k][n] = ROM0_st2[k][n];
+                    break;
+                default:
+                    break;
+            }
+            DTFAG_ROM0_0_init << "ROM0_0_arr[" << k << "][" << n << "] <= 64'd" << ROM0_st0[k][n] << ";\n";
+            DTFAG_ROM0_1_init << "ROM0_1_arr[" << k << "][" << n << "] <= 64'd" << ROM0_st1[k][n] << ";\n";
+            DTFAG_ROM0_2_init << "ROM0_2_arr[" << k << "][" << n << "] <= 64'd" << ROM0_st2[k][n] << ";\n";
+        }
     }
 
     DTFAG_ROM_init << "----------------------------------" << endl;
@@ -109,7 +112,5 @@ void DTFAG::DTFAG_INWC_MergeFactor_ROM_init(
         DTFAG_ROM_init << "]\n";
     }
     DTFAG_ROM_init << "**************intital fin****************" << endl;
-
-
 }
 
