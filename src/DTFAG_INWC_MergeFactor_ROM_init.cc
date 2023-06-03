@@ -16,10 +16,12 @@ void DTFAG::DTFAG_INWC_MergeFactor_ROM_init(
     std::ofstream DTFAG_ROM0_0_init("./NWC_PrintData/DTFAG_INWC_ROM0_0_init.txt");
     std::ofstream DTFAG_ROM0_1_init("./NWC_PrintData/DTFAG_INWC_ROM0_1_init.txt");
     std::ofstream DTFAG_ROM0_2_init("./NWC_PrintData/DTFAG_INWC_ROM0_2_init.txt");
+    std::ofstream DTFAG_ROM0_3_init("./NWC_PrintData/DTFAG_INWC_ROM0_3_init.txt");
 
     ZZ InvPhi_deg_st0 = PowerMod((ZZ)radix_r1, 0, fft_prime);
     ZZ InvPhi_deg_st1 = PowerMod((ZZ)radix_r1, 1, fft_prime);
     ZZ InvPhi_deg_st2 = PowerMod((ZZ)radix_r1, 2, fft_prime);
+    ZZ InvPhi_deg_st3 = PowerMod((ZZ)radix_r1, 3, fft_prime);
 	ZZ InvPhi_Order_st0;
     ZZ InvPhi_Order_st1;
     ZZ InvPhi_Order_st2;
@@ -28,6 +30,7 @@ void DTFAG::DTFAG_INWC_MergeFactor_ROM_init(
     vector<vector<ZZ > > ROM0_st0;
     vector<vector<ZZ > > ROM0_st1;
     vector<vector<ZZ > > ROM0_st2;
+    vector<vector<ZZ > > ROM0_st3;
     ROM0_st0.resize(radix_r1);
     for(int i=0; i<radix_r1; i++){
         ROM0_st0[i].resize(radix_r1);
@@ -39,6 +42,10 @@ void DTFAG::DTFAG_INWC_MergeFactor_ROM_init(
     ROM0_st2.resize(radix_r1);
 	for(int i=0; i<radix_r1; i++){
         ROM0_st2[i].resize(radix_r1);
+    }
+    ROM0_st3.resize(radix_r1);
+	for(int i=0; i<radix_r1; i++){
+        ROM0_st3[i].resize(radix_r1);
     }
 
     DTFAG_ROM_init << "****************initial ROM********************" << endl;
@@ -77,12 +84,20 @@ void DTFAG::DTFAG_INWC_MergeFactor_ROM_init(
                 case 2:
                     ROM0[k][n] = ROM0_st2[k][n];
                     break;
+                case 3:
+                    ROM0_st3[k][n] = PowerMod(InvPhi, n, fft_prime);
+                    ROM0_st3[k][n] = PowerMod(ROM0_st3[k][n], InvPhi_deg_st3, fft_prime);
+                    ROM0_st3[k][n] = MulMod(ROM0_st3[k][n], InvN, fft_prime);
+                    ROM0[k][n] = ROM0_st3[k][n];
+                    //cout << " ROM0[" << k << "][" << n << "] = " << ROM0[k][n] << endl;
+                    break;
                 default:
                     break;
             }
             DTFAG_ROM0_0_init << "ROM0_0_arr[" << k << "][" << n << "] <= 64'd" << ROM0_st0[k][n] << ";\n";
             DTFAG_ROM0_1_init << "ROM0_1_arr[" << k << "][" << n << "] <= 64'd" << ROM0_st1[k][n] << ";\n";
             DTFAG_ROM0_2_init << "ROM0_2_arr[" << k << "][" << n << "] <= 64'd" << ROM0_st2[k][n] << ";\n";
+            DTFAG_ROM0_3_init << "ROM0_3_arr[" << k << "][" << n << "] <= 64'd" << ROM0_st3[k][n] << ";\n";
         }
     }
 

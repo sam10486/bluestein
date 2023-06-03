@@ -33,6 +33,12 @@ public:
     void DTFAG_INWC_MergeFactor_ROM_init(
     int radix_r1, int radix_r2, ZZ fft_twiddle, ZZ fft_prime, int debug, int stage, ZZ InvPhi,
     vector<vector<ZZ > > &ROM0,  vector<vector<ZZ > > &ROM1,  vector<vector<ZZ > > &ROM2);
+
+    void DTFAG_INWC_SPMB_DIF_MR (
+        int stage, int fft_point, int radix_r1, int radix_r2, int debug,
+        vector<vector<ZZ > > &ROM0,  vector<vector<ZZ > > &ROM1,  vector<vector<ZZ > > &ROM2,
+        vector<ZZ > &st0_Tw, vector<ZZ > &st1_Tw, vector<ZZ > &st2_Tw, vector<ZZ > &st3_Tw,
+        int DTFAG_i, int DTFAG_t, int DTFAG_j);
     //-------------------------------------------
 };
 

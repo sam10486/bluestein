@@ -42,10 +42,11 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
 
     //------------DTFAG generator-------------
 	DTFAG DTFAG;
-	vector<ZZ > st0_Tw, st1_Tw, st2_Tw;
+	vector<ZZ > st0_Tw, st1_Tw, st2_Tw, st3_Tw;
 	st0_Tw.resize(radix);
 	st1_Tw.resize(radix);
 	st2_Tw.resize(radix);
+	st3_Tw.resize(radix);
 	int DTFAG_t = 0;
 	int DTFAG_i = 0;
 	int DTFAG_j = 0;
@@ -195,10 +196,10 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
 				//-----------------------------------------
 				
                 //-----------DTFAG generator-------------
-                DTFAG.DTFAG_SPMB_DIF_MR(
+                DTFAG.DTFAG_INWC_SPMB_DIF_MR(
                     s, fft_point, radix_r1, radix_r2, debug,
                     ROM0, ROM1, ROM2,
-					st0_Tw, st1_Tw, st2_Tw,
+					st0_Tw, st1_Tw, st2_Tw, st3_Tw,
                     DTFAG_i, DTFAG_t, DTFAG_j);
                 /*switch(s){
 					case 0:
@@ -214,6 +215,11 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
 					case 2:
 						for(int i=0; i<radix; i++){
 							cout << "st2_Tw[" << i << "] = w^" << st2_Tw[i] << endl;
+						}
+						break;
+					case 3:
+						for(int i=0; i<radix; i++){
+							cout << "st3_Tw[" << i << "] = w^" << st3_Tw[i] << endl;
 						}
 						break;
 				}*/
@@ -234,17 +240,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
 					DTFAG_j++;
 				}
                 //---------------------------------------
-				//---------NWC PART-------------
-				ZZ InvPhi_deg = PowerMod((ZZ)2, s, p);
-				ZZ InvPhi_Order = PowerMod(InvPhi, InvPhi_deg, p);
-                ZZ stage3_factor;
-                if (s == 3)
-                {
-                    stage3_factor = PowerMod(InvPhi, InvPhi_deg, p);
-                    MulMod(stage3_factor, stage3_factor, InvTwo, p);
-                }
-                
-				//------------------------------
+				
 				if(bn_tmp == 0){
 					INWC_DATARECORD << "bn_tmp = " << bn_tmp << ", ma_tmp = " << ma_tmp << std::endl;
 					bn0_bc_tmp = BC_tmp;
@@ -252,8 +248,6 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
                         case 0:
                             INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp] << ", st0_Tw[0] = " << st0_Tw[0] << endl;
 					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", st0_Tw[1] = " << st0_Tw[1] << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_Order << endl;
-							if(debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_deg << endl;
 					        if(!debug) INWC_Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
 							//--------------------compute for INWC--------------------------
 							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st0_Tw[0],p);
@@ -263,8 +257,6 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
                         case 1:
                             INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp] << ", st1_Tw[0] = " << st1_Tw[0] << endl;
 					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", st1_Tw[1] = " << st1_Tw[1] << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_Order << endl;
-							if(debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_deg << endl;
 					        if(!debug) INWC_Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
 							//--------------------compute for INWC--------------------------
 							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st1_Tw[0],p);
@@ -274,8 +266,6 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
                         case 2:
                             INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp] << ", st2_Tw[0] = " << st2_Tw[0] << endl;
 					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", st2_Tw[1] = " << st2_Tw[1] << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_Order << endl;
-							if(debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_deg << endl;
 					        if(!debug) INWC_Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
 							//--------------------compute for INWC--------------------------
 							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st2_Tw[0],p);
@@ -283,16 +273,13 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
 							//--------------------------------------------------------------
                             break;
                         case 3:
-                            INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp] << ", st3_Tw[0] = " << 1 << endl;
-					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", st3_Tw[1] = " << 1 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_Order << endl;
-							if(debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_deg << endl;
+                            INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp] << ", st3_Tw[0] = " << st3_Tw[0] << endl;
+					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", st3_Tw[1] = " << st3_Tw[1] << endl;
 					        if(!debug) INWC_Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
-							// upper
-                            if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],1,p);
-							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],InvTwo,p);
-							// down
-					        if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],stage3_factor,p);	
+							//--------------------compute for INWC--------------------------
+							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st3_Tw[0],p);
+							if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],st3_Tw[1],p);
+							//--------------------------------------------------------------
                             break;
                     }
                     
@@ -310,8 +297,6 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
                         case 0:
                             INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st0_Tw[0] = " << st0_Tw[0] << endl;
 					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st0_Tw[1] = " << st0_Tw[1] << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_Order << endl;
-							if(debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_deg << endl;
 					        if(!debug) INWC_Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
 							//--------------------compute for INWC--------------------------
 							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st0_Tw[0],p);
@@ -321,8 +306,6 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
                         case 1:
                             INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st1_Tw[0] = " << st1_Tw[0] << endl;
 					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st1_Tw[1] = " << st1_Tw[1] << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_Order << endl;
-							if(debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_deg << endl;
 					        if(!debug) INWC_Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
 							//--------------------compute for INWC--------------------------
 							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st1_Tw[0],p);
@@ -332,8 +315,6 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
                         case 2:
                             INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st2_Tw[0] = " << st2_Tw[0] << endl;
 					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st2_Tw[1] = " << st2_Tw[1] << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_Order << endl;
-							if(debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_deg << endl;
 					        if(!debug) INWC_Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
 							//--------------------compute for INWC--------------------------
 							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st2_Tw[0],p);
@@ -341,16 +322,13 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
 							//--------------------------------------------------------------
                             break;
                         case 3:
-                            INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st3_Tw[0] = " << 1 << endl;
-					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st3_Tw[1] = " << 1 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_Order << endl;
-							if(debug) INWC_DATARECORD << "InvPhi_Order = " << InvPhi_deg << endl;
+                            INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st3_Tw[0] = " << st3_Tw[0] << endl;
+					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st3_Tw[1] = " << st3_Tw[1] << endl;
 					        if(!debug) INWC_Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
-							// upper
-                            if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],1,p);
-							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],InvTwo,p);
-							// down
-					        if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],stage3_factor,p);
+							//--------------------compute for INWC--------------------------
+							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st3_Tw[0],p);
+							if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],st3_Tw[1],p);  
+							//--------------------------------------------------------------
                             break;
                     }
 					INWC_DATARECORD << "---after BU compute---" << std::endl;
@@ -436,10 +414,11 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
 
     //------------DTFAG generator-------------
 	DTFAG DTFAG;
-	vector<ZZ > st0_Tw, st1_Tw, st2_Tw;
+	vector<ZZ > st0_Tw, st1_Tw, st2_Tw, st3_Tw;
 	st0_Tw.resize(radix);
 	st1_Tw.resize(radix);
 	st2_Tw.resize(radix);
+	st3_Tw.resize(radix);
 	int DTFAG_t = 0;
 	int DTFAG_i = 0;
 	int DTFAG_j = 0;
@@ -621,10 +600,10 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
 				AGU_R4(BC,bn_tmp,ma_tmp);
 				INWC_DATARECORD << "bn_tmp: "<<bn_tmp<<"\n";
 				//-----------DTFAG generator-------------
-                DTFAG.DTFAG_SPMB_DIF_MR(
+                DTFAG.DTFAG_INWC_SPMB_DIF_MR(
                     s, fft_point, radix_r1, radix_r2, debug,
 					ROM0, ROM1, ROM2,
-                    st0_Tw, st1_Tw, st2_Tw,
+                    st0_Tw, st1_Tw, st2_Tw, st3_Tw,
                     DTFAG_i, DTFAG_t, DTFAG_j);
                 /*switch(s){
 					case 0:
@@ -660,30 +639,6 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
 					DTFAG_j++;
 				}
                 //---------------------------------------
-                //---------NWC PART-------------
-				ZZ InvPhi_0t, InvPhi_1t, InvPhi_2t, InvPhi_3t;
-				ZZ InvPhi_0t_Order, InvPhi_1t_Order, InvPhi_2t_Order, InvPhi_3t_Order;
-				ZZ InvPhi_deg = PowerMod((ZZ)4, s, p);
-				InvPhi_0t = PowerMod(InvPhi, 0, p);
-				InvPhi_1t = PowerMod(InvPhi, 1, p);
-				InvPhi_2t = PowerMod(InvPhi, 2, p);
-				InvPhi_3t = PowerMod(InvPhi, 3, p);
-				InvPhi_0t_Order = PowerMod(InvPhi_0t, InvPhi_deg, p);
-				InvPhi_1t_Order = PowerMod(InvPhi_1t, InvPhi_deg, p);
-				InvPhi_2t_Order = PowerMod(InvPhi_2t, InvPhi_deg, p);
-				InvPhi_3t_Order = PowerMod(InvPhi_3t, InvPhi_deg, p);
-				ZZ stage3_factor_0t;
-				ZZ stage3_factor_1t;
-				ZZ stage3_factor_2t;
-				ZZ stage3_factor_3t;
-        		if (s == 3){
-					
-        		    MulMod(stage3_factor_0t, InvPhi_0t_Order, InvFour, p);
-					MulMod(stage3_factor_1t, InvPhi_1t_Order, InvFour, p);
-					MulMod(stage3_factor_2t, InvPhi_2t_Order, InvFour, p);
-					MulMod(stage3_factor_3t, InvPhi_3t_Order, InvFour, p);
-        		}
-				//------------------------------
                 if(bn_tmp == 0){
 					if(j < 2)bn0_bc_tmp = BC_tmp;
 					PowerMod(factor_2t,factor_t,2,p);
@@ -694,11 +649,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
                             INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: " <<A_B0R0[ma_tmp] << ", st0_Tw[0] = " << st0_Tw[0] << endl;
 					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: " <<A_B0R1[ma_tmp] << ", st0_Tw[1] = " << st0_Tw[1] << endl;
 					        INWC_DATARECORD <<"A_B0R2["<<ma_tmp<<"]: " <<A_B0R2[ma_tmp] << ", st0_Tw[2] = " << st0_Tw[2] << endl;
-					        INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: " <<A_B0R3[ma_tmp] << ", st0_Tw[3] = " << st0_Tw[3] << endl;   
-							if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_0t_Order << endl; else INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_deg*0 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_1t_Order << endl; else INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_deg*1 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_2t_Order << endl; else INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_deg*2 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_3t_Order << endl; else INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_deg*3 << endl;   
+					        INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: " <<A_B0R3[ma_tmp] << ", st0_Tw[3] = " << st0_Tw[3] << endl;      
 							if(!debug) INWC_Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
 					        INWC_DATARECORD <<"-------------------" << std::endl;
 			
@@ -713,10 +664,6 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: " <<A_B0R1[ma_tmp] << ", st1_Tw[1] = " << st1_Tw[1] << endl;
 					        INWC_DATARECORD <<"A_B0R2["<<ma_tmp<<"]: " <<A_B0R2[ma_tmp] << ", st1_Tw[2] = " << st1_Tw[2] << endl;
 					        INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: " <<A_B0R3[ma_tmp] << ", st1_Tw[3] = " << st1_Tw[3] << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_0t_Order << endl; else INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_deg*0 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_1t_Order << endl; else INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_deg*1 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_2t_Order << endl; else INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_deg*2 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_3t_Order << endl; else INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_deg*3 << endl;   
 					        if(!debug) INWC_Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
 					        INWC_DATARECORD <<"-------------------" << std::endl;
 							
@@ -731,10 +678,6 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: " <<A_B0R1[ma_tmp] << ", st2_Tw[1] = " << st2_Tw[1] << endl;
 					        INWC_DATARECORD <<"A_B0R2["<<ma_tmp<<"]: " <<A_B0R2[ma_tmp] << ", st2_Tw[2] = " << st2_Tw[2] << endl;
 					        INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: " <<A_B0R3[ma_tmp] << ", st2_Tw[3] = " << st2_Tw[3] << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_0t_Order << endl; else INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_deg*0 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_1t_Order << endl; else INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_deg*1 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_2t_Order << endl; else INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_deg*2 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_3t_Order << endl; else INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_deg*3 << endl;
 					        if(!debug) INWC_Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
 					        INWC_DATARECORD <<"-------------------" << std::endl;
 							
@@ -745,21 +688,17 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
                             break;
                         case 3:
                             INWC_DATARECORD <<"Before butterfly unit operation! \n";
-					        INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: " <<A_B0R0[ma_tmp] << ", st3_Tw[0] = " << 1 << endl;
-					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: " <<A_B0R1[ma_tmp] << ", st3_Tw[1] = " << 1 << endl;
-					        INWC_DATARECORD <<"A_B0R2["<<ma_tmp<<"]: " <<A_B0R2[ma_tmp] << ", st3_Tw[2] = " << 1 << endl;
-					        INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: " <<A_B0R3[ma_tmp] << ", st3_Tw[3] = " << 1 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_0t_Order << endl; else INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_deg*0 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_1t_Order << endl; else INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_deg*1 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_2t_Order << endl; else INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_deg*2 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_3t_Order << endl; else INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_deg*3 << endl;
+					        INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: " <<A_B0R0[ma_tmp] << ", st3_Tw[0] = " << st3_Tw[0] << endl;
+					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: " <<A_B0R1[ma_tmp] << ", st3_Tw[1] = " << st3_Tw[1] << endl;
+					        INWC_DATARECORD <<"A_B0R2["<<ma_tmp<<"]: " <<A_B0R2[ma_tmp] << ", st3_Tw[2] = " << st3_Tw[2] << endl;
+					        INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: " <<A_B0R3[ma_tmp] << ", st3_Tw[3] = " << st3_Tw[3] << endl;
 					        if(!debug) INWC_Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
 					        INWC_DATARECORD <<"-------------------" << std::endl;
 							
-							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],stage3_factor_0t,p);
-                            if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],stage3_factor_1t,p);
-					        if(!debug) MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],stage3_factor_2t,p);
-					        if(!debug) MulMod(A_B0R3[ma_tmp],A_B0R3[ma_tmp],stage3_factor_3t,p);
+							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st3_Tw[0],p);
+                            if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],st3_Tw[1],p);
+					        if(!debug) MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],st3_Tw[2],p);
+					        if(!debug) MulMod(A_B0R3[ma_tmp],A_B0R3[ma_tmp],st3_Tw[3],p);
                             break;
                     }
 					INWC_DATARECORD <<"------after BU compute and Mul-------" << std::endl;
@@ -784,10 +723,6 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st0_Tw[1] = " << st0_Tw[1] << endl;
 					        INWC_DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<< ", st0_Tw[2] = " << st0_Tw[2] << endl;
 					        INWC_DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<< ", st0_Tw[3] = " << st0_Tw[3] << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_0t_Order << endl; else INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_deg*0 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_1t_Order << endl; else INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_deg*1 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_2t_Order << endl; else INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_deg*2 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_3t_Order << endl; else INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_deg*3 << endl;
                             if(!debug) INWC_Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
 					        INWC_DATARECORD <<"-------------------" << std::endl;
 							
@@ -802,10 +737,6 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st1_Tw[1] = " << st1_Tw[1] << endl;
 					        INWC_DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<< ", st1_Tw[2] = " << st1_Tw[2] << endl;
 					        INWC_DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<< ", st1_Tw[3] = " << st1_Tw[3] << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_0t_Order << endl; else INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_deg*0 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_1t_Order << endl; else INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_deg*1 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_2t_Order << endl; else INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_deg*2 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_3t_Order << endl; else INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_deg*3 << endl;
                             if(!debug) INWC_Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
 					        INWC_DATARECORD <<"-------------------" << std::endl;
 							
@@ -820,10 +751,6 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st2_Tw[1] = " << st2_Tw[1] << endl;
 					        INWC_DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<< ", st2_Tw[2] = " << st2_Tw[2] << endl;
 					        INWC_DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<< ", st2_Tw[3] = " << st2_Tw[3] << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_0t_Order << endl; else INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_deg*0 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_1t_Order << endl; else INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_deg*1 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_2t_Order << endl; else INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_deg*2 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_3t_Order << endl; else INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_deg*3 << endl;
                             if(!debug) INWC_Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
 					        INWC_DATARECORD <<"-------------------" << std::endl;
 							
@@ -834,21 +761,17 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
                             break;
                         case 3:
 							INWC_DATARECORD <<"Before butterfly unit operation! \n";
-                            INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st3_Tw[0] = " << 1 << endl;
-					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st3_Tw[1] = " << 1 << endl;
-					        INWC_DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<< ", st3_Tw[2] = " << 1 << endl;
-					        INWC_DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<< ", st3_Tw[3] = " << 1 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_0t_Order << endl; else INWC_DATARECORD << "InvPhi_0t_Order = " << InvPhi_deg*0 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_1t_Order << endl; else INWC_DATARECORD << "InvPhi_1t_Order = " << InvPhi_deg*1 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_2t_Order << endl; else INWC_DATARECORD << "InvPhi_2t_Order = " << InvPhi_deg*2 << endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_3t_Order << endl; else INWC_DATARECORD << "InvPhi_3t_Order = " << InvPhi_deg*3 << endl;
+                            INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st3_Tw[0] = " << st3_Tw[0] << endl;
+					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st3_Tw[1] = " << st3_Tw[1] << endl;
+					        INWC_DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<< ", st3_Tw[2] = " << st3_Tw[2] << endl;
+					        INWC_DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<< ", st3_Tw[3] = " << st3_Tw[3] << endl;
                             if(!debug) INWC_Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
 					        INWC_DATARECORD <<"-------------------" << std::endl;
 							
-							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],stage3_factor_0t,p);
-					        if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],stage3_factor_1t,p);
-					        if(!debug) MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],stage3_factor_2t,p);
-					        if(!debug) MulMod(A_B1R3[ma_tmp],A_B1R3[ma_tmp],stage3_factor_3t,p);
+							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st3_Tw[0],p);
+					        if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],st3_Tw[1],p);
+					        if(!debug) MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],st3_Tw[2],p);
+					        if(!debug) MulMod(A_B1R3[ma_tmp],A_B1R3[ma_tmp],st3_Tw[3],p);
                             break;
                     }
                     INWC_DATARECORD <<"------after BU compute and Mul-------" << std::endl;
@@ -1001,10 +924,11 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 
     //------------DTFAG generator-------------
 	DTFAG DTFAG;
-	vector<ZZ > st0_Tw, st1_Tw, st2_Tw;
+	vector<ZZ > st0_Tw, st1_Tw, st2_Tw, st3_Tw;
 	st0_Tw.resize(radix);
 	st1_Tw.resize(radix);
 	st2_Tw.resize(radix);
+	st3_Tw.resize(radix);
 	int DTFAG_t = 0;
 	int DTFAG_i = 0;
 	int DTFAG_j = 0;
@@ -1271,10 +1195,10 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 				INWC_DATARECORD << "bn_tmp: "<<bn_tmp<<"\n";
 
                 //-----------DTFAG generator-------------
-                DTFAG.DTFAG_SPMB_DIF_MR(
+                DTFAG.DTFAG_INWC_SPMB_DIF_MR(
                     s, fft_point, radix_r1, radix_r2, debug,
 					ROM0, ROM1, ROM2,
-                    st0_Tw, st1_Tw, st2_Tw,
+                    st0_Tw, st1_Tw, st2_Tw, st3_Tw,
                     DTFAG_i, DTFAG_t, DTFAG_j);
                 /*switch(s){
 					case 0:
@@ -1310,83 +1234,6 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					DTFAG_j++;
 				}
                 //---------------------------------------
-				//---------NWC PART-------------
-				ZZ 	InvPhi_0t, InvPhi_1t, InvPhi_2t, InvPhi_3t,
-					InvPhi_4t, InvPhi_9t, InvPhi_6t, InvPhi_7t,
-					InvPhi_8t, InvPhi_5t, InvPhi_10t, InvPhi_11t,
-					InvPhi_12t, InvPhi_13t, InvPhi_14t, InvPhi_15t;
-				ZZ 	InvPhi_0t_Order, InvPhi_1t_Order, InvPhi_2t_Order, InvPhi_3t_Order,
-					InvPhi_4t_Order, InvPhi_5t_Order, InvPhi_6t_Order, InvPhi_7t_Order,
-					InvPhi_8t_Order, InvPhi_9t_Order, InvPhi_10t_Order, InvPhi_11t_Order,
-					InvPhi_12t_Order, InvPhi_13t_Order, InvPhi_14t_Order, InvPhi_15t_Order;
-				ZZ InvPhi_deg = PowerMod((ZZ)16, s, p);
-				InvPhi_0t  = PowerMod(InvPhi, 0, p);
-				InvPhi_1t  = PowerMod(InvPhi, 1, p);
-				InvPhi_2t  = PowerMod(InvPhi, 2, p);
-				InvPhi_3t  = PowerMod(InvPhi, 3, p);
-				InvPhi_4t  = PowerMod(InvPhi, 4, p);
-				InvPhi_5t  = PowerMod(InvPhi, 5, p);
-				InvPhi_6t  = PowerMod(InvPhi, 6, p);
-				InvPhi_7t  = PowerMod(InvPhi, 7, p);
-				InvPhi_8t  = PowerMod(InvPhi, 8, p);
-				InvPhi_9t  = PowerMod(InvPhi, 9, p);
-				InvPhi_10t = PowerMod(InvPhi, 10, p);
-				InvPhi_11t = PowerMod(InvPhi, 11, p);
-				InvPhi_12t = PowerMod(InvPhi, 12, p);
-				InvPhi_13t = PowerMod(InvPhi, 13, p);
-				InvPhi_14t = PowerMod(InvPhi, 14, p);
-				InvPhi_15t = PowerMod(InvPhi, 15, p);
-				InvPhi_0t_Order  = PowerMod(InvPhi_0t, InvPhi_deg, p);
-				InvPhi_1t_Order  = PowerMod(InvPhi_1t, InvPhi_deg, p);
-				InvPhi_2t_Order  = PowerMod(InvPhi_2t, InvPhi_deg, p);
-				InvPhi_3t_Order  = PowerMod(InvPhi_3t, InvPhi_deg, p);
-				InvPhi_4t_Order  = PowerMod(InvPhi_4t, InvPhi_deg, p);
-				InvPhi_5t_Order  = PowerMod(InvPhi_5t, InvPhi_deg, p);
-				InvPhi_6t_Order  = PowerMod(InvPhi_6t, InvPhi_deg, p);
-				InvPhi_7t_Order  = PowerMod(InvPhi_7t, InvPhi_deg, p);
-				InvPhi_8t_Order  = PowerMod(InvPhi_8t, InvPhi_deg, p);
-				InvPhi_9t_Order  = PowerMod(InvPhi_9t, InvPhi_deg, p);
-				InvPhi_10t_Order = PowerMod(InvPhi_10t, InvPhi_deg, p);
-				InvPhi_11t_Order = PowerMod(InvPhi_11t, InvPhi_deg, p);
-				InvPhi_12t_Order = PowerMod(InvPhi_12t, InvPhi_deg, p);
-				InvPhi_13t_Order = PowerMod(InvPhi_13t, InvPhi_deg, p);
-				InvPhi_14t_Order = PowerMod(InvPhi_14t, InvPhi_deg, p);
-				InvPhi_15t_Order = PowerMod(InvPhi_15t, InvPhi_deg, p);
-				ZZ stage3_factor_0t ;
-				ZZ stage3_factor_1t ;
-				ZZ stage3_factor_2t ;
-				ZZ stage3_factor_3t ;
-				ZZ stage3_factor_4t ;
-				ZZ stage3_factor_5t ;
-				ZZ stage3_factor_6t ;
-				ZZ stage3_factor_7t ;
-				ZZ stage3_factor_8t ;
-				ZZ stage3_factor_9t ;
-				ZZ stage3_factor_10t;
-				ZZ stage3_factor_11t;
-				ZZ stage3_factor_12t;
-				ZZ stage3_factor_13t;
-				ZZ stage3_factor_14t;
-				ZZ stage3_factor_15t;
-        		if (s == 3){
-        		    MulMod(stage3_factor_0t, InvPhi_0t_Order, InvSixTeen, p);
-					MulMod(stage3_factor_1t, InvPhi_1t_Order, InvSixTeen, p);
-					MulMod(stage3_factor_2t, InvPhi_2t_Order, InvSixTeen, p);
-					MulMod(stage3_factor_3t, InvPhi_3t_Order, InvSixTeen, p);
-					MulMod(stage3_factor_4t, InvPhi_4t_Order, InvSixTeen, p);
-					MulMod(stage3_factor_5t, InvPhi_5t_Order, InvSixTeen, p);
-					MulMod(stage3_factor_6t, InvPhi_6t_Order, InvSixTeen, p);
-					MulMod(stage3_factor_7t, InvPhi_7t_Order, InvSixTeen, p);
-					MulMod(stage3_factor_8t, InvPhi_8t_Order, InvSixTeen, p);
-					MulMod(stage3_factor_9t, InvPhi_9t_Order, InvSixTeen, p);
-					MulMod(stage3_factor_10t, InvPhi_10t_Order, InvSixTeen, p);
-					MulMod(stage3_factor_11t, InvPhi_11t_Order, InvSixTeen, p);
-					MulMod(stage3_factor_12t, InvPhi_12t_Order, InvSixTeen, p);
-					MulMod(stage3_factor_13t, InvPhi_13t_Order, InvSixTeen, p);
-					MulMod(stage3_factor_14t, InvPhi_14t_Order, InvSixTeen, p);
-					MulMod(stage3_factor_15t, InvPhi_15t_Order, InvSixTeen, p);
-        		}
-				//------------------------------
 				if(bn_tmp == 0){
 					if(j < 2)bn0_bc_tmp = BC_tmp;
 					switch(s){
@@ -1407,22 +1254,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<" A_B0R13["<<ma_tmp<<"]: "<<A_B0R13[ma_tmp] << ", st0_Tw[13] = " << st0_Tw[13] << endl;   
 					        INWC_DATARECORD <<" A_B0R14["<<ma_tmp<<"]: "<<A_B0R14[ma_tmp] << ", st0_Tw[14] = " << st0_Tw[14] << endl;   
 					        INWC_DATARECORD <<" A_B0R15["<<ma_tmp<<"]: "<<A_B0R15[ma_tmp] << ", st0_Tw[15] = " << st0_Tw[15] << endl;   
-                            if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " 	<< InvPhi_0t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_0t_Order = " 	<< InvPhi_deg*0 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " 	<< InvPhi_1t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_1t_Order = " 	<< InvPhi_deg*1 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " 	<< InvPhi_2t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_2t_Order = " 	<< InvPhi_deg*2 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " 	<< InvPhi_3t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_3t_Order = " 	<< InvPhi_deg*3 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_4t_Order = " 	<< InvPhi_4t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_4t_Order = " 	<< InvPhi_deg*4 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_5t_Order = " 	<< InvPhi_5t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_5t_Order = " 	<< InvPhi_deg*5 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_6t_Order = " 	<< InvPhi_6t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_6t_Order = " 	<< InvPhi_deg*6 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_7t_Order = " 	<< InvPhi_7t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_7t_Order = " 	<< InvPhi_deg*7 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_8t_Order = " 	<< InvPhi_8t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_8t_Order = " 	<< InvPhi_deg*8 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_9t_Order = " 	<< InvPhi_9t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_9t_Order = " 	<< InvPhi_deg*9 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_10t_Order = " << InvPhi_10t_Order << endl; else INWC_DATARECORD << "InvPhi_10t_Order = " 	<< InvPhi_deg*10 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_11t_Order = " << InvPhi_11t_Order << endl; else INWC_DATARECORD << "InvPhi_11t_Order = " 	<< InvPhi_deg*11 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_12t_Order = " << InvPhi_12t_Order << endl; else INWC_DATARECORD << "InvPhi_12t_Order = " 	<< InvPhi_deg*12 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_13t_Order = " << InvPhi_13t_Order << endl; else INWC_DATARECORD << "InvPhi_13t_Order = " 	<< InvPhi_deg*13 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_14t_Order = " << InvPhi_14t_Order << endl; else INWC_DATARECORD << "InvPhi_14t_Order = " 	<< InvPhi_deg*14 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_15t_Order = " << InvPhi_15t_Order << endl; else INWC_DATARECORD << "InvPhi_15t_Order = " 	<< InvPhi_deg*15 	<< endl;
+
 							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 							   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 							   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
@@ -1462,22 +1294,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<" A_B0R13["<<ma_tmp<<"]: "<<A_B0R13[ma_tmp] << ", st1_Tw[13] = " << st1_Tw[13] << endl;   
 					        INWC_DATARECORD <<" A_B0R14["<<ma_tmp<<"]: "<<A_B0R14[ma_tmp] << ", st1_Tw[14] = " << st1_Tw[14] << endl;   
 					        INWC_DATARECORD <<" A_B0R15["<<ma_tmp<<"]: "<<A_B0R15[ma_tmp] << ", st1_Tw[15] = " << st1_Tw[15] << endl;   
-                            if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " 	<< InvPhi_0t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_0t_Order = " 	<< InvPhi_deg*0 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " 	<< InvPhi_1t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_1t_Order = " 	<< InvPhi_deg*1 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " 	<< InvPhi_2t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_2t_Order = " 	<< InvPhi_deg*2 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " 	<< InvPhi_3t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_3t_Order = " 	<< InvPhi_deg*3 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_4t_Order = " 	<< InvPhi_4t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_4t_Order = " 	<< InvPhi_deg*4 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_5t_Order = " 	<< InvPhi_5t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_5t_Order = " 	<< InvPhi_deg*5 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_6t_Order = " 	<< InvPhi_6t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_6t_Order = " 	<< InvPhi_deg*6 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_7t_Order = " 	<< InvPhi_7t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_7t_Order = " 	<< InvPhi_deg*7 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_8t_Order = " 	<< InvPhi_8t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_8t_Order = " 	<< InvPhi_deg*8 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_9t_Order = " 	<< InvPhi_9t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_9t_Order = " 	<< InvPhi_deg*9 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_10t_Order = " << InvPhi_10t_Order << endl; else INWC_DATARECORD << "InvPhi_10t_Order = " 	<< InvPhi_deg*10 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_11t_Order = " << InvPhi_11t_Order << endl; else INWC_DATARECORD << "InvPhi_11t_Order = " 	<< InvPhi_deg*11 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_12t_Order = " << InvPhi_12t_Order << endl; else INWC_DATARECORD << "InvPhi_12t_Order = " 	<< InvPhi_deg*12 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_13t_Order = " << InvPhi_13t_Order << endl; else INWC_DATARECORD << "InvPhi_13t_Order = " 	<< InvPhi_deg*13 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_14t_Order = " << InvPhi_14t_Order << endl; else INWC_DATARECORD << "InvPhi_14t_Order = " 	<< InvPhi_deg*14 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_15t_Order = " << InvPhi_15t_Order << endl; else INWC_DATARECORD << "InvPhi_15t_Order = " 	<< InvPhi_deg*15 	<< endl;
+                            
 							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 							   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 							   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
@@ -1517,22 +1334,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<" A_B0R13["<<ma_tmp<<"]: "<<A_B0R13[ma_tmp] << ", st2_Tw[13] = " << st2_Tw[13] << endl;   
 					        INWC_DATARECORD <<" A_B0R14["<<ma_tmp<<"]: "<<A_B0R14[ma_tmp] << ", st2_Tw[14] = " << st2_Tw[14] << endl;   
 					        INWC_DATARECORD <<" A_B0R15["<<ma_tmp<<"]: "<<A_B0R15[ma_tmp] << ", st2_Tw[15] = " << st2_Tw[15] << endl;   
-                            if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " 	<< InvPhi_0t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_0t_Order = " 	<< InvPhi_deg*0 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " 	<< InvPhi_1t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_1t_Order = " 	<< InvPhi_deg*1 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " 	<< InvPhi_2t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_2t_Order = " 	<< InvPhi_deg*2 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " 	<< InvPhi_3t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_3t_Order = " 	<< InvPhi_deg*3 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_4t_Order = " 	<< InvPhi_4t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_4t_Order = " 	<< InvPhi_deg*4 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_5t_Order = " 	<< InvPhi_5t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_5t_Order = " 	<< InvPhi_deg*5 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_6t_Order = " 	<< InvPhi_6t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_6t_Order = " 	<< InvPhi_deg*6 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_7t_Order = " 	<< InvPhi_7t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_7t_Order = " 	<< InvPhi_deg*7 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_8t_Order = " 	<< InvPhi_8t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_8t_Order = " 	<< InvPhi_deg*8 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_9t_Order = " 	<< InvPhi_9t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_9t_Order = " 	<< InvPhi_deg*9 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_10t_Order = " << InvPhi_10t_Order << endl; else INWC_DATARECORD << "InvPhi_10t_Order = " 	<< InvPhi_deg*10 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_11t_Order = " << InvPhi_11t_Order << endl; else INWC_DATARECORD << "InvPhi_11t_Order = " 	<< InvPhi_deg*11 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_12t_Order = " << InvPhi_12t_Order << endl; else INWC_DATARECORD << "InvPhi_12t_Order = " 	<< InvPhi_deg*12 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_13t_Order = " << InvPhi_13t_Order << endl; else INWC_DATARECORD << "InvPhi_13t_Order = " 	<< InvPhi_deg*13 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_14t_Order = " << InvPhi_14t_Order << endl; else INWC_DATARECORD << "InvPhi_14t_Order = " 	<< InvPhi_deg*14 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_15t_Order = " << InvPhi_15t_Order << endl; else INWC_DATARECORD << "InvPhi_15t_Order = " 	<< InvPhi_deg*15 	<< endl;
+                            
 							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 							   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 							   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
@@ -1556,59 +1358,44 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        MulMod(A_B0R15[ma_tmp],A_B0R15[ma_tmp],st2_Tw[15],p);
                             break;
                         case 3:
-                            INWC_DATARECORD <<" A_B0R0["<<ma_tmp<<"]:  "<<A_B0R0[ma_tmp]  << ", st3_Tw[0] = " << 1 << endl;
-				            INWC_DATARECORD <<" A_B0R1["<<ma_tmp<<"]:  "<<A_B0R1[ma_tmp]  << ", st3_Tw[1] = " << 1 << endl;
-					        INWC_DATARECORD <<" A_B0R2["<<ma_tmp<<"]:  "<<A_B0R2[ma_tmp]  << ", st3_Tw[2] = " << 1 << endl;
-					        INWC_DATARECORD <<" A_B0R3["<<ma_tmp<<"]:  "<<A_B0R3[ma_tmp]  << ", st3_Tw[3] = " << 1 << endl;
-					        INWC_DATARECORD <<" A_B0R4["<<ma_tmp<<"]:  "<<A_B0R4[ma_tmp]  << ", st3_Tw[4] = " << 1 << endl;
-					        INWC_DATARECORD <<" A_B0R5["<<ma_tmp<<"]:  "<<A_B0R5[ma_tmp]  << ", st3_Tw[5] = " << 1 << endl;
-					        INWC_DATARECORD <<" A_B0R6["<<ma_tmp<<"]:  "<<A_B0R6[ma_tmp]  << ", st3_Tw[6] = " << 1 << endl;
-					        INWC_DATARECORD <<" A_B0R7["<<ma_tmp<<"]:  "<<A_B0R7[ma_tmp]  << ", st3_Tw[7] = " << 1 << endl;
-					        INWC_DATARECORD <<" A_B0R8["<<ma_tmp<<"]:  "<<A_B0R8[ma_tmp]  << ", st3_Tw[8] = " << 1 << endl;
-					        INWC_DATARECORD <<" A_B0R9["<<ma_tmp<<"]:  "<<A_B0R9[ma_tmp]  << ", st3_Tw[9] = " << 1 << endl;
-					        INWC_DATARECORD <<" A_B0R10["<<ma_tmp<<"]: "<<A_B0R10[ma_tmp] << ", st3_Tw[10] = " << 1 << endl;   
-					        INWC_DATARECORD <<" A_B0R11["<<ma_tmp<<"]: "<<A_B0R11[ma_tmp] << ", st3_Tw[11] = " << 1 << endl;   
-					        INWC_DATARECORD <<" A_B0R12["<<ma_tmp<<"]: "<<A_B0R12[ma_tmp] << ", st3_Tw[12] = " << 1 << endl;   
-					        INWC_DATARECORD <<" A_B0R13["<<ma_tmp<<"]: "<<A_B0R13[ma_tmp] << ", st3_Tw[13] = " << 1 << endl;   
-					        INWC_DATARECORD <<" A_B0R14["<<ma_tmp<<"]: "<<A_B0R14[ma_tmp] << ", st3_Tw[14] = " << 1 << endl;   
-					        INWC_DATARECORD <<" A_B0R15["<<ma_tmp<<"]: "<<A_B0R15[ma_tmp] << ", st3_Tw[15] = " << 1 << endl;   
-                            if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " 	<< InvPhi_0t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_0t_Order = " 	<< InvPhi_deg*0 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " 	<< InvPhi_1t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_1t_Order = " 	<< InvPhi_deg*1 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " 	<< InvPhi_2t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_2t_Order = " 	<< InvPhi_deg*2 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " 	<< InvPhi_3t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_3t_Order = " 	<< InvPhi_deg*3 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_4t_Order = " 	<< InvPhi_4t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_4t_Order = " 	<< InvPhi_deg*4 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_5t_Order = " 	<< InvPhi_5t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_5t_Order = " 	<< InvPhi_deg*5 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_6t_Order = " 	<< InvPhi_6t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_6t_Order = " 	<< InvPhi_deg*6 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_7t_Order = " 	<< InvPhi_7t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_7t_Order = " 	<< InvPhi_deg*7 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_8t_Order = " 	<< InvPhi_8t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_8t_Order = " 	<< InvPhi_deg*8 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_9t_Order = " 	<< InvPhi_9t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_9t_Order = " 	<< InvPhi_deg*9 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_10t_Order = " << InvPhi_10t_Order << endl; else INWC_DATARECORD << "InvPhi_10t_Order = " 	<< InvPhi_deg*10 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_11t_Order = " << InvPhi_11t_Order << endl; else INWC_DATARECORD << "InvPhi_11t_Order = " 	<< InvPhi_deg*11 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_12t_Order = " << InvPhi_12t_Order << endl; else INWC_DATARECORD << "InvPhi_12t_Order = " 	<< InvPhi_deg*12 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_13t_Order = " << InvPhi_13t_Order << endl; else INWC_DATARECORD << "InvPhi_13t_Order = " 	<< InvPhi_deg*13 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_14t_Order = " << InvPhi_14t_Order << endl; else INWC_DATARECORD << "InvPhi_14t_Order = " 	<< InvPhi_deg*14 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_15t_Order = " << InvPhi_15t_Order << endl; else INWC_DATARECORD << "InvPhi_15t_Order = " 	<< InvPhi_deg*15 	<< endl;
+                            INWC_DATARECORD <<" A_B0R0["<<ma_tmp<<"]:  "<<A_B0R0[ma_tmp]  << ", st3_Tw[0] = "  << st3_Tw[0]  << endl;
+				            INWC_DATARECORD <<" A_B0R1["<<ma_tmp<<"]:  "<<A_B0R1[ma_tmp]  << ", st3_Tw[1] = "  << st3_Tw[1]  << endl;
+					        INWC_DATARECORD <<" A_B0R2["<<ma_tmp<<"]:  "<<A_B0R2[ma_tmp]  << ", st3_Tw[2] = "  << st3_Tw[2]  << endl;
+					        INWC_DATARECORD <<" A_B0R3["<<ma_tmp<<"]:  "<<A_B0R3[ma_tmp]  << ", st3_Tw[3] = "  << st3_Tw[3]  << endl;
+					        INWC_DATARECORD <<" A_B0R4["<<ma_tmp<<"]:  "<<A_B0R4[ma_tmp]  << ", st3_Tw[4] = "  << st3_Tw[4]  << endl;
+					        INWC_DATARECORD <<" A_B0R5["<<ma_tmp<<"]:  "<<A_B0R5[ma_tmp]  << ", st3_Tw[5] = "  << st3_Tw[5]  << endl;
+					        INWC_DATARECORD <<" A_B0R6["<<ma_tmp<<"]:  "<<A_B0R6[ma_tmp]  << ", st3_Tw[6] = "  << st3_Tw[6]  << endl;
+					        INWC_DATARECORD <<" A_B0R7["<<ma_tmp<<"]:  "<<A_B0R7[ma_tmp]  << ", st3_Tw[7] = "  << st3_Tw[7]  << endl;
+					        INWC_DATARECORD <<" A_B0R8["<<ma_tmp<<"]:  "<<A_B0R8[ma_tmp]  << ", st3_Tw[8] = "  << st3_Tw[8]  << endl;
+					        INWC_DATARECORD <<" A_B0R9["<<ma_tmp<<"]:  "<<A_B0R9[ma_tmp]  << ", st3_Tw[9] = "  << st3_Tw[9]  << endl;
+					        INWC_DATARECORD <<" A_B0R10["<<ma_tmp<<"]: "<<A_B0R10[ma_tmp] << ", st3_Tw[10] = " << st3_Tw[10] << endl;   
+					        INWC_DATARECORD <<" A_B0R11["<<ma_tmp<<"]: "<<A_B0R11[ma_tmp] << ", st3_Tw[11] = " << st3_Tw[11] << endl;   
+					        INWC_DATARECORD <<" A_B0R12["<<ma_tmp<<"]: "<<A_B0R12[ma_tmp] << ", st3_Tw[12] = " << st3_Tw[12] << endl;   
+					        INWC_DATARECORD <<" A_B0R13["<<ma_tmp<<"]: "<<A_B0R13[ma_tmp] << ", st3_Tw[13] = " << st3_Tw[13] << endl;   
+					        INWC_DATARECORD <<" A_B0R14["<<ma_tmp<<"]: "<<A_B0R14[ma_tmp] << ", st3_Tw[14] = " << st3_Tw[14] << endl;   
+					        INWC_DATARECORD <<" A_B0R15["<<ma_tmp<<"]: "<<A_B0R15[ma_tmp] << ", st3_Tw[15] = " << st3_Tw[15] << endl;   
+                            
 							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 							   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 							   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 							   A_B0R15[ma_tmp]);
 							
-                            MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],  stage3_factor_0t ,p);
-                            MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],  stage3_factor_1t ,p);
-					        MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],  stage3_factor_2t ,p);
-					        MulMod(A_B0R3[ma_tmp],A_B0R3[ma_tmp],  stage3_factor_3t ,p);
-					        MulMod(A_B0R4[ma_tmp],A_B0R4[ma_tmp],  stage3_factor_4t ,p);
-					        MulMod(A_B0R5[ma_tmp],A_B0R5[ma_tmp],  stage3_factor_5t ,p);
-					        MulMod(A_B0R6[ma_tmp],A_B0R6[ma_tmp],  stage3_factor_6t ,p);
-					        MulMod(A_B0R7[ma_tmp],A_B0R7[ma_tmp],  stage3_factor_7t ,p);
-					        MulMod(A_B0R8[ma_tmp],A_B0R8[ma_tmp],  stage3_factor_8t ,p);
-					        MulMod(A_B0R9[ma_tmp],A_B0R9[ma_tmp],  stage3_factor_9t ,p);
-					        MulMod(A_B0R10[ma_tmp],A_B0R10[ma_tmp],stage3_factor_10t,p);
-					        MulMod(A_B0R11[ma_tmp],A_B0R11[ma_tmp],stage3_factor_11t,p);
-					        MulMod(A_B0R12[ma_tmp],A_B0R12[ma_tmp],stage3_factor_12t,p);
-					        MulMod(A_B0R13[ma_tmp],A_B0R13[ma_tmp],stage3_factor_13t,p);
-					        MulMod(A_B0R14[ma_tmp],A_B0R14[ma_tmp],stage3_factor_14t,p);
-					        MulMod(A_B0R15[ma_tmp],A_B0R15[ma_tmp],stage3_factor_15t,p);
+                            MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],  st3_Tw[0] ,p);
+                            MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],  st3_Tw[1] ,p);
+					        MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],  st3_Tw[2] ,p);
+					        MulMod(A_B0R3[ma_tmp],A_B0R3[ma_tmp],  st3_Tw[3] ,p);
+					        MulMod(A_B0R4[ma_tmp],A_B0R4[ma_tmp],  st3_Tw[4] ,p);
+					        MulMod(A_B0R5[ma_tmp],A_B0R5[ma_tmp],  st3_Tw[5] ,p);
+					        MulMod(A_B0R6[ma_tmp],A_B0R6[ma_tmp],  st3_Tw[6] ,p);
+					        MulMod(A_B0R7[ma_tmp],A_B0R7[ma_tmp],  st3_Tw[7] ,p);
+					        MulMod(A_B0R8[ma_tmp],A_B0R8[ma_tmp],  st3_Tw[8] ,p);
+					        MulMod(A_B0R9[ma_tmp],A_B0R9[ma_tmp],  st3_Tw[9] ,p);
+					        MulMod(A_B0R10[ma_tmp],A_B0R10[ma_tmp],st3_Tw[10],p);
+					        MulMod(A_B0R11[ma_tmp],A_B0R11[ma_tmp],st3_Tw[11],p);
+					        MulMod(A_B0R12[ma_tmp],A_B0R12[ma_tmp],st3_Tw[12],p);
+					        MulMod(A_B0R13[ma_tmp],A_B0R13[ma_tmp],st3_Tw[13],p);
+					        MulMod(A_B0R14[ma_tmp],A_B0R14[ma_tmp],st3_Tw[14],p);
+					        MulMod(A_B0R15[ma_tmp],A_B0R15[ma_tmp],st3_Tw[15],p);
                             break;
                     }
                     INWC_DATARECORD <<" ------after BU compute and Mul-------" << std::endl;
@@ -1658,22 +1445,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<" A_B1R13["<<ma_tmp<<"]: "<<A_B1R13[ma_tmp] << ", st0_Tw[13] = " << st0_Tw[13] << endl;    
 					        INWC_DATARECORD <<" A_B1R14["<<ma_tmp<<"]: "<<A_B1R14[ma_tmp] << ", st0_Tw[14] = " << st0_Tw[14] << endl;    
 					        INWC_DATARECORD <<" A_B1R15["<<ma_tmp<<"]: "<<A_B1R15[ma_tmp] << ", st0_Tw[15] = " << st0_Tw[15] << endl;    
-                            if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " 	<< InvPhi_0t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_0t_Order = " 	<< InvPhi_deg*0 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " 	<< InvPhi_1t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_1t_Order = " 	<< InvPhi_deg*1 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " 	<< InvPhi_2t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_2t_Order = " 	<< InvPhi_deg*2 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " 	<< InvPhi_3t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_3t_Order = " 	<< InvPhi_deg*3 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_4t_Order = " 	<< InvPhi_4t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_4t_Order = " 	<< InvPhi_deg*4 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_5t_Order = " 	<< InvPhi_5t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_5t_Order = " 	<< InvPhi_deg*5 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_6t_Order = " 	<< InvPhi_6t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_6t_Order = " 	<< InvPhi_deg*6 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_7t_Order = " 	<< InvPhi_7t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_7t_Order = " 	<< InvPhi_deg*7 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_8t_Order = " 	<< InvPhi_8t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_8t_Order = " 	<< InvPhi_deg*8 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_9t_Order = " 	<< InvPhi_9t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_9t_Order = " 	<< InvPhi_deg*9 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_10t_Order = " << InvPhi_10t_Order << endl; else INWC_DATARECORD << "InvPhi_10t_Order = " 	<< InvPhi_deg*10 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_11t_Order = " << InvPhi_11t_Order << endl; else INWC_DATARECORD << "InvPhi_11t_Order = " 	<< InvPhi_deg*11 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_12t_Order = " << InvPhi_12t_Order << endl; else INWC_DATARECORD << "InvPhi_12t_Order = " 	<< InvPhi_deg*12 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_13t_Order = " << InvPhi_13t_Order << endl; else INWC_DATARECORD << "InvPhi_13t_Order = " 	<< InvPhi_deg*13 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_14t_Order = " << InvPhi_14t_Order << endl; else INWC_DATARECORD << "InvPhi_14t_Order = " 	<< InvPhi_deg*14 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_15t_Order = " << InvPhi_15t_Order << endl; else INWC_DATARECORD << "InvPhi_15t_Order = " 	<< InvPhi_deg*15 	<< endl;
+                            
 							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 					        		   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 					        		   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
@@ -1713,22 +1485,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<" A_B1R13["<<ma_tmp<<"]: "<<A_B1R13[ma_tmp] << ", st1_Tw[13] = " << st1_Tw[13] << endl;    
 					        INWC_DATARECORD <<" A_B1R14["<<ma_tmp<<"]: "<<A_B1R14[ma_tmp] << ", st1_Tw[14] = " << st1_Tw[14] << endl;    
 					        INWC_DATARECORD <<" A_B1R15["<<ma_tmp<<"]: "<<A_B1R15[ma_tmp] << ", st1_Tw[15] = " << st1_Tw[15] << endl;    
-                            if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " 	<< InvPhi_0t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_0t_Order = " 	<< InvPhi_deg*0 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " 	<< InvPhi_1t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_1t_Order = " 	<< InvPhi_deg*1 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " 	<< InvPhi_2t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_2t_Order = " 	<< InvPhi_deg*2 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " 	<< InvPhi_3t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_3t_Order = " 	<< InvPhi_deg*3 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_4t_Order = " 	<< InvPhi_4t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_4t_Order = " 	<< InvPhi_deg*4 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_5t_Order = " 	<< InvPhi_5t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_5t_Order = " 	<< InvPhi_deg*5 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_6t_Order = " 	<< InvPhi_6t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_6t_Order = " 	<< InvPhi_deg*6 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_7t_Order = " 	<< InvPhi_7t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_7t_Order = " 	<< InvPhi_deg*7 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_8t_Order = " 	<< InvPhi_8t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_8t_Order = " 	<< InvPhi_deg*8 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_9t_Order = " 	<< InvPhi_9t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_9t_Order = " 	<< InvPhi_deg*9 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_10t_Order = " << InvPhi_10t_Order << endl; else INWC_DATARECORD << "InvPhi_10t_Order = " 	<< InvPhi_deg*10 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_11t_Order = " << InvPhi_11t_Order << endl; else INWC_DATARECORD << "InvPhi_11t_Order = " 	<< InvPhi_deg*11 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_12t_Order = " << InvPhi_12t_Order << endl; else INWC_DATARECORD << "InvPhi_12t_Order = " 	<< InvPhi_deg*12 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_13t_Order = " << InvPhi_13t_Order << endl; else INWC_DATARECORD << "InvPhi_13t_Order = " 	<< InvPhi_deg*13 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_14t_Order = " << InvPhi_14t_Order << endl; else INWC_DATARECORD << "InvPhi_14t_Order = " 	<< InvPhi_deg*14 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_15t_Order = " << InvPhi_15t_Order << endl; else INWC_DATARECORD << "InvPhi_15t_Order = " 	<< InvPhi_deg*15 	<< endl;
+                            
 							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 					        		   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 					        		   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
@@ -1768,22 +1525,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<" A_B1R13["<<ma_tmp<<"]: "<<A_B1R13[ma_tmp] << ", st2_Tw[13] = " << st2_Tw[13] << endl;    
 					        INWC_DATARECORD <<" A_B1R14["<<ma_tmp<<"]: "<<A_B1R14[ma_tmp] << ", st2_Tw[14] = " << st2_Tw[14] << endl;    
 					        INWC_DATARECORD <<" A_B1R15["<<ma_tmp<<"]: "<<A_B1R15[ma_tmp] << ", st2_Tw[15] = " << st2_Tw[15] << endl;    
-                            if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " 	<< InvPhi_0t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_0t_Order = " 	<< InvPhi_deg*0 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " 	<< InvPhi_1t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_1t_Order = " 	<< InvPhi_deg*1 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " 	<< InvPhi_2t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_2t_Order = " 	<< InvPhi_deg*2 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " 	<< InvPhi_3t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_3t_Order = " 	<< InvPhi_deg*3 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_4t_Order = " 	<< InvPhi_4t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_4t_Order = " 	<< InvPhi_deg*4 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_5t_Order = " 	<< InvPhi_5t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_5t_Order = " 	<< InvPhi_deg*5 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_6t_Order = " 	<< InvPhi_6t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_6t_Order = " 	<< InvPhi_deg*6 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_7t_Order = " 	<< InvPhi_7t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_7t_Order = " 	<< InvPhi_deg*7 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_8t_Order = " 	<< InvPhi_8t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_8t_Order = " 	<< InvPhi_deg*8 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_9t_Order = " 	<< InvPhi_9t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_9t_Order = " 	<< InvPhi_deg*9 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_10t_Order = " << InvPhi_10t_Order << endl; else INWC_DATARECORD << "InvPhi_10t_Order = " 	<< InvPhi_deg*10 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_11t_Order = " << InvPhi_11t_Order << endl; else INWC_DATARECORD << "InvPhi_11t_Order = " 	<< InvPhi_deg*11 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_12t_Order = " << InvPhi_12t_Order << endl; else INWC_DATARECORD << "InvPhi_12t_Order = " 	<< InvPhi_deg*12 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_13t_Order = " << InvPhi_13t_Order << endl; else INWC_DATARECORD << "InvPhi_13t_Order = " 	<< InvPhi_deg*13 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_14t_Order = " << InvPhi_14t_Order << endl; else INWC_DATARECORD << "InvPhi_14t_Order = " 	<< InvPhi_deg*14 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_15t_Order = " << InvPhi_15t_Order << endl; else INWC_DATARECORD << "InvPhi_15t_Order = " 	<< InvPhi_deg*15 	<< endl;
+                            
 							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 					        		   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 					        		   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
@@ -1807,59 +1549,44 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        MulMod(A_B1R15[ma_tmp],A_B1R15[ma_tmp],st2_Tw[15],p);
                             break;
                         case 3:
-                            INWC_DATARECORD <<" A_B1R0["<<ma_tmp<<"]:  "<<A_B1R0[ma_tmp]  << ", st3_Tw[0] = " << 1 << endl;     
-				            INWC_DATARECORD <<" A_B1R1["<<ma_tmp<<"]:  "<<A_B1R1[ma_tmp]  << ", st3_Tw[1] = " << 1 << endl;     
-					        INWC_DATARECORD <<" A_B1R2["<<ma_tmp<<"]:  "<<A_B1R2[ma_tmp]  << ", st3_Tw[2] = " << 1 << endl;     
-					        INWC_DATARECORD <<" A_B1R3["<<ma_tmp<<"]:  "<<A_B1R3[ma_tmp]  << ", st3_Tw[3] = " << 1 << endl;     
-					        INWC_DATARECORD <<" A_B1R4["<<ma_tmp<<"]:  "<<A_B1R4[ma_tmp]  << ", st3_Tw[4] = " << 1 << endl;     
-					        INWC_DATARECORD <<" A_B1R5["<<ma_tmp<<"]:  "<<A_B1R5[ma_tmp]  << ", st3_Tw[5] = " << 1 << endl;     
-					        INWC_DATARECORD <<" A_B1R6["<<ma_tmp<<"]:  "<<A_B1R6[ma_tmp]  << ", st3_Tw[6] = " << 1 << endl;     
-					        INWC_DATARECORD <<" A_B1R7["<<ma_tmp<<"]:  "<<A_B1R7[ma_tmp]  << ", st3_Tw[7] = " << 1 << endl;     
-					        INWC_DATARECORD <<" A_B1R8["<<ma_tmp<<"]:  "<<A_B1R8[ma_tmp]  << ", st3_Tw[8] = " << 1 << endl;     
-					        INWC_DATARECORD <<" A_B1R9["<<ma_tmp<<"]:  "<<A_B1R9[ma_tmp]  << ", st3_Tw[9] = " << 1 << endl;     
-					        INWC_DATARECORD <<" A_B1R10["<<ma_tmp<<"]: "<<A_B1R10[ma_tmp] << ", st3_Tw[10] = " << 1 << endl;    
-					        INWC_DATARECORD <<" A_B1R11["<<ma_tmp<<"]: "<<A_B1R11[ma_tmp] << ", st3_Tw[11] = " << 1 << endl;    
-					        INWC_DATARECORD <<" A_B1R12["<<ma_tmp<<"]: "<<A_B1R12[ma_tmp] << ", st3_Tw[12] = " << 1 << endl;    
-					        INWC_DATARECORD <<" A_B1R13["<<ma_tmp<<"]: "<<A_B1R13[ma_tmp] << ", st3_Tw[13] = " << 1 << endl;    
-					        INWC_DATARECORD <<" A_B1R14["<<ma_tmp<<"]: "<<A_B1R14[ma_tmp] << ", st3_Tw[14] = " << 1 << endl;    
-					        INWC_DATARECORD <<" A_B1R15["<<ma_tmp<<"]: "<<A_B1R15[ma_tmp] << ", st3_Tw[15] = " << 1 << endl;    
-                            if(!debug) INWC_DATARECORD << "InvPhi_0t_Order = " 	<< InvPhi_0t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_0t_Order = " 	<< InvPhi_deg*0 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_1t_Order = " 	<< InvPhi_1t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_1t_Order = " 	<< InvPhi_deg*1 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_2t_Order = " 	<< InvPhi_2t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_2t_Order = " 	<< InvPhi_deg*2 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_3t_Order = " 	<< InvPhi_3t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_3t_Order = " 	<< InvPhi_deg*3 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_4t_Order = " 	<< InvPhi_4t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_4t_Order = " 	<< InvPhi_deg*4 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_5t_Order = " 	<< InvPhi_5t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_5t_Order = " 	<< InvPhi_deg*5 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_6t_Order = " 	<< InvPhi_6t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_6t_Order = " 	<< InvPhi_deg*6 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_7t_Order = " 	<< InvPhi_7t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_7t_Order = " 	<< InvPhi_deg*7 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_8t_Order = " 	<< InvPhi_8t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_8t_Order = " 	<< InvPhi_deg*8 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_9t_Order = " 	<< InvPhi_9t_Order 	<< endl; else INWC_DATARECORD << "InvPhi_9t_Order = " 	<< InvPhi_deg*9 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_10t_Order = " << InvPhi_10t_Order << endl; else INWC_DATARECORD << "InvPhi_10t_Order = " 	<< InvPhi_deg*10 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_11t_Order = " << InvPhi_11t_Order << endl; else INWC_DATARECORD << "InvPhi_11t_Order = " 	<< InvPhi_deg*11 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_12t_Order = " << InvPhi_12t_Order << endl; else INWC_DATARECORD << "InvPhi_12t_Order = " 	<< InvPhi_deg*12 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_13t_Order = " << InvPhi_13t_Order << endl; else INWC_DATARECORD << "InvPhi_13t_Order = " 	<< InvPhi_deg*13 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_14t_Order = " << InvPhi_14t_Order << endl; else INWC_DATARECORD << "InvPhi_14t_Order = " 	<< InvPhi_deg*14 	<< endl;
-							if(!debug) INWC_DATARECORD << "InvPhi_15t_Order = " << InvPhi_15t_Order << endl; else INWC_DATARECORD << "InvPhi_15t_Order = " 	<< InvPhi_deg*15 	<< endl;
+                            INWC_DATARECORD <<" A_B1R0["<<ma_tmp<<"]:  "<<A_B1R0[ma_tmp]  << ", st3_Tw[0] = "  << st3_Tw[0]  << endl;     
+				            INWC_DATARECORD <<" A_B1R1["<<ma_tmp<<"]:  "<<A_B1R1[ma_tmp]  << ", st3_Tw[1] = "  << st3_Tw[1]  << endl;     
+					        INWC_DATARECORD <<" A_B1R2["<<ma_tmp<<"]:  "<<A_B1R2[ma_tmp]  << ", st3_Tw[2] = "  << st3_Tw[2]  << endl;     
+					        INWC_DATARECORD <<" A_B1R3["<<ma_tmp<<"]:  "<<A_B1R3[ma_tmp]  << ", st3_Tw[3] = "  << st3_Tw[3]  << endl;     
+					        INWC_DATARECORD <<" A_B1R4["<<ma_tmp<<"]:  "<<A_B1R4[ma_tmp]  << ", st3_Tw[4] = "  << st3_Tw[4]  << endl;     
+					        INWC_DATARECORD <<" A_B1R5["<<ma_tmp<<"]:  "<<A_B1R5[ma_tmp]  << ", st3_Tw[5] = "  << st3_Tw[5]  << endl;     
+					        INWC_DATARECORD <<" A_B1R6["<<ma_tmp<<"]:  "<<A_B1R6[ma_tmp]  << ", st3_Tw[6] = "  << st3_Tw[6]  << endl;     
+					        INWC_DATARECORD <<" A_B1R7["<<ma_tmp<<"]:  "<<A_B1R7[ma_tmp]  << ", st3_Tw[7] = "  << st3_Tw[7]  << endl;     
+					        INWC_DATARECORD <<" A_B1R8["<<ma_tmp<<"]:  "<<A_B1R8[ma_tmp]  << ", st3_Tw[8] = "  << st3_Tw[8]  << endl;     
+					        INWC_DATARECORD <<" A_B1R9["<<ma_tmp<<"]:  "<<A_B1R9[ma_tmp]  << ", st3_Tw[9] = "  << st3_Tw[9]  << endl;     
+					        INWC_DATARECORD <<" A_B1R10["<<ma_tmp<<"]: "<<A_B1R10[ma_tmp] << ", st3_Tw[10] = " << st3_Tw[10] << endl;    
+					        INWC_DATARECORD <<" A_B1R11["<<ma_tmp<<"]: "<<A_B1R11[ma_tmp] << ", st3_Tw[11] = " << st3_Tw[11] << endl;    
+					        INWC_DATARECORD <<" A_B1R12["<<ma_tmp<<"]: "<<A_B1R12[ma_tmp] << ", st3_Tw[12] = " << st3_Tw[12] << endl;    
+					        INWC_DATARECORD <<" A_B1R13["<<ma_tmp<<"]: "<<A_B1R13[ma_tmp] << ", st3_Tw[13] = " << st3_Tw[13] << endl;    
+					        INWC_DATARECORD <<" A_B1R14["<<ma_tmp<<"]: "<<A_B1R14[ma_tmp] << ", st3_Tw[14] = " << st3_Tw[14] << endl;    
+					        INWC_DATARECORD <<" A_B1R15["<<ma_tmp<<"]: "<<A_B1R15[ma_tmp] << ", st3_Tw[15] = " << st3_Tw[15] << endl;    
+                            
 							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 					        		   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 					        		   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 					        		   A_B1R15[ma_tmp]);
 							
-                            MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],  stage3_factor_0t ,p);
-					        MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],  stage3_factor_1t ,p);
-					        MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],  stage3_factor_2t ,p);
-					        MulMod(A_B1R3[ma_tmp],A_B1R3[ma_tmp],  stage3_factor_3t ,p);
-					        MulMod(A_B1R4[ma_tmp],A_B1R4[ma_tmp],  stage3_factor_4t ,p);
-					        MulMod(A_B1R5[ma_tmp],A_B1R5[ma_tmp],  stage3_factor_5t ,p);
-					        MulMod(A_B1R6[ma_tmp],A_B1R6[ma_tmp],  stage3_factor_6t ,p);
-					        MulMod(A_B1R7[ma_tmp],A_B1R7[ma_tmp],  stage3_factor_7t ,p);
-					        MulMod(A_B1R8[ma_tmp],A_B1R8[ma_tmp],  stage3_factor_8t ,p);
-					        MulMod(A_B1R9[ma_tmp],A_B1R9[ma_tmp],  stage3_factor_9t ,p);
-					        MulMod(A_B1R10[ma_tmp],A_B1R10[ma_tmp],stage3_factor_10t,p);
-					        MulMod(A_B1R11[ma_tmp],A_B1R11[ma_tmp],stage3_factor_11t,p);
-					        MulMod(A_B1R12[ma_tmp],A_B1R12[ma_tmp],stage3_factor_12t,p);
-					        MulMod(A_B1R13[ma_tmp],A_B1R13[ma_tmp],stage3_factor_13t,p);
-					        MulMod(A_B1R14[ma_tmp],A_B1R14[ma_tmp],stage3_factor_14t,p);
-					        MulMod(A_B1R15[ma_tmp],A_B1R15[ma_tmp],stage3_factor_15t,p);
+                            MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],  st3_Tw[0] ,p);
+					        MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],  st3_Tw[1] ,p);
+					        MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],  st3_Tw[2] ,p);
+					        MulMod(A_B1R3[ma_tmp],A_B1R3[ma_tmp],  st3_Tw[3] ,p);
+					        MulMod(A_B1R4[ma_tmp],A_B1R4[ma_tmp],  st3_Tw[4] ,p);
+					        MulMod(A_B1R5[ma_tmp],A_B1R5[ma_tmp],  st3_Tw[5] ,p);
+					        MulMod(A_B1R6[ma_tmp],A_B1R6[ma_tmp],  st3_Tw[6] ,p);
+					        MulMod(A_B1R7[ma_tmp],A_B1R7[ma_tmp],  st3_Tw[7] ,p);
+					        MulMod(A_B1R8[ma_tmp],A_B1R8[ma_tmp],  st3_Tw[8] ,p);
+					        MulMod(A_B1R9[ma_tmp],A_B1R9[ma_tmp],  st3_Tw[9] ,p);
+					        MulMod(A_B1R10[ma_tmp],A_B1R10[ma_tmp],st3_Tw[10],p);
+					        MulMod(A_B1R11[ma_tmp],A_B1R11[ma_tmp],st3_Tw[11],p);
+					        MulMod(A_B1R12[ma_tmp],A_B1R12[ma_tmp],st3_Tw[12],p);
+					        MulMod(A_B1R13[ma_tmp],A_B1R13[ma_tmp],st3_Tw[13],p);
+					        MulMod(A_B1R14[ma_tmp],A_B1R14[ma_tmp],st3_Tw[14],p);
+					        MulMod(A_B1R15[ma_tmp],A_B1R15[ma_tmp],st3_Tw[15],p);
                             break;
                     }
 					
@@ -3141,49 +2868,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r2(std::vector<ZZ> &A,std::vector<ZZ> &B
 					DTFAG_j++;
 				}
                 //---------------------------------------
-				//---------NWC PART-------------
-				ZZ 	r16_InvPhi_0t, r16_InvPhi_1t, r16_InvPhi_2t, r16_InvPhi_3t,
-					r16_InvPhi_4t, r16_InvPhi_9t, r16_InvPhi_6t, r16_InvPhi_7t,
-					r16_InvPhi_8t, r16_InvPhi_5t, r16_InvPhi_10t, r16_InvPhi_11t,
-					r16_InvPhi_12t, r16_InvPhi_13t, r16_InvPhi_14t, r16_InvPhi_15t;
-				ZZ 	r16_InvPhi_0t_Order, r16_InvPhi_1t_Order, r16_InvPhi_2t_Order, r16_InvPhi_3t_Order,
-					r16_InvPhi_4t_Order, r16_InvPhi_5t_Order, r16_InvPhi_6t_Order, r16_InvPhi_7t_Order,
-					r16_InvPhi_8t_Order, r16_InvPhi_9t_Order, r16_InvPhi_10t_Order, r16_InvPhi_11t_Order,
-					r16_InvPhi_12t_Order, r16_InvPhi_13t_Order, r16_InvPhi_14t_Order, r16_InvPhi_15t_Order;
-				ZZ r16_InvPhi_deg = PowerMod((ZZ)16, s, p);
-				r16_InvPhi_0t  = PowerMod(InvPhi, 0, p);
-				r16_InvPhi_1t  = PowerMod(InvPhi, 1, p);
-				r16_InvPhi_2t  = PowerMod(InvPhi, 2, p);
-				r16_InvPhi_3t  = PowerMod(InvPhi, 3, p);
-				r16_InvPhi_4t  = PowerMod(InvPhi, 4, p);
-				r16_InvPhi_5t  = PowerMod(InvPhi, 5, p);
-				r16_InvPhi_6t  = PowerMod(InvPhi, 6, p);
-				r16_InvPhi_7t  = PowerMod(InvPhi, 7, p);
-				r16_InvPhi_8t  = PowerMod(InvPhi, 8, p);
-				r16_InvPhi_9t  = PowerMod(InvPhi, 9, p);
-				r16_InvPhi_10t = PowerMod(InvPhi, 10, p);
-				r16_InvPhi_11t = PowerMod(InvPhi, 11, p);
-				r16_InvPhi_12t = PowerMod(InvPhi, 12, p);
-				r16_InvPhi_13t = PowerMod(InvPhi, 13, p);
-				r16_InvPhi_14t = PowerMod(InvPhi, 14, p);
-				r16_InvPhi_15t = PowerMod(InvPhi, 15, p);
-				r16_InvPhi_0t_Order  = PowerMod(r16_InvPhi_0t, r16_InvPhi_deg, p);
-				r16_InvPhi_1t_Order  = PowerMod(r16_InvPhi_1t, r16_InvPhi_deg, p);
-				r16_InvPhi_2t_Order  = PowerMod(r16_InvPhi_2t, r16_InvPhi_deg, p);
-				r16_InvPhi_3t_Order  = PowerMod(r16_InvPhi_3t, r16_InvPhi_deg, p);
-				r16_InvPhi_4t_Order  = PowerMod(r16_InvPhi_4t, r16_InvPhi_deg, p);
-				r16_InvPhi_5t_Order  = PowerMod(r16_InvPhi_5t, r16_InvPhi_deg, p);
-				r16_InvPhi_6t_Order  = PowerMod(r16_InvPhi_6t, r16_InvPhi_deg, p);
-				r16_InvPhi_7t_Order  = PowerMod(r16_InvPhi_7t, r16_InvPhi_deg, p);
-				r16_InvPhi_8t_Order  = PowerMod(r16_InvPhi_8t, r16_InvPhi_deg, p);
-				r16_InvPhi_9t_Order  = PowerMod(r16_InvPhi_9t, r16_InvPhi_deg, p);
-				r16_InvPhi_10t_Order = PowerMod(r16_InvPhi_10t, r16_InvPhi_deg, p);
-				r16_InvPhi_11t_Order = PowerMod(r16_InvPhi_11t, r16_InvPhi_deg, p);
-				r16_InvPhi_12t_Order = PowerMod(r16_InvPhi_12t, r16_InvPhi_deg, p);
-				r16_InvPhi_13t_Order = PowerMod(r16_InvPhi_13t, r16_InvPhi_deg, p);
-				r16_InvPhi_14t_Order = PowerMod(r16_InvPhi_14t, r16_InvPhi_deg, p);
-				r16_InvPhi_15t_Order = PowerMod(r16_InvPhi_15t, r16_InvPhi_deg, p);
-				//------------------------------
+				
 				if(bn_tmp == 0){
 					if(j < 2)bn0_bc_tmp = BC_tmp;
 					switch(s){
@@ -3204,22 +2889,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r2(std::vector<ZZ> &A,std::vector<ZZ> &B
 				    		INWC_DATARECORD << "A_B0R13["<< ma_tmp <<"]: "<< A_B0R13[ma_tmp]<< ", st0_Tw[13] = " << st0_Tw[13] << endl;
 				    		INWC_DATARECORD << "A_B0R14["<< ma_tmp <<"]: "<< A_B0R14[ma_tmp]<< ", st0_Tw[14] = " << st0_Tw[14] << endl;
 				    		INWC_DATARECORD << "A_B0R15["<< ma_tmp <<"]: "<< A_B0R15[ma_tmp]<< ", st0_Tw[15] = " << st0_Tw[15] << endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_0t_Order = " 	<< r16_InvPhi_0t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_0t_Order = " 	<< r16_InvPhi_deg*0 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_1t_Order = " 	<< r16_InvPhi_1t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_1t_Order = " 	<< r16_InvPhi_deg*1 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_2t_Order = " 	<< r16_InvPhi_2t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_2t_Order = " 	<< r16_InvPhi_deg*2 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_3t_Order = " 	<< r16_InvPhi_3t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_3t_Order = " 	<< r16_InvPhi_deg*3 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_4t_Order = " 	<< r16_InvPhi_4t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_4t_Order = " 	<< r16_InvPhi_deg*4 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_5t_Order = " 	<< r16_InvPhi_5t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_5t_Order = " 	<< r16_InvPhi_deg*5 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_6t_Order = " 	<< r16_InvPhi_6t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_6t_Order = " 	<< r16_InvPhi_deg*6 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_7t_Order = " 	<< r16_InvPhi_7t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_7t_Order = " 	<< r16_InvPhi_deg*7 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_8t_Order = " 	<< r16_InvPhi_8t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_8t_Order = " 	<< r16_InvPhi_deg*8 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_9t_Order = " 	<< r16_InvPhi_9t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_9t_Order = " 	<< r16_InvPhi_deg*9 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_10t_Order = " << r16_InvPhi_10t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_10t_Order = " 	<< r16_InvPhi_deg*10 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_11t_Order = " << r16_InvPhi_11t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_11t_Order = " 	<< r16_InvPhi_deg*11 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_12t_Order = " << r16_InvPhi_12t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_12t_Order = " 	<< r16_InvPhi_deg*12 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_13t_Order = " << r16_InvPhi_13t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_13t_Order = " 	<< r16_InvPhi_deg*13 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_14t_Order = " << r16_InvPhi_14t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_14t_Order = " 	<< r16_InvPhi_deg*14 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_15t_Order = " << r16_InvPhi_15t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_15t_Order = " 	<< r16_InvPhi_deg*15 	<< endl;
+							
 							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 									   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 									   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
@@ -3259,22 +2929,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r2(std::vector<ZZ> &A,std::vector<ZZ> &B
 				    		INWC_DATARECORD << "A_B0R13["<< ma_tmp <<"]: "<< A_B0R13[ma_tmp]	<< ", st1_Tw[13] = " << st1_Tw[13] << endl;
 				    		INWC_DATARECORD << "A_B0R14["<< ma_tmp <<"]: "<< A_B0R14[ma_tmp]	<< ", st1_Tw[14] = " << st1_Tw[14] << endl;
 				    		INWC_DATARECORD << "A_B0R15["<< ma_tmp <<"]: "<< A_B0R15[ma_tmp]	<< ", st1_Tw[15] = " << st1_Tw[15] << endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_0t_Order = " 	<< r16_InvPhi_0t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_0t_Order = " 	<< r16_InvPhi_deg*0 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_1t_Order = " 	<< r16_InvPhi_1t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_1t_Order = " 	<< r16_InvPhi_deg*1 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_2t_Order = " 	<< r16_InvPhi_2t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_2t_Order = " 	<< r16_InvPhi_deg*2 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_3t_Order = " 	<< r16_InvPhi_3t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_3t_Order = " 	<< r16_InvPhi_deg*3 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_4t_Order = " 	<< r16_InvPhi_4t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_4t_Order = " 	<< r16_InvPhi_deg*4 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_5t_Order = " 	<< r16_InvPhi_5t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_5t_Order = " 	<< r16_InvPhi_deg*5 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_6t_Order = " 	<< r16_InvPhi_6t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_6t_Order = " 	<< r16_InvPhi_deg*6 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_7t_Order = " 	<< r16_InvPhi_7t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_7t_Order = " 	<< r16_InvPhi_deg*7 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_8t_Order = " 	<< r16_InvPhi_8t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_8t_Order = " 	<< r16_InvPhi_deg*8 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_9t_Order = " 	<< r16_InvPhi_9t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_9t_Order = " 	<< r16_InvPhi_deg*9 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_10t_Order = " << r16_InvPhi_10t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_10t_Order = " 	<< r16_InvPhi_deg*10 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_11t_Order = " << r16_InvPhi_11t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_11t_Order = " 	<< r16_InvPhi_deg*11 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_12t_Order = " << r16_InvPhi_12t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_12t_Order = " 	<< r16_InvPhi_deg*12 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_13t_Order = " << r16_InvPhi_13t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_13t_Order = " 	<< r16_InvPhi_deg*13 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_14t_Order = " << r16_InvPhi_14t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_14t_Order = " 	<< r16_InvPhi_deg*14 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_15t_Order = " << r16_InvPhi_15t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_15t_Order = " 	<< r16_InvPhi_deg*15 	<< endl;
+							
 							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 									   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 									   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
@@ -3314,22 +2969,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r2(std::vector<ZZ> &A,std::vector<ZZ> &B
 				    		INWC_DATARECORD << "A_B0R13["<< ma_tmp <<"]: "<< A_B0R13[ma_tmp]	<< ", st2_Tw[13] = " << st2_Tw[13] << endl;
 				    		INWC_DATARECORD << "A_B0R14["<< ma_tmp <<"]: "<< A_B0R14[ma_tmp]	<< ", st2_Tw[14] = " << st2_Tw[14] << endl;
 				    		INWC_DATARECORD << "A_B0R15["<< ma_tmp <<"]: "<< A_B0R15[ma_tmp]	<< ", st2_Tw[15] = " << st2_Tw[15] << endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_0t_Order = " 	<< r16_InvPhi_0t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_0t_Order = " 	<< r16_InvPhi_deg*0 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_1t_Order = " 	<< r16_InvPhi_1t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_1t_Order = " 	<< r16_InvPhi_deg*1 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_2t_Order = " 	<< r16_InvPhi_2t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_2t_Order = " 	<< r16_InvPhi_deg*2 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_3t_Order = " 	<< r16_InvPhi_3t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_3t_Order = " 	<< r16_InvPhi_deg*3 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_4t_Order = " 	<< r16_InvPhi_4t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_4t_Order = " 	<< r16_InvPhi_deg*4 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_5t_Order = " 	<< r16_InvPhi_5t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_5t_Order = " 	<< r16_InvPhi_deg*5 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_6t_Order = " 	<< r16_InvPhi_6t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_6t_Order = " 	<< r16_InvPhi_deg*6 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_7t_Order = " 	<< r16_InvPhi_7t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_7t_Order = " 	<< r16_InvPhi_deg*7 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_8t_Order = " 	<< r16_InvPhi_8t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_8t_Order = " 	<< r16_InvPhi_deg*8 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_9t_Order = " 	<< r16_InvPhi_9t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_9t_Order = " 	<< r16_InvPhi_deg*9 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_10t_Order = " << r16_InvPhi_10t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_10t_Order = " 	<< r16_InvPhi_deg*10 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_11t_Order = " << r16_InvPhi_11t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_11t_Order = " 	<< r16_InvPhi_deg*11 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_12t_Order = " << r16_InvPhi_12t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_12t_Order = " 	<< r16_InvPhi_deg*12 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_13t_Order = " << r16_InvPhi_13t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_13t_Order = " 	<< r16_InvPhi_deg*13 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_14t_Order = " << r16_InvPhi_14t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_14t_Order = " 	<< r16_InvPhi_deg*14 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_15t_Order = " << r16_InvPhi_15t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_15t_Order = " 	<< r16_InvPhi_deg*15 	<< endl;
+							
 							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 									   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 									   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
@@ -3399,22 +3039,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r2(std::vector<ZZ> &A,std::vector<ZZ> &B
 				    		INWC_DATARECORD << "A_B1R13["<< ma_tmp <<"]: "<< A_B1R13[ma_tmp]	<< ", st0_Tw[13] = " << st0_Tw[13] << endl;
 				    		INWC_DATARECORD << "A_B1R14["<< ma_tmp <<"]: "<< A_B1R14[ma_tmp]	<< ", st0_Tw[14] = " << st0_Tw[14] << endl;
 				    		INWC_DATARECORD << "A_B1R15["<< ma_tmp <<"]: "<< A_B1R15[ma_tmp]	<< ", st0_Tw[15] = " << st0_Tw[15] << endl;					
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_0t_Order = " 	<< r16_InvPhi_0t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_0t_Order = " 	<< r16_InvPhi_deg*0 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_1t_Order = " 	<< r16_InvPhi_1t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_1t_Order = " 	<< r16_InvPhi_deg*1 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_2t_Order = " 	<< r16_InvPhi_2t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_2t_Order = " 	<< r16_InvPhi_deg*2 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_3t_Order = " 	<< r16_InvPhi_3t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_3t_Order = " 	<< r16_InvPhi_deg*3 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_4t_Order = " 	<< r16_InvPhi_4t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_4t_Order = " 	<< r16_InvPhi_deg*4 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_5t_Order = " 	<< r16_InvPhi_5t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_5t_Order = " 	<< r16_InvPhi_deg*5 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_6t_Order = " 	<< r16_InvPhi_6t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_6t_Order = " 	<< r16_InvPhi_deg*6 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_7t_Order = " 	<< r16_InvPhi_7t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_7t_Order = " 	<< r16_InvPhi_deg*7 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_8t_Order = " 	<< r16_InvPhi_8t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_8t_Order = " 	<< r16_InvPhi_deg*8 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_9t_Order = " 	<< r16_InvPhi_9t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_9t_Order = " 	<< r16_InvPhi_deg*9 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_10t_Order = " << r16_InvPhi_10t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_10t_Order = " 	<< r16_InvPhi_deg*10 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_11t_Order = " << r16_InvPhi_11t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_11t_Order = " 	<< r16_InvPhi_deg*11 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_12t_Order = " << r16_InvPhi_12t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_12t_Order = " 	<< r16_InvPhi_deg*12 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_13t_Order = " << r16_InvPhi_13t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_13t_Order = " 	<< r16_InvPhi_deg*13 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_14t_Order = " << r16_InvPhi_14t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_14t_Order = " 	<< r16_InvPhi_deg*14 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_15t_Order = " << r16_InvPhi_15t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_15t_Order = " 	<< r16_InvPhi_deg*15 	<< endl;
+							
 							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 									   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 									   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
@@ -3454,22 +3079,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r2(std::vector<ZZ> &A,std::vector<ZZ> &B
 				    		INWC_DATARECORD << "A_B1R13["<< ma_tmp <<"]: "<< A_B1R13[ma_tmp]	<< ", st1_Tw[13] = " << st1_Tw[13] << endl;
 				    		INWC_DATARECORD << "A_B1R14["<< ma_tmp <<"]: "<< A_B1R14[ma_tmp]	<< ", st1_Tw[14] = " << st1_Tw[14] << endl;
 				    		INWC_DATARECORD << "A_B1R15["<< ma_tmp <<"]: "<< A_B1R15[ma_tmp]	<< ", st1_Tw[15] = " << st1_Tw[15] << endl;					
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_0t_Order = " 	<< r16_InvPhi_0t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_0t_Order = " 	<< r16_InvPhi_deg*0 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_1t_Order = " 	<< r16_InvPhi_1t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_1t_Order = " 	<< r16_InvPhi_deg*1 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_2t_Order = " 	<< r16_InvPhi_2t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_2t_Order = " 	<< r16_InvPhi_deg*2 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_3t_Order = " 	<< r16_InvPhi_3t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_3t_Order = " 	<< r16_InvPhi_deg*3 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_4t_Order = " 	<< r16_InvPhi_4t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_4t_Order = " 	<< r16_InvPhi_deg*4 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_5t_Order = " 	<< r16_InvPhi_5t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_5t_Order = " 	<< r16_InvPhi_deg*5 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_6t_Order = " 	<< r16_InvPhi_6t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_6t_Order = " 	<< r16_InvPhi_deg*6 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_7t_Order = " 	<< r16_InvPhi_7t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_7t_Order = " 	<< r16_InvPhi_deg*7 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_8t_Order = " 	<< r16_InvPhi_8t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_8t_Order = " 	<< r16_InvPhi_deg*8 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_9t_Order = " 	<< r16_InvPhi_9t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_9t_Order = " 	<< r16_InvPhi_deg*9 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_10t_Order = " << r16_InvPhi_10t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_10t_Order = " 	<< r16_InvPhi_deg*10 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_11t_Order = " << r16_InvPhi_11t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_11t_Order = " 	<< r16_InvPhi_deg*11 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_12t_Order = " << r16_InvPhi_12t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_12t_Order = " 	<< r16_InvPhi_deg*12 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_13t_Order = " << r16_InvPhi_13t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_13t_Order = " 	<< r16_InvPhi_deg*13 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_14t_Order = " << r16_InvPhi_14t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_14t_Order = " 	<< r16_InvPhi_deg*14 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_15t_Order = " << r16_InvPhi_15t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_15t_Order = " 	<< r16_InvPhi_deg*15 	<< endl;
+							
 							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 									   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 									   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
@@ -3509,22 +3119,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r2(std::vector<ZZ> &A,std::vector<ZZ> &B
 				    		INWC_DATARECORD << "A_B1R13["<< ma_tmp <<"]: "<< A_B1R13[ma_tmp]	<< ", st2_Tw[13] = " << st2_Tw[13] << endl;
 				    		INWC_DATARECORD << "A_B1R14["<< ma_tmp <<"]: "<< A_B1R14[ma_tmp]	<< ", st2_Tw[14] = " << st2_Tw[14] << endl;
 				    		INWC_DATARECORD << "A_B1R15["<< ma_tmp <<"]: "<< A_B1R15[ma_tmp]	<< ", st2_Tw[15] = " << st2_Tw[15] << endl;					
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_0t_Order = " 	<< r16_InvPhi_0t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_0t_Order = " 	<< r16_InvPhi_deg*0 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_1t_Order = " 	<< r16_InvPhi_1t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_1t_Order = " 	<< r16_InvPhi_deg*1 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_2t_Order = " 	<< r16_InvPhi_2t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_2t_Order = " 	<< r16_InvPhi_deg*2 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_3t_Order = " 	<< r16_InvPhi_3t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_3t_Order = " 	<< r16_InvPhi_deg*3 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_4t_Order = " 	<< r16_InvPhi_4t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_4t_Order = " 	<< r16_InvPhi_deg*4 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_5t_Order = " 	<< r16_InvPhi_5t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_5t_Order = " 	<< r16_InvPhi_deg*5 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_6t_Order = " 	<< r16_InvPhi_6t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_6t_Order = " 	<< r16_InvPhi_deg*6 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_7t_Order = " 	<< r16_InvPhi_7t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_7t_Order = " 	<< r16_InvPhi_deg*7 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_8t_Order = " 	<< r16_InvPhi_8t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_8t_Order = " 	<< r16_InvPhi_deg*8 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_9t_Order = " 	<< r16_InvPhi_9t_Order 	<< endl; else INWC_DATARECORD << "r16_InvPhi_9t_Order = " 	<< r16_InvPhi_deg*9 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_10t_Order = " << r16_InvPhi_10t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_10t_Order = " 	<< r16_InvPhi_deg*10 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_11t_Order = " << r16_InvPhi_11t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_11t_Order = " 	<< r16_InvPhi_deg*11 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_12t_Order = " << r16_InvPhi_12t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_12t_Order = " 	<< r16_InvPhi_deg*12 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_13t_Order = " << r16_InvPhi_13t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_13t_Order = " 	<< r16_InvPhi_deg*13 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_14t_Order = " << r16_InvPhi_14t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_14t_Order = " 	<< r16_InvPhi_deg*14 	<< endl;
-							if(!debug) INWC_DATARECORD << "r16_InvPhi_15t_Order = " << r16_InvPhi_15t_Order << endl; else INWC_DATARECORD << "r16_InvPhi_15t_Order = " 	<< r16_InvPhi_deg*15 	<< endl;
+							
 							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 									   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 									   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
@@ -5506,49 +5101,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r4(std::vector<ZZ> &A,std::vector<ZZ> &B
 					DTFAG_j++;
 				}
                 //---------------------------------------
-				//---------NWC PART-------------
-				ZZ 	r16_InvPhi_0t, r16_InvPhi_1t, r16_InvPhi_2t, r16_InvPhi_3t,
-					r16_InvPhi_4t, r16_InvPhi_9t, r16_InvPhi_6t, r16_InvPhi_7t,
-					r16_InvPhi_8t, r16_InvPhi_5t, r16_InvPhi_10t, r16_InvPhi_11t,
-					r16_InvPhi_12t, r16_InvPhi_13t, r16_InvPhi_14t, r16_InvPhi_15t;
-				ZZ 	r16_InvPhi_0t_Order, r16_InvPhi_1t_Order, r16_InvPhi_2t_Order, r16_InvPhi_3t_Order,
-					r16_InvPhi_4t_Order, r16_InvPhi_5t_Order, r16_InvPhi_6t_Order, r16_InvPhi_7t_Order,
-					r16_InvPhi_8t_Order, r16_InvPhi_9t_Order, r16_InvPhi_10t_Order, r16_InvPhi_11t_Order,
-					r16_InvPhi_12t_Order, r16_InvPhi_13t_Order, r16_InvPhi_14t_Order, r16_InvPhi_15t_Order;
-				ZZ r16_InvPhi_deg = PowerMod((ZZ)16, s, p);
-				r16_InvPhi_0t  = PowerMod(InvPhi, 0, p);
-				r16_InvPhi_1t  = PowerMod(InvPhi, 1, p);
-				r16_InvPhi_2t  = PowerMod(InvPhi, 2, p);
-				r16_InvPhi_3t  = PowerMod(InvPhi, 3, p);
-				r16_InvPhi_4t  = PowerMod(InvPhi, 4, p);
-				r16_InvPhi_5t  = PowerMod(InvPhi, 5, p);
-				r16_InvPhi_6t  = PowerMod(InvPhi, 6, p);
-				r16_InvPhi_7t  = PowerMod(InvPhi, 7, p);
-				r16_InvPhi_8t  = PowerMod(InvPhi, 8, p);
-				r16_InvPhi_9t  = PowerMod(InvPhi, 9, p);
-				r16_InvPhi_10t = PowerMod(InvPhi, 10, p);
-				r16_InvPhi_11t = PowerMod(InvPhi, 11, p);
-				r16_InvPhi_12t = PowerMod(InvPhi, 12, p);
-				r16_InvPhi_13t = PowerMod(InvPhi, 13, p);
-				r16_InvPhi_14t = PowerMod(InvPhi, 14, p);
-				r16_InvPhi_15t = PowerMod(InvPhi, 15, p);
-				r16_InvPhi_0t_Order  = PowerMod(r16_InvPhi_0t, r16_InvPhi_deg, p);
-				r16_InvPhi_1t_Order  = PowerMod(r16_InvPhi_1t, r16_InvPhi_deg, p);
-				r16_InvPhi_2t_Order  = PowerMod(r16_InvPhi_2t, r16_InvPhi_deg, p);
-				r16_InvPhi_3t_Order  = PowerMod(r16_InvPhi_3t, r16_InvPhi_deg, p);
-				r16_InvPhi_4t_Order  = PowerMod(r16_InvPhi_4t, r16_InvPhi_deg, p);
-				r16_InvPhi_5t_Order  = PowerMod(r16_InvPhi_5t, r16_InvPhi_deg, p);
-				r16_InvPhi_6t_Order  = PowerMod(r16_InvPhi_6t, r16_InvPhi_deg, p);
-				r16_InvPhi_7t_Order  = PowerMod(r16_InvPhi_7t, r16_InvPhi_deg, p);
-				r16_InvPhi_8t_Order  = PowerMod(r16_InvPhi_8t, r16_InvPhi_deg, p);
-				r16_InvPhi_9t_Order  = PowerMod(r16_InvPhi_9t, r16_InvPhi_deg, p);
-				r16_InvPhi_10t_Order = PowerMod(r16_InvPhi_10t, r16_InvPhi_deg, p);
-				r16_InvPhi_11t_Order = PowerMod(r16_InvPhi_11t, r16_InvPhi_deg, p);
-				r16_InvPhi_12t_Order = PowerMod(r16_InvPhi_12t, r16_InvPhi_deg, p);
-				r16_InvPhi_13t_Order = PowerMod(r16_InvPhi_13t, r16_InvPhi_deg, p);
-				r16_InvPhi_14t_Order = PowerMod(r16_InvPhi_14t, r16_InvPhi_deg, p);
-				r16_InvPhi_15t_Order = PowerMod(r16_InvPhi_15t, r16_InvPhi_deg, p);
-				//------------------------------
+				
 				if(bn_tmp == 0){
 					if(j < 2)bn0_bc_tmp = BC_tmp;
 					switch(s){
@@ -8267,49 +7820,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r8(std::vector<ZZ> &A,std::vector<ZZ> &B
 					DTFAG_j++;
 				}
                 //---------------------------------------
-				//---------NWC PART-------------
-				ZZ 	r16_InvPhi_0t, r16_InvPhi_1t, r16_InvPhi_2t, r16_InvPhi_3t,
-					r16_InvPhi_4t, r16_InvPhi_9t, r16_InvPhi_6t, r16_InvPhi_7t,
-					r16_InvPhi_8t, r16_InvPhi_5t, r16_InvPhi_10t, r16_InvPhi_11t,
-					r16_InvPhi_12t, r16_InvPhi_13t, r16_InvPhi_14t, r16_InvPhi_15t;
-				ZZ 	r16_InvPhi_0t_Order, r16_InvPhi_1t_Order, r16_InvPhi_2t_Order, r16_InvPhi_3t_Order,
-					r16_InvPhi_4t_Order, r16_InvPhi_5t_Order, r16_InvPhi_6t_Order, r16_InvPhi_7t_Order,
-					r16_InvPhi_8t_Order, r16_InvPhi_9t_Order, r16_InvPhi_10t_Order, r16_InvPhi_11t_Order,
-					r16_InvPhi_12t_Order, r16_InvPhi_13t_Order, r16_InvPhi_14t_Order, r16_InvPhi_15t_Order;
-				ZZ r16_InvPhi_deg = PowerMod((ZZ)16, s, p);
-				r16_InvPhi_0t  = PowerMod(InvPhi, 0, p);
-				r16_InvPhi_1t  = PowerMod(InvPhi, 1, p);
-				r16_InvPhi_2t  = PowerMod(InvPhi, 2, p);
-				r16_InvPhi_3t  = PowerMod(InvPhi, 3, p);
-				r16_InvPhi_4t  = PowerMod(InvPhi, 4, p);
-				r16_InvPhi_5t  = PowerMod(InvPhi, 5, p);
-				r16_InvPhi_6t  = PowerMod(InvPhi, 6, p);
-				r16_InvPhi_7t  = PowerMod(InvPhi, 7, p);
-				r16_InvPhi_8t  = PowerMod(InvPhi, 8, p);
-				r16_InvPhi_9t  = PowerMod(InvPhi, 9, p);
-				r16_InvPhi_10t = PowerMod(InvPhi, 10, p);
-				r16_InvPhi_11t = PowerMod(InvPhi, 11, p);
-				r16_InvPhi_12t = PowerMod(InvPhi, 12, p);
-				r16_InvPhi_13t = PowerMod(InvPhi, 13, p);
-				r16_InvPhi_14t = PowerMod(InvPhi, 14, p);
-				r16_InvPhi_15t = PowerMod(InvPhi, 15, p);
-				r16_InvPhi_0t_Order  = PowerMod(r16_InvPhi_0t, r16_InvPhi_deg, p);
-				r16_InvPhi_1t_Order  = PowerMod(r16_InvPhi_1t, r16_InvPhi_deg, p);
-				r16_InvPhi_2t_Order  = PowerMod(r16_InvPhi_2t, r16_InvPhi_deg, p);
-				r16_InvPhi_3t_Order  = PowerMod(r16_InvPhi_3t, r16_InvPhi_deg, p);
-				r16_InvPhi_4t_Order  = PowerMod(r16_InvPhi_4t, r16_InvPhi_deg, p);
-				r16_InvPhi_5t_Order  = PowerMod(r16_InvPhi_5t, r16_InvPhi_deg, p);
-				r16_InvPhi_6t_Order  = PowerMod(r16_InvPhi_6t, r16_InvPhi_deg, p);
-				r16_InvPhi_7t_Order  = PowerMod(r16_InvPhi_7t, r16_InvPhi_deg, p);
-				r16_InvPhi_8t_Order  = PowerMod(r16_InvPhi_8t, r16_InvPhi_deg, p);
-				r16_InvPhi_9t_Order  = PowerMod(r16_InvPhi_9t, r16_InvPhi_deg, p);
-				r16_InvPhi_10t_Order = PowerMod(r16_InvPhi_10t, r16_InvPhi_deg, p);
-				r16_InvPhi_11t_Order = PowerMod(r16_InvPhi_11t, r16_InvPhi_deg, p);
-				r16_InvPhi_12t_Order = PowerMod(r16_InvPhi_12t, r16_InvPhi_deg, p);
-				r16_InvPhi_13t_Order = PowerMod(r16_InvPhi_13t, r16_InvPhi_deg, p);
-				r16_InvPhi_14t_Order = PowerMod(r16_InvPhi_14t, r16_InvPhi_deg, p);
-				r16_InvPhi_15t_Order = PowerMod(r16_InvPhi_15t, r16_InvPhi_deg, p);
-				//------------------------------
+				
 				if(bn_tmp == 0){
 					if(j < 2)bn0_bc_tmp = BC_tmp;
 					switch(s){
