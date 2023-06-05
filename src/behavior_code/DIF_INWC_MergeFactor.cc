@@ -31,8 +31,8 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
     int            BC_WIDTH;	
     std::vector<int> bit_array_tmp;
 
-	std::ofstream INWC_DATARECORD("./NWC_PrintData/INWC_Merge_R2_SPMB.txt");
-	std::ofstream INWC_radix2("./NWC_PrintData/INWC_Merge_r2.txt");
+	std::ofstream INWC_DATARECORD("./NWC_PrintData/INWC_MergeFactor_R2/INWC_Merge_R2_SPMB.txt");
+	std::ofstream INWC_radix2("./NWC_PrintData/INWC_MergeFactor_R2/INWC_Merge_r2.txt");
 	//-------------Bit Reverse--------------
 	BitOperate RR, IntToVec, VecToInt;
 	long long bit_width = log2(N);
@@ -403,8 +403,8 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
     int            BC_WIDTH;	
     std::vector<int> bit_array_tmp;
 	
-	std::ofstream INWC_DATARECORD("./NWC_PrintData/INWC_Merge_R4_SPMB.txt");
-	std::ofstream INWC_radix4("./NWC_PrintData/INWC_Merge_radix4.txt");
+	std::ofstream INWC_DATARECORD("./NWC_PrintData/INWC_MergeFactor_R4/INWC_Merge_R4_SPMB.txt");
+	std::ofstream INWC_radix4("./NWC_PrintData/INWC_MergeFactor_R4/INWC_Merge_radix4.txt");
 	//-------------Bit Reverse--------------
 	BitOperate RR, IntToVec, VecToInt, BR;
 	long long bit_width = log2(N);
@@ -920,7 +920,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
     int            BC_WIDTH;	
     std::vector<int> bit_array_tmp;
 	
-	std::ofstream INWC_DATARECORD("./NWC_PrintData/INWC_Merge_R16_SPMB.txt");
+	std::ofstream INWC_DATARECORD("./NWC_PrintData/INWC_MergeFactor_R16/INWC_Merge_R16_SPMB.txt");
 
     //------------DTFAG generator-------------
 	DTFAG DTFAG;
@@ -2516,7 +2516,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r2(std::vector<ZZ> &A,std::vector<ZZ> &B
     double         Stage_double;	
     std::vector<int> bit_array_tmp;
 	
-	std::ofstream INWC_DATARECORD("./NWC_PrintData/INWC_MergeFactor_R16_R2_SPMB.txt");
+	std::ofstream INWC_DATARECORD("./NWC_PrintData/INWC_MergeFactor_r16_r2/INWC_MergeFactor_R16_R2_SPMB.txt");
 	//-------------Bit Reverse--------------
 	BitOperate RR, IntToVec, VecToInt;
 	long long bit_width = log2(N);
@@ -4744,7 +4744,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r4(std::vector<ZZ> &A,std::vector<ZZ> &B
     double         Stage_double;	
     std::vector<int> bit_array_tmp;
 	
-	std::ofstream DIF_DATARECORD("./NWC_PrintData/INWC_MergeFactor_R16_R4_SPMB.txt");
+	std::ofstream DIF_DATARECORD("./NWC_PrintData/INWC_MergeFactor_r16_r4/INWC_MergeFactor_R16_R4_SPMB.txt");
 	//**********************************************************
 	//**********************************************************
 	display  = 1;
@@ -7447,7 +7447,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r8(std::vector<ZZ> &A,std::vector<ZZ> &B
 	//display parameter , 1: display , 0:not display
 	display = 1;
 	//--------------------------------------------
-	std::ofstream DIF_DATARECORD("./NWC_PrintData/INWC_MergeFactor_R16_R8_SPMB.txt");
+	std::ofstream DIF_DATARECORD("./NWC_PrintData/INWC_MergeFactor_r16_r8/INWC_MergeFactor_R16_R8_SPMB.txt");
 	//-------------Bit Reverse--------------
 	BitOperate RR, IntToVec, VecToInt;
 	long long bit_width = log2(N);

@@ -17,6 +17,8 @@ public:
     ~NWC_Algo();
     vector<ZZ > NWC(vector<ZZ > &arr);
     vector<ZZ > INWC(vector<ZZ > &arr);
+    void time_o_r16(std::vector<ZZ> time_data,std::string string_in);
+    string ZZtohex_cp(ZZ zz_tmp);
 };
 
 

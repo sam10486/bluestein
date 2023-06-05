@@ -33,15 +33,6 @@ void test_NTTSPMB()
   int band_memory_size; 
   int radix_r1;
   int radix_r2;
-  //----------bluestein--------------
-  //bluestein blue;
-  //ZZ tmp_prime;
-  //conv(tmp_prime, "97");
-  //ZZ ROU;
-  //unsigned int u_n = 16;
-  //blue.N_ROU(tmp_prime, u_n, ROU);
-  //cout << "ROU = " << ROU << std::endl;
-  //---------------------------------
 
   radix_r1 = 16;
   radix_r2 = 16;
@@ -66,7 +57,7 @@ void test_NTTSPMB()
   std::cout << "difference_length = " << difference_length << ", fft_twiddle = " << fft_twiddle << std::endl;
   InvMod(fft_IW,fft_twiddle,fft_prime); 
   //-------------NWC PART---------------------
-  std::ofstream INWC_golden_o("./NWC_PrintData/INWC_golden.txt"); 
+  std::ofstream INWC_golden_o("./NWC_PrintData/INWC_golden/INWC_golden.txt"); 
   ZZ Phi, InvPhi, IW;
   SqrRootMod(Phi, fft_twiddle, fft_prime);
   InvMod(InvPhi, Phi, fft_prime);
@@ -84,6 +75,7 @@ void test_NTTSPMB()
     NWC_arr[i] = i;
     INWC_golden[i] = i;
   }
+  nwc_algo.time_o_r16(INWC_golden, "./NWC_PrintData/Bank_Data_in/A_");
   nwc_algo.NWC(NWC_arr);
   nwc_algo.INWC(NWC_arr);
   nwc_algo.INWC(INWC_golden);
@@ -574,7 +566,7 @@ void test_NTTSPMB()
     default:
       break;
   }
-  std::ofstream DIF_INWC_o("./NWC_PrintData/DIF_INWC_output.txt");
+  std::ofstream DIF_INWC_o("./NWC_PrintData/INWC_golden/DIF_INWC_output.txt");
     for(int i = 0; i < fft_point;i++){
 	    DIF_INWC_o << INWC_arr[i];  
       DIF_INWC_o << "\n";
@@ -679,7 +671,7 @@ void test_NTTSPMB()
     default:
       break;
   }
-  std::ofstream DIF_INWC_MergeFactor_o("./NWC_PrintData/DIF_INWC_MergeFactor_output.txt");
+  std::ofstream DIF_INWC_MergeFactor_o("./NWC_PrintData/INWC_golden/DIF_INWC_MergeFactor_output.txt");
     for(int i = 0; i < fft_point;i++){
 	    DIF_INWC_MergeFactor_o << INWC_MergeFactor_arr[i];  
       DIF_INWC_MergeFactor_o << "\n";
@@ -786,7 +778,7 @@ void test_NTTSPMB()
     default:
       break;
   }
-  std::ofstream DIF_INWC_seperateInvN_o("./NWC_PrintData/DIF_INWC_seperateInvN_output.txt");
+  std::ofstream DIF_INWC_seperateInvN_o("./NWC_PrintData/INWC_golden/DIF_INWC_seperateInvN_output.txt");
     for(int i = 0; i < fft_point;i++){
 	    DIF_INWC_seperateInvN_o << INWC_seperateInvN_arr[i];  
       DIF_INWC_seperateInvN_o << "\n";

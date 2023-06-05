@@ -12,11 +12,11 @@ void DTFAG::DTFAG_INWC_MergeFactor_ROM_init(
 
 
     BitOperate DecToBin;
-    std::ofstream DTFAG_ROM_init("./NWC_PrintData/DTFAG_INWC_ROM_init.txt");
-    std::ofstream DTFAG_ROM0_0_init("./NWC_PrintData/DTFAG_INWC_ROM0_0_init.txt");
-    std::ofstream DTFAG_ROM0_1_init("./NWC_PrintData/DTFAG_INWC_ROM0_1_init.txt");
-    std::ofstream DTFAG_ROM0_2_init("./NWC_PrintData/DTFAG_INWC_ROM0_2_init.txt");
-    std::ofstream DTFAG_ROM0_3_init("./NWC_PrintData/DTFAG_INWC_ROM0_3_init.txt");
+    std::ofstream DTFAG_ROM_init("./NWC_PrintData/ROM_Data/DTFAG_INWC_ROM_init.txt");
+    std::ofstream DTFAG_ROM0_0_init("./NWC_PrintData/ROM_Data/DTFAG_INWC_ROM0_0_init.txt");
+    std::ofstream DTFAG_ROM0_1_init("./NWC_PrintData/ROM_Data/DTFAG_INWC_ROM0_1_init.txt");
+    std::ofstream DTFAG_ROM0_2_init("./NWC_PrintData/ROM_Data/DTFAG_INWC_ROM0_2_init.txt");
+    std::ofstream DTFAG_ROM0_3_init("./NWC_PrintData/ROM_Data/DTFAG_INWC_ROM0_3_init.txt");
 
     ZZ InvPhi_deg_st0 = PowerMod((ZZ)radix_r1, 0, fft_prime);
     ZZ InvPhi_deg_st1 = PowerMod((ZZ)radix_r1, 1, fft_prime);
