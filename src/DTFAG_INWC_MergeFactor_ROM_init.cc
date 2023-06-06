@@ -94,10 +94,10 @@ void DTFAG::DTFAG_INWC_MergeFactor_ROM_init(
                 default:
                     break;
             }
-            DTFAG_ROM0_0_init << "ROM0_0_arr[" << k << "][" << n << "] <= 64'd" << ROM0_st0[k][n] << ";\n";
-            DTFAG_ROM0_1_init << "ROM0_1_arr[" << k << "][" << n << "] <= 64'd" << ROM0_st1[k][n] << ";\n";
-            DTFAG_ROM0_2_init << "ROM0_2_arr[" << k << "][" << n << "] <= 64'd" << ROM0_st2[k][n] << ";\n";
-            DTFAG_ROM0_3_init << "ROM0_3_arr[" << k << "][" << n << "] <= 64'd" << ROM0_st3[k][n] << ";\n";
+            DTFAG_ROM0_0_init << "ROM0_st0_arr[" << k << "][" << n << "] <= 64'd" << ROM0_st0[k][n] << ";\n";
+            DTFAG_ROM0_1_init << "ROM0_st1_arr[" << k << "][" << n << "] <= 64'd" << ROM0_st1[k][n] << ";\n";
+            DTFAG_ROM0_2_init << "ROM0_st2_arr[" << k << "][" << n << "] <= 64'd" << ROM0_st2[k][n] << ";\n";
+            DTFAG_ROM0_3_init << "ROM0_st3_arr[" << k << "][" << n << "] <= 64'd" << ROM0_st3[k][n] << ";\n";
         }
     }
 

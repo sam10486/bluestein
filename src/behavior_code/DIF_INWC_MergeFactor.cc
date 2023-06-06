@@ -13,6 +13,563 @@
 
 using namespace std;
 
+void DIF_INWC::INWC_MergeFactor_Radix2_BU(ZZ &a,ZZ &b){
+	ZZ tmp_a;
+	ZZ tmp_b;
+	AddMod(tmp_a, a, b, p);
+	if (b < 0)b = b + p;
+	SubMod(tmp_b, a, b, p);
+	a = tmp_a;
+	b = tmp_b;
+}
+
+//radix 2^(2) DIF
+void DIF_INWC::INWC_MergeFactor_Radix4_BU(ZZ &a,ZZ &b,ZZ &c,ZZ &d){
+	//a: x[n] b:[n+N/4] c:[n+N/2] d: 
+	ZZ IW_1_4; // W^(N/4)
+	ZZ twiddle_3_4; // W^(3N/4)
+	unsigned long len_1_4; // N/4
+	unsigned long len_3_4; // N/4
+	len_1_4 = N / 4;
+	PowerMod(IW_1_4, IW, len_1_4, p);
+	
+	ZZ tmp_a;
+	ZZ tmp_b;
+    ZZ tmp_c;
+    ZZ tmp_d;
+	
+	//stage 0
+	AddMod(tmp_a,a,c,p);
+	SubMod(tmp_c,a,c,p);
+	AddMod(tmp_b,b,d,p);
+	SubMod(tmp_d,b,d,p);
+	MulMod(tmp_d,tmp_d,IW_1_4,p);
+
+    //std::cout << "tmp_a = " << tmp_a << ", a = " << a << ", c = " << c << std::endl;
+	//std::cout << "tmp_c = " << tmp_c << ", a = " << a << ", c = " << c << std::endl;
+	//std::cout << "tmp_b = " << tmp_b << ", b = " << b << ", d = " << d << std::endl;
+	//std::cout << "tmp_a = " << tmp_d << ", b = " << b << ", d = " << d << std::endl;
+
+	ZZ tmp_a_1;
+	ZZ tmp_b_1;
+	ZZ tmp_c_1;
+	ZZ tmp_d_1;
+	
+	//stage 1
+	AddMod(tmp_a_1,tmp_a,tmp_b,p);
+	SubMod(tmp_b_1,tmp_a,tmp_b,p);
+	AddMod(tmp_c_1,tmp_c,tmp_d,p);
+	SubMod(tmp_d_1,tmp_c,tmp_d,p);
+
+	//data relocation  
+	//bit-reverse
+	a = tmp_a_1;
+	c = tmp_b_1;
+	b = tmp_c_1;
+	d = tmp_d_1;
+	
+}
+
+void DIF_INWC::INWC_MergeFactor_Radix8_BU(ZZ &a_r0,ZZ &a_r1,ZZ &a_r2,ZZ &a_r3,ZZ &a_r4,ZZ &a_r5,ZZ &a_r6,ZZ &a_r7){
+	ZZ IW_1_8; // W^(N/8)
+	ZZ twiddle_r8_nk;
+	ZZ data_tmp;
+	unsigned long len_1_8; // N/16
+	
+	len_1_8 = N/8;
+	PowerMod(IW_1_8,IW,len_1_8,p);
+	std::vector<ZZ> A_in;
+	std::vector<ZZ> A_out;
+		
+	A_in.resize(8);
+	A_out.resize(8);
+	//data input 
+	A_in[0]  = a_r0;
+	A_in[1]  = a_r1;
+	A_in[2]  = a_r2;
+	A_in[3]  = a_r3;
+	A_in[4]  = a_r4;
+	A_in[5]  = a_r5;
+	A_in[6]  = a_r6;
+	A_in[7]  = a_r7;
+	
+	long  nk_exp;
+	nk_exp   = 0;
+	data_tmp = 0;
+	twiddle_r8_nk = 0;
+	
+	for(int i=0;i<8;i++){
+		A_out[i] = 0;
+	}
+
+    //--------------twiddle factor--------------
+    //ZZ p_tmp;
+    //conv(p, "97");
+    //IW_1_8 = 8;
+
+    ZZ twiddle_0;
+    ZZ twiddle_1;
+    ZZ twiddle_2;
+    ZZ twiddle_3;
+
+    PowerMod(twiddle_0, IW_1_8, 0, p);
+    PowerMod(twiddle_1, IW_1_8, 1, p);
+    PowerMod(twiddle_2, IW_1_8, 2, p);
+    PowerMod(twiddle_3, IW_1_8, 3, p);
+    //cout << "twiddle_0 = " << twiddle_0 << endl;
+    //cout << "twiddle_1 = " << twiddle_1 << endl;
+    //cout << "twiddle_2 = " << twiddle_2 << endl;
+    //cout << "twiddle_3 = " << twiddle_3 << endl;
+    //------------------------------------------
+	
+    // stage0
+    ZZ st0_BU0_up_out;
+    ZZ st0_BU1_up_out;
+    ZZ st0_BU2_up_out;
+    ZZ st0_BU3_up_out;
+
+    ZZ st0_BU0_down_out;
+    ZZ st0_BU1_down_out;
+    ZZ st0_BU2_down_out;
+    ZZ st0_BU3_down_out;
+
+    AddMod(st0_BU0_up_out, A_in[0], A_in[4], p);
+    AddMod(st0_BU1_up_out, A_in[1], A_in[5], p);
+    AddMod(st0_BU2_up_out, A_in[2], A_in[6], p);
+    AddMod(st0_BU3_up_out, A_in[3], A_in[7], p);
+
+    SubMod(st0_BU0_down_out, A_in[0], A_in[4], p);
+    SubMod(st0_BU1_down_out, A_in[1], A_in[5], p);
+    SubMod(st0_BU2_down_out, A_in[2], A_in[6], p);
+    SubMod(st0_BU3_down_out, A_in[3], A_in[7], p);
+
+    MulMod(st0_BU0_down_out, st0_BU0_down_out, twiddle_0, p);
+    MulMod(st0_BU1_down_out, st0_BU1_down_out, twiddle_1, p);
+    MulMod(st0_BU2_down_out, st0_BU2_down_out, twiddle_2, p);
+    MulMod(st0_BU3_down_out, st0_BU3_down_out, twiddle_3, p);
+
+    // stage1
+    ZZ st1_BU0_up_out;
+    ZZ st1_BU1_up_out;
+    ZZ st1_BU2_up_out;
+    ZZ st1_BU3_up_out;
+
+    ZZ st1_BU0_down_out;
+    ZZ st1_BU1_down_out;
+    ZZ st1_BU2_down_out;
+    ZZ st1_BU3_down_out;
+
+    AddMod(st1_BU0_up_out, st0_BU0_up_out, st0_BU2_up_out, p);
+    AddMod(st1_BU1_up_out, st0_BU1_up_out, st0_BU3_up_out, p);
+    SubMod(st1_BU0_down_out, st0_BU0_up_out, st0_BU2_up_out, p);
+    SubMod(st1_BU1_down_out, st0_BU1_up_out, st0_BU3_up_out, p);
+    MulMod(st1_BU0_down_out, st1_BU0_down_out, twiddle_0, p);
+    MulMod(st1_BU1_down_out, st1_BU1_down_out, twiddle_2, p);
+
+    AddMod(st1_BU2_up_out, st0_BU0_down_out, st0_BU2_down_out, p);
+    AddMod(st1_BU3_up_out, st0_BU1_down_out, st0_BU3_down_out, p);
+    SubMod(st1_BU2_down_out, st0_BU0_down_out, st0_BU2_down_out, p);
+    SubMod(st1_BU3_down_out, st0_BU1_down_out, st0_BU3_down_out, p);
+    MulMod(st1_BU2_down_out, st1_BU2_down_out, twiddle_0, p);
+    MulMod(st1_BU3_down_out, st1_BU3_down_out, twiddle_2, p);
+
+    // stage2
+    ZZ st2_BU0_up_out;
+    ZZ st2_BU1_up_out;
+    ZZ st2_BU2_up_out;
+    ZZ st2_BU3_up_out;
+
+    ZZ st2_BU0_down_out;
+    ZZ st2_BU1_down_out;
+    ZZ st2_BU2_down_out;
+    ZZ st2_BU3_down_out;
+    
+    AddMod(st2_BU0_up_out, st1_BU0_up_out, st1_BU1_up_out, p);
+    SubMod(st2_BU0_down_out, st1_BU0_up_out, st1_BU1_up_out, p);
+
+    AddMod(st2_BU1_up_out,   st1_BU0_down_out, st1_BU1_down_out, p);
+    SubMod(st2_BU1_down_out, st1_BU0_down_out, st1_BU1_down_out, p);
+
+    AddMod(st2_BU2_up_out,   st1_BU2_up_out, st1_BU3_up_out, p);
+    SubMod(st2_BU2_down_out, st1_BU2_up_out, st1_BU3_up_out, p);
+
+    AddMod(st2_BU3_up_out,   st1_BU2_down_out, st1_BU3_down_out, p);
+    SubMod(st2_BU3_down_out, st1_BU2_down_out, st1_BU3_down_out, p);
+	
+	//data output
+	a_r0 = st2_BU0_up_out;
+	a_r1 = st2_BU2_up_out;
+	a_r2 = st2_BU1_up_out;
+	a_r3 = st2_BU3_up_out;
+	a_r4 = st2_BU0_down_out;
+	a_r5 = st2_BU2_down_out;
+	a_r6 = st2_BU1_down_out;
+	a_r7 = st2_BU3_down_out;
+}
+
+void DIF_INWC::INWC_MergeFactor_Radix16_BU(ZZ &a_r0,ZZ &a_r1,ZZ &a_r2,ZZ &a_r3,ZZ &a_r4,ZZ &a_r5,ZZ &a_r6,ZZ &a_r7,
+ZZ &a_r8,ZZ &a_r9,ZZ &a_r10,ZZ &a_r11,ZZ &a_r12,ZZ &a_r13,ZZ &a_r14,ZZ &a_r15){
+	ZZ IW_1_16; // W^(N/8)
+	ZZ twiddle_r16_nk;
+	ZZ data_tmp;
+	unsigned long len_1_16; // N/16
+	
+	len_1_16 = N/16;
+	PowerMod(IW_1_16,IW,len_1_16,p);
+	std::vector<ZZ> A_in;
+	std::vector<ZZ> A_out;
+		
+	A_in.resize(16);
+	A_out.resize(16);
+	//data input 
+	A_in[0]  = a_r0;
+	A_in[1]  = a_r1;
+	A_in[2]  = a_r2;
+	A_in[3]  = a_r3;
+	A_in[4]  = a_r4;
+	A_in[5]  = a_r5;
+	A_in[6]  = a_r6;
+	A_in[7]  = a_r7;
+	A_in[8]  = a_r8;
+	A_in[9]  = a_r9;
+	A_in[10] = a_r10;
+	A_in[11] = a_r11;
+	A_in[12] = a_r12;
+	A_in[13] = a_r13;
+	A_in[14] = a_r14;
+	A_in[15] = a_r15;
+	
+	long  nk_exp;
+	nk_exp = 0;
+	
+	for(int i=0;i<16;i++){
+		A_out[i] = 0;
+	}
+	/*
+	for(long i=0;i<16;i++){
+		for(long j=0;j<16;j++){
+		    nk_exp = i * j;
+			nk_exp = nk_exp % 16;
+			PowerMod(twiddle_r16_nk,IW_1_16,nk_exp, p);
+			MulMod(data_tmp,A_in[j],twiddle_r16_nk,p);
+			AddMod(A_out[i],A_out[i],data_tmp,p);
+		}
+	}*/
+    //--------------twiddle factor--------------
+    //ZZ p_tmp;
+    //conv(p_tmp, "97");
+    //IW_1_16 = 8;
+
+    ZZ twiddle_0;
+    ZZ twiddle_1;
+    ZZ twiddle_2;
+    ZZ twiddle_3;
+    ZZ twiddle_4;
+    ZZ twiddle_5;
+    ZZ twiddle_6;
+    ZZ twiddle_7;
+    PowerMod(twiddle_0, IW_1_16, 0, p);
+    PowerMod(twiddle_1, IW_1_16, 1, p);
+    PowerMod(twiddle_2, IW_1_16, 2, p);
+    PowerMod(twiddle_3, IW_1_16, 3, p);
+    PowerMod(twiddle_4, IW_1_16, 4, p);
+    PowerMod(twiddle_5, IW_1_16, 5, p);
+    PowerMod(twiddle_6, IW_1_16, 6, p);
+    PowerMod(twiddle_7, IW_1_16, 7, p);
+
+    //cout << "twiddle_0 = " << twiddle_0 << endl;
+    //cout << "twiddle_1 = " << twiddle_1 << endl;
+    //cout << "twiddle_2 = " << twiddle_2 << endl;
+    //cout << "twiddle_3 = " << twiddle_3 << endl;
+    //cout << "twiddle_4 = " << twiddle_4 << endl;
+    //cout << "twiddle_5 = " << twiddle_5 << endl;
+    //cout << "twiddle_6 = " << twiddle_6 << endl;
+    //cout << "twiddle_7 = " << twiddle_7 << endl;
+    //------------------------------------------
+
+    // stage0
+    ZZ st0_BU0_up_out;
+    ZZ st0_BU1_up_out;
+    ZZ st0_BU2_up_out;
+    ZZ st0_BU3_up_out;
+    ZZ st0_BU4_up_out;
+    ZZ st0_BU5_up_out;
+    ZZ st0_BU6_up_out;
+    ZZ st0_BU7_up_out;
+
+    ZZ st0_BU0_down_out;
+    ZZ st0_BU1_down_out;
+    ZZ st0_BU2_down_out;
+    ZZ st0_BU3_down_out;
+    ZZ st0_BU4_down_out;
+    ZZ st0_BU5_down_out;
+    ZZ st0_BU6_down_out;
+    ZZ st0_BU7_down_out;
+
+    AddMod(st0_BU0_up_out, A_in[0], A_in[8],  p);
+    AddMod(st0_BU1_up_out, A_in[1], A_in[9],  p);
+    AddMod(st0_BU2_up_out, A_in[2], A_in[10], p);
+    AddMod(st0_BU3_up_out, A_in[3], A_in[11], p);
+    AddMod(st0_BU4_up_out, A_in[4], A_in[12], p);
+    AddMod(st0_BU5_up_out, A_in[5], A_in[13], p);
+    AddMod(st0_BU6_up_out, A_in[6], A_in[14], p);
+    AddMod(st0_BU7_up_out, A_in[7], A_in[15], p);
+
+    SubMod(st0_BU0_down_out, A_in[0], A_in[8],  p);
+    SubMod(st0_BU1_down_out, A_in[1], A_in[9],  p);
+    SubMod(st0_BU2_down_out, A_in[2], A_in[10], p);
+    SubMod(st0_BU3_down_out, A_in[3], A_in[11], p);
+    SubMod(st0_BU4_down_out, A_in[4], A_in[12], p);
+    SubMod(st0_BU5_down_out, A_in[5], A_in[13], p);
+    SubMod(st0_BU6_down_out, A_in[6], A_in[14], p);
+    SubMod(st0_BU7_down_out, A_in[7], A_in[15], p);
+
+    MulMod(st0_BU0_down_out, st0_BU0_down_out, twiddle_0, p);
+    MulMod(st0_BU1_down_out, st0_BU1_down_out, twiddle_1, p);
+    MulMod(st0_BU2_down_out, st0_BU2_down_out, twiddle_2, p);
+    MulMod(st0_BU3_down_out, st0_BU3_down_out, twiddle_3, p);
+    MulMod(st0_BU4_down_out, st0_BU4_down_out, twiddle_4, p);
+    MulMod(st0_BU5_down_out, st0_BU5_down_out, twiddle_5, p);
+    MulMod(st0_BU6_down_out, st0_BU6_down_out, twiddle_6, p);
+    MulMod(st0_BU7_down_out, st0_BU7_down_out, twiddle_7, p);
+
+ 
+    //cout << "st0_BU0_up_out = " << st0_BU0_up_out << ", A_in[0] = " << A_in[0] << ", A_in[8] = " << A_in[8] << endl;
+    //cout << "st0_BU1_up_out = " << st0_BU1_up_out << ", A_in[1] = " << A_in[1] << ", A_in[9] = " << A_in[9] << endl;
+    //cout << "st0_BU2_up_out = " << st0_BU2_up_out << ", A_in[2] = " << A_in[2] << ", A_in[10] = " << A_in[10] << endl;
+    //cout << "st0_BU3_up_out = " << st0_BU3_up_out << ", A_in[3] = " << A_in[3] << ", A_in[11] = " << A_in[11] << endl;
+    //cout << "st0_BU4_up_out = " << st0_BU4_up_out << ", A_in[4] = " << A_in[4] << ", A_in[12] = " << A_in[12] << endl;
+    //cout << "st0_BU5_up_out = " << st0_BU5_up_out << ", A_in[5] = " << A_in[5] << ", A_in[13] = " << A_in[13] << endl;
+    //cout << "st0_BU6_up_out = " << st0_BU6_up_out << ", A_in[6] = " << A_in[6] << ", A_in[14] = " << A_in[14] << endl;
+    //cout << "st0_BU7_up_out = " << st0_BU7_up_out << ", A_in[7] = " << A_in[7] << ", A_in[15] = " << A_in[15] << endl;
+//
+    //cout << "st0_BU0_down_out = " << st0_BU0_down_out << ", A_in[0] = " << A_in[0] << ", A_in[8] = " << A_in[8] << endl;
+    //cout << "st0_BU1_down_out = " << st0_BU1_down_out << ", A_in[1] = " << A_in[1] << ", A_in[9] = " << A_in[9] << endl;
+    //cout << "st0_BU2_down_out = " << st0_BU2_down_out << ", A_in[2] = " << A_in[2] << ", A_in[10] = " << A_in[10] << endl;
+    //cout << "st0_BU3_down_out = " << st0_BU3_down_out << ", A_in[3] = " << A_in[3] << ", A_in[11] = " << A_in[11] << endl;
+    //cout << "st0_BU4_down_out = " << st0_BU4_down_out << ", A_in[4] = " << A_in[4] << ", A_in[12] = " << A_in[12] << endl;
+    //cout << "st0_BU5_down_out = " << st0_BU5_down_out << ", A_in[5] = " << A_in[5] << ", A_in[13] = " << A_in[13] << endl;
+    //cout << "st0_BU6_down_out = " << st0_BU6_down_out << ", A_in[6] = " << A_in[6] << ", A_in[14] = " << A_in[14] << endl;
+    //cout << "st0_BU7_down_out = " << st0_BU7_down_out << ", A_in[7] = " << A_in[7] << ", A_in[15] = " << A_in[15] << endl;
+    
+
+    // stage1
+    ZZ st1_BU0_up_out;
+    ZZ st1_BU1_up_out;
+    ZZ st1_BU2_up_out;
+    ZZ st1_BU3_up_out;
+    ZZ st1_BU4_up_out;
+    ZZ st1_BU5_up_out;
+    ZZ st1_BU6_up_out;
+    ZZ st1_BU7_up_out;
+
+    ZZ st1_BU0_down_out;
+    ZZ st1_BU1_down_out;
+    ZZ st1_BU2_down_out;
+    ZZ st1_BU3_down_out;
+    ZZ st1_BU4_down_out;
+    ZZ st1_BU5_down_out;
+    ZZ st1_BU6_down_out;
+    ZZ st1_BU7_down_out;
+
+    AddMod(st1_BU0_up_out, st0_BU0_up_out, st0_BU4_up_out,   p);
+    AddMod(st1_BU1_up_out, st0_BU1_up_out, st0_BU5_up_out,   p);
+    AddMod(st1_BU2_up_out, st0_BU2_up_out, st0_BU6_up_out,   p);
+    AddMod(st1_BU3_up_out, st0_BU3_up_out, st0_BU7_up_out,   p);
+    SubMod(st1_BU0_down_out, st0_BU0_up_out, st0_BU4_up_out, p);
+    SubMod(st1_BU1_down_out, st0_BU1_up_out, st0_BU5_up_out, p);
+    SubMod(st1_BU2_down_out, st0_BU2_up_out, st0_BU6_up_out, p);
+    SubMod(st1_BU3_down_out, st0_BU3_up_out, st0_BU7_up_out, p);
+    
+    MulMod(st1_BU0_down_out, st1_BU0_down_out, twiddle_0, p);
+    MulMod(st1_BU1_down_out, st1_BU1_down_out, twiddle_2, p);
+    MulMod(st1_BU2_down_out, st1_BU2_down_out, twiddle_4, p);
+    MulMod(st1_BU3_down_out, st1_BU3_down_out, twiddle_6, p);
+
+
+    AddMod(st1_BU4_up_out, st0_BU0_down_out, st0_BU4_down_out,   p);
+    AddMod(st1_BU5_up_out, st0_BU1_down_out, st0_BU5_down_out,   p);
+    AddMod(st1_BU6_up_out, st0_BU2_down_out, st0_BU6_down_out,   p);
+    AddMod(st1_BU7_up_out, st0_BU3_down_out, st0_BU7_down_out,   p);
+    SubMod(st1_BU4_down_out, st0_BU0_down_out, st0_BU4_down_out, p);
+    SubMod(st1_BU5_down_out, st0_BU1_down_out, st0_BU5_down_out, p);
+    SubMod(st1_BU6_down_out, st0_BU2_down_out, st0_BU6_down_out, p);
+    SubMod(st1_BU7_down_out, st0_BU3_down_out, st0_BU7_down_out, p);
+
+    MulMod(st1_BU4_down_out, st1_BU4_down_out, twiddle_0, p);
+    MulMod(st1_BU5_down_out, st1_BU5_down_out, twiddle_2, p);
+    MulMod(st1_BU6_down_out, st1_BU6_down_out, twiddle_4, p);
+    MulMod(st1_BU7_down_out, st1_BU7_down_out, twiddle_6, p);
+
+    //cout << "----------------------------" << endl;
+    //cout << "st1_BU0_up_out = " << st1_BU0_up_out << ", st0_BU0_up_out = " << st0_BU0_up_out << ", st0_BU4_up_out  = " << st0_BU4_up_out << endl;
+    //cout << "st1_BU1_up_out = " << st1_BU1_up_out << ", st0_BU1_up_out = " << st0_BU1_up_out << ", st0_BU5_up_out  = " << st0_BU5_up_out << endl;
+    //cout << "st1_BU2_up_out = " << st1_BU2_up_out << ", st0_BU2_up_out = " << st0_BU2_up_out << ", st0_BU6_up_out  = " << st0_BU6_up_out << endl;
+    //cout << "st1_BU3_up_out = " << st1_BU3_up_out << ", st0_BU3_up_out = " << st0_BU3_up_out << ", st0_BU7_up_out  = " << st0_BU7_up_out << endl;
+    //
+    //cout << "st1_BU0_down_out = " << st1_BU0_down_out << ", st0_BU0_up_out = " << st0_BU0_up_out << ", st0_BU4_up_out  = " << st0_BU4_up_out << endl;
+    //cout << "st1_BU1_down_out = " << st1_BU1_down_out << ", st0_BU1_up_out = " << st0_BU1_up_out << ", st0_BU5_up_out  = " << st0_BU5_up_out << endl;
+    //cout << "st1_BU2_down_out = " << st1_BU2_down_out << ", st0_BU2_up_out = " << st0_BU2_up_out << ", st0_BU6_up_out  = " << st0_BU6_up_out << endl;
+    //cout << "st1_BU3_down_out = " << st1_BU3_down_out << ", st0_BU3_up_out = " << st0_BU3_up_out << ", st0_BU7_up_out  = " << st0_BU7_up_out << endl;
+//
+    //cout << "st1_BU4_up_out = " << st1_BU4_up_out << ", st0_BU0_down_out = " << st0_BU0_down_out << ", st0_BU4_down_out  = " << st0_BU4_down_out << endl;
+    //cout << "st1_BU5_up_out = " << st1_BU5_up_out << ", st0_BU1_down_out = " << st0_BU1_down_out << ", st0_BU5_down_out  = " << st0_BU5_down_out << endl;
+    //cout << "st1_BU6_up_out = " << st1_BU6_up_out << ", st0_BU2_down_out = " << st0_BU2_down_out << ", st0_BU6_down_out  = " << st0_BU6_down_out << endl;
+    //cout << "st1_BU7_up_out = " << st1_BU7_up_out << ", st0_BU3_down_out = " << st0_BU3_down_out << ", st0_BU7_down_out  = " << st0_BU7_down_out << endl;
+    //cout << "st1_BU4_down_out = " << st1_BU4_down_out << ", st0_BU0_down_out = " << st0_BU0_down_out << ", st0_BU4_down_out  = " << st0_BU4_down_out << endl;
+    //cout << "st1_BU5_down_out = " << st1_BU5_down_out << ", st0_BU1_down_out = " << st0_BU1_down_out << ", st0_BU5_down_out  = " << st0_BU5_down_out << endl;
+    //cout << "st1_BU6_down_out = " << st1_BU6_down_out << ", st0_BU2_down_out = " << st0_BU2_down_out << ", st0_BU6_down_out  = " << st0_BU6_down_out << endl;
+    //cout << "st1_BU7_down_out = " << st1_BU7_down_out << ", st0_BU3_down_out = " << st0_BU3_down_out << ", st0_BU7_down_out  = " << st0_BU7_down_out << endl;
+    // stage2
+    ZZ st2_BU0_up_out;
+    ZZ st2_BU1_up_out;
+    ZZ st2_BU2_up_out;
+    ZZ st2_BU3_up_out;
+    ZZ st2_BU4_up_out;
+    ZZ st2_BU5_up_out;
+    ZZ st2_BU6_up_out;
+    ZZ st2_BU7_up_out;
+
+    ZZ st2_BU0_down_out;
+    ZZ st2_BU1_down_out;
+    ZZ st2_BU2_down_out;
+    ZZ st2_BU3_down_out;
+    ZZ st2_BU4_down_out;
+    ZZ st2_BU5_down_out;
+    ZZ st2_BU6_down_out;
+    ZZ st2_BU7_down_out;
+
+    AddMod(st2_BU0_up_out, st1_BU0_up_out, st1_BU2_up_out,   p);
+    AddMod(st2_BU1_up_out, st1_BU1_up_out, st1_BU3_up_out,   p);
+    SubMod(st2_BU0_down_out, st1_BU0_up_out, st1_BU2_up_out, p);
+    SubMod(st2_BU1_down_out, st1_BU1_up_out, st1_BU3_up_out, p);
+    MulMod(st2_BU1_down_out, st2_BU1_down_out, twiddle_4,    p);
+
+    AddMod(st2_BU2_up_out, st1_BU0_down_out, st1_BU2_down_out,   p);
+    AddMod(st2_BU3_up_out, st1_BU1_down_out, st1_BU3_down_out,   p);
+    SubMod(st2_BU2_down_out, st1_BU0_down_out, st1_BU2_down_out, p);
+    SubMod(st2_BU3_down_out, st1_BU1_down_out, st1_BU3_down_out, p);
+    MulMod(st2_BU3_down_out, st2_BU3_down_out, twiddle_4,        p);
+
+	AddMod(st2_BU4_up_out, st1_BU4_up_out, st1_BU6_up_out,   p);
+    AddMod(st2_BU5_up_out, st1_BU5_up_out, st1_BU7_up_out,   p);
+    SubMod(st2_BU4_down_out, st1_BU4_up_out, st1_BU6_up_out, p);
+    SubMod(st2_BU5_down_out, st1_BU5_up_out, st1_BU7_up_out, p);
+    MulMod(st2_BU5_down_out, st2_BU5_down_out, twiddle_4,    p);
+
+    AddMod(st2_BU6_up_out, st1_BU4_down_out, st1_BU6_down_out,   p);
+    AddMod(st2_BU7_up_out, st1_BU5_down_out, st1_BU7_down_out,   p);
+    SubMod(st2_BU6_down_out, st1_BU4_down_out, st1_BU6_down_out, p);
+    SubMod(st2_BU7_down_out, st1_BU5_down_out, st1_BU7_down_out, p);
+    MulMod(st2_BU7_down_out, st2_BU7_down_out, twiddle_4,        p);
+
+    //cout << "----------------------------" << endl;
+    //cout << "st2_BU0_up_out = " << st2_BU0_up_out << ", st1_BU0_up_out = " << st1_BU0_up_out << ", st1_BU2_up_out  = " << st1_BU2_up_out << endl;
+    //cout << "st2_BU1_up_out = " << st2_BU1_up_out << ", st1_BU1_up_out = " << st1_BU1_up_out << ", st1_BU3_up_out  = " << st1_BU3_up_out << endl;
+    //cout << "st2_BU0_down_out = " << st2_BU0_down_out << ", st1_BU0_up_out = " << st1_BU0_up_out << ", st1_BU2_up_out  = " << st1_BU2_up_out << endl;
+    //cout << "st2_BU1_down_out = " << st2_BU1_down_out << ", st1_BU1_up_out = " << st1_BU1_up_out << ", st1_BU3_up_out  = " << st1_BU3_up_out << endl;
+//
+    //cout << "st2_BU2_up_out = " << st2_BU2_up_out << ", st1_BU0_down_out = " << st1_BU0_down_out << ", st1_BU2_down_out  = " << st1_BU2_down_out << endl;
+    //cout << "st2_BU3_up_out = " << st2_BU3_up_out << ", st1_BU1_down_out = " << st1_BU1_down_out << ", st1_BU3_down_out  = " << st1_BU3_down_out << endl;
+    //cout << "st2_BU2_down_out = " << st2_BU2_down_out << ", st1_BU0_down_out = " << st1_BU0_down_out << ", st1_BU2_down_out  = " << st1_BU2_down_out << endl;
+    //cout << "st2_BU3_down_out = " << st2_BU3_down_out << ", st1_BU1_down_out = " << st1_BU1_down_out << ", st1_BU3_down_out  = " << st1_BU3_down_out << endl;
+    //
+    //cout << "st2_BU4_up_out = " << st2_BU4_up_out << ", st1_BU4_up_out = " << st1_BU4_up_out << ", st1_BU6_up_out  = " << st1_BU6_up_out << endl;
+    //cout << "st2_BU5_up_out = " << st2_BU5_up_out << ", st1_BU5_up_out = " << st1_BU5_up_out << ", st1_BU7_up_out  = " << st1_BU7_up_out << endl;
+    //cout << "st2_BU4_down_out = " << st2_BU4_down_out << ", st1_BU4_up_out = " << st1_BU4_up_out << ", st1_BU6_up_out  = " << st1_BU6_up_out << endl;
+    //cout << "st2_BU5_down_out = " << st2_BU5_down_out << ", st1_BU5_up_out = " << st1_BU5_up_out << ", st1_BU7_up_out  = " << st1_BU7_up_out << endl;
+    //
+    //cout << "st2_BU6_up_out = " << st2_BU6_up_out << ", st1_BU4_down_out = " << st1_BU4_down_out << ", st1_BU6_down_out  = " << st1_BU6_down_out << endl;
+    //cout << "st2_BU7_up_out = " << st2_BU7_up_out << ", st1_BU5_down_out = " << st1_BU5_down_out << ", st1_BU7_down_out  = " << st1_BU7_down_out << endl;
+    //cout << "st2_BU6_down_out = " << st2_BU6_down_out << ", st1_BU4_down_out = " << st1_BU4_down_out << ", st1_BU4_down_out  = " << st1_BU4_down_out << endl;
+    //cout << "st2_BU7_down_out = " << st2_BU7_down_out << ", st1_BU5_down_out = " << st1_BU5_down_out << ", st1_BU5_down_out  = " << st1_BU5_down_out << endl;
+    // stage3
+    ZZ st3_BU0_up_out;
+    ZZ st3_BU1_up_out;
+    ZZ st3_BU2_up_out;
+    ZZ st3_BU3_up_out;
+    ZZ st3_BU4_up_out;
+    ZZ st3_BU5_up_out;
+    ZZ st3_BU6_up_out;
+    ZZ st3_BU7_up_out;
+
+    ZZ st3_BU0_down_out;
+    ZZ st3_BU1_down_out;
+    ZZ st3_BU2_down_out;
+    ZZ st3_BU3_down_out;
+    ZZ st3_BU4_down_out;
+    ZZ st3_BU5_down_out;
+    ZZ st3_BU6_down_out;
+    ZZ st3_BU7_down_out;
+
+    AddMod(st3_BU0_up_out, st2_BU0_up_out, st2_BU1_up_out,   p);
+    SubMod(st3_BU0_down_out, st2_BU0_up_out, st2_BU1_up_out, p);
+    
+    AddMod(st3_BU1_up_out, st2_BU0_down_out, st2_BU1_down_out,   p);
+    SubMod(st3_BU1_down_out, st2_BU0_down_out, st2_BU1_down_out, p);
+
+    AddMod(st3_BU2_up_out, st2_BU2_up_out, st2_BU3_up_out,   p);
+    SubMod(st3_BU2_down_out, st2_BU2_up_out, st2_BU3_up_out, p);
+
+    AddMod(st3_BU3_up_out, st2_BU2_down_out, st2_BU3_down_out,   p);
+    SubMod(st3_BU3_down_out, st2_BU2_down_out, st2_BU3_down_out, p);
+
+    AddMod(st3_BU4_up_out, st2_BU4_up_out, st2_BU5_up_out,   p);
+    SubMod(st3_BU4_down_out, st2_BU4_up_out, st2_BU5_up_out, p);
+
+    AddMod(st3_BU5_up_out, st2_BU4_down_out, st2_BU5_down_out,   p);
+    SubMod(st3_BU5_down_out, st2_BU4_down_out, st2_BU5_down_out, p);
+
+    AddMod(st3_BU6_up_out, st2_BU6_up_out, st2_BU7_up_out,   p);
+    SubMod(st3_BU6_down_out, st2_BU6_up_out, st2_BU7_up_out, p);
+
+    AddMod(st3_BU7_up_out, st2_BU6_down_out, st2_BU7_down_out,   p);
+    SubMod(st3_BU7_down_out, st2_BU6_down_out, st2_BU7_down_out, p);
+
+
+    //cout << "----------------------------" << endl;
+    //cout << "st3_BU0_up_out = " << st3_BU0_up_out << ", st2_BU0_up_out = " << st2_BU0_up_out << ", st2_BU1_up_out  = " << st2_BU1_up_out << endl;
+	//cout << "st3_BU0_down_out = " << st3_BU0_down_out << ", st2_BU0_up_out = " << st2_BU0_up_out << ", st2_BU1_up_out  = " << st2_BU1_up_out << endl;
+    //
+    //cout << "st3_BU1_up_out = " << st3_BU1_up_out << ", st2_BU0_down_out = " << st2_BU0_down_out << ", st2_BU1_down_out  = " << st2_BU1_down_out << endl;
+	//cout << "st3_BU1_down_out = " << st3_BU1_down_out << ", st2_BU0_down_out = " << st2_BU0_down_out << ", st2_BU1_down_out  = " << st2_BU1_down_out << endl;
+    //
+    //cout << "st3_BU2_up_out = " << st3_BU2_up_out << ", st2_BU2_up_out = " << st2_BU2_up_out << ", st2_BU3_up_out  = " << st2_BU3_up_out << endl;
+	//cout << "st3_BU2_down_out = " << st3_BU2_down_out << ", st2_BU2_up_out = " << st2_BU2_up_out << ", st2_BU3_up_out  = " << st2_BU3_up_out << endl;
+    //
+    //cout << "st3_BU3_up_out = " << st3_BU3_up_out << ", st2_BU2_down_out = " << st2_BU2_down_out << ", st2_BU3_down_out  = " << st2_BU3_down_out << endl;
+	//cout << "st3_BU3_down_out = " << st3_BU3_down_out << ", st2_BU2_down_out = " << st2_BU2_down_out << ", st2_BU3_down_out  = " << st2_BU3_down_out << endl;
+//
+    //cout << "st3_BU4_up_out = " << st3_BU4_up_out << ", st2_BU4_up_out = " << st2_BU4_up_out << ", st2_BU5_up_out  = " << st2_BU5_up_out << endl;
+	//cout << "st3_BU4_down_out = " << st3_BU4_down_out << ", st2_BU4_up_out = " << st2_BU4_up_out << ", st2_BU5_up_out  = " << st2_BU5_up_out << endl;
+//
+    //cout << "st3_BU5_up_out = " << st3_BU5_up_out << ", st2_BU4_down_out = " << st2_BU4_down_out << ", st2_BU5_down_out  = " << st2_BU5_down_out << endl;
+	//cout << "st3_BU5_down_out = " << st3_BU5_down_out << ", st2_BU4_down_out = " << st2_BU4_down_out << ", st2_BU5_down_out  = " << st2_BU5_down_out << endl;
+//
+    //cout << "st3_BU6_up_out = " << st3_BU6_up_out << ", st2_BU6_up_out = " << st2_BU6_up_out << ", st2_BU7_up_out  = " << st2_BU5_down_out << endl;
+	//cout << "st3_BU6_down_out = " << st3_BU6_down_out << ", st2_BU6_up_out = " << st2_BU6_up_out << ", st2_BU7_up_out  = " << st2_BU5_down_out << endl;
+//
+    //cout << "st3_BU7_up_out = " << st3_BU7_up_out << ", st2_BU6_down_out = " << st2_BU6_down_out << ", st2_BU7_down_out  = " << st2_BU7_down_out << endl;
+	//cout << "st3_BU7_down_out = " << st3_BU7_down_out << ", st2_BU6_down_out = " << st2_BU6_down_out << ", st2_BU7_down_out  = " << st2_BU7_down_out << endl;
+    //data output
+	a_r0 = st3_BU0_up_out;
+	a_r1 = st3_BU4_up_out;
+	a_r2 = st3_BU2_up_out;
+	a_r3 = st3_BU6_up_out;
+	a_r4 = st3_BU1_up_out;
+	a_r5 = st3_BU5_up_out;
+	a_r6 = st3_BU3_up_out;
+	a_r7 = st3_BU7_up_out;
+	a_r8 = st3_BU0_down_out;
+	a_r9 = st3_BU4_down_out;
+	a_r10 = st3_BU2_down_out;
+	a_r11 = st3_BU6_down_out;
+	a_r12 = st3_BU1_down_out;
+	a_r13 = st3_BU5_down_out;
+	a_r14 = st3_BU3_down_out;
+	a_r15 = st3_BU7_down_out;
+}
+
 void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
 	int            Stage;//stage	
 	int            word_size;
@@ -248,7 +805,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
                         case 0:
                             INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp] << ", st0_Tw[0] = " << st0_Tw[0] << endl;
 					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", st0_Tw[1] = " << st0_Tw[1] << endl;
-					        if(!debug) INWC_Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
+					        if(!debug) INWC_MergeFactor_Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
 							//--------------------compute for INWC--------------------------
 							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st0_Tw[0],p);
 							if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],st0_Tw[1],p);
@@ -257,7 +814,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
                         case 1:
                             INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp] << ", st1_Tw[0] = " << st1_Tw[0] << endl;
 					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", st1_Tw[1] = " << st1_Tw[1] << endl;
-					        if(!debug) INWC_Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
+					        if(!debug) INWC_MergeFactor_Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
 							//--------------------compute for INWC--------------------------
 							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st1_Tw[0],p);
 							if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],st1_Tw[1],p);
@@ -266,7 +823,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
                         case 2:
                             INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp] << ", st2_Tw[0] = " << st2_Tw[0] << endl;
 					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", st2_Tw[1] = " << st2_Tw[1] << endl;
-					        if(!debug) INWC_Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
+					        if(!debug) INWC_MergeFactor_Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
 							//--------------------compute for INWC--------------------------
 							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st2_Tw[0],p);
 							if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],st2_Tw[1],p);
@@ -275,7 +832,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
                         case 3:
                             INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp] << ", st3_Tw[0] = " << st3_Tw[0] << endl;
 					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp] << ", st3_Tw[1] = " << st3_Tw[1] << endl;
-					        if(!debug) INWC_Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
+					        if(!debug) INWC_MergeFactor_Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
 							//--------------------compute for INWC--------------------------
 							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st3_Tw[0],p);
 							if(!debug) MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],st3_Tw[1],p);
@@ -297,7 +854,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
                         case 0:
                             INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st0_Tw[0] = " << st0_Tw[0] << endl;
 					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st0_Tw[1] = " << st0_Tw[1] << endl;
-					        if(!debug) INWC_Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
+					        if(!debug) INWC_MergeFactor_Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
 							//--------------------compute for INWC--------------------------
 							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st0_Tw[0],p);
 							if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],st0_Tw[1],p);  
@@ -306,7 +863,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
                         case 1:
                             INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st1_Tw[0] = " << st1_Tw[0] << endl;
 					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st1_Tw[1] = " << st1_Tw[1] << endl;
-					        if(!debug) INWC_Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
+					        if(!debug) INWC_MergeFactor_Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
 							//--------------------compute for INWC--------------------------
 							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st1_Tw[0],p);
 							if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],st1_Tw[1],p);  
@@ -315,7 +872,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
                         case 2:
                             INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st2_Tw[0] = " << st2_Tw[0] << endl;
 					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st2_Tw[1] = " << st2_Tw[1] << endl;
-					        if(!debug) INWC_Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
+					        if(!debug) INWC_MergeFactor_Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
 							//--------------------compute for INWC--------------------------
 							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st2_Tw[0],p);
 							if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],st2_Tw[1],p);  
@@ -324,7 +881,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix2(std::vector<ZZ> &A){
                         case 3:
                             INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<< ", st3_Tw[0] = " << st3_Tw[0] << endl;
 					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st3_Tw[1] = " << st3_Tw[1] << endl;
-					        if(!debug) INWC_Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
+					        if(!debug) INWC_MergeFactor_Radix2_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp]);
 							//--------------------compute for INWC--------------------------
 							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st3_Tw[0],p);
 							if(!debug) MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],st3_Tw[1],p);  
@@ -650,7 +1207,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: " <<A_B0R1[ma_tmp] << ", st0_Tw[1] = " << st0_Tw[1] << endl;
 					        INWC_DATARECORD <<"A_B0R2["<<ma_tmp<<"]: " <<A_B0R2[ma_tmp] << ", st0_Tw[2] = " << st0_Tw[2] << endl;
 					        INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: " <<A_B0R3[ma_tmp] << ", st0_Tw[3] = " << st0_Tw[3] << endl;      
-							if(!debug) INWC_Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
+							if(!debug) INWC_MergeFactor_Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
 					        INWC_DATARECORD <<"-------------------" << std::endl;
 			
                             if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st0_Tw[0],p);
@@ -664,7 +1221,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: " <<A_B0R1[ma_tmp] << ", st1_Tw[1] = " << st1_Tw[1] << endl;
 					        INWC_DATARECORD <<"A_B0R2["<<ma_tmp<<"]: " <<A_B0R2[ma_tmp] << ", st1_Tw[2] = " << st1_Tw[2] << endl;
 					        INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: " <<A_B0R3[ma_tmp] << ", st1_Tw[3] = " << st1_Tw[3] << endl;
-					        if(!debug) INWC_Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
+					        if(!debug) INWC_MergeFactor_Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
 					        INWC_DATARECORD <<"-------------------" << std::endl;
 							
                             if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st1_Tw[0],p);
@@ -678,7 +1235,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: " <<A_B0R1[ma_tmp] << ", st2_Tw[1] = " << st2_Tw[1] << endl;
 					        INWC_DATARECORD <<"A_B0R2["<<ma_tmp<<"]: " <<A_B0R2[ma_tmp] << ", st2_Tw[2] = " << st2_Tw[2] << endl;
 					        INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: " <<A_B0R3[ma_tmp] << ", st2_Tw[3] = " << st2_Tw[3] << endl;
-					        if(!debug) INWC_Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
+					        if(!debug) INWC_MergeFactor_Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
 					        INWC_DATARECORD <<"-------------------" << std::endl;
 							
                             if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st2_Tw[0],p);
@@ -692,7 +1249,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: " <<A_B0R1[ma_tmp] << ", st3_Tw[1] = " << st3_Tw[1] << endl;
 					        INWC_DATARECORD <<"A_B0R2["<<ma_tmp<<"]: " <<A_B0R2[ma_tmp] << ", st3_Tw[2] = " << st3_Tw[2] << endl;
 					        INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: " <<A_B0R3[ma_tmp] << ", st3_Tw[3] = " << st3_Tw[3] << endl;
-					        if(!debug) INWC_Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
+					        if(!debug) INWC_MergeFactor_Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
 					        INWC_DATARECORD <<"-------------------" << std::endl;
 							
 							if(!debug) MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],st3_Tw[0],p);
@@ -723,7 +1280,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st0_Tw[1] = " << st0_Tw[1] << endl;
 					        INWC_DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<< ", st0_Tw[2] = " << st0_Tw[2] << endl;
 					        INWC_DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<< ", st0_Tw[3] = " << st0_Tw[3] << endl;
-                            if(!debug) INWC_Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
+                            if(!debug) INWC_MergeFactor_Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
 					        INWC_DATARECORD <<"-------------------" << std::endl;
 							
                             if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st0_Tw[0],p);
@@ -737,7 +1294,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st1_Tw[1] = " << st1_Tw[1] << endl;
 					        INWC_DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<< ", st1_Tw[2] = " << st1_Tw[2] << endl;
 					        INWC_DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<< ", st1_Tw[3] = " << st1_Tw[3] << endl;
-                            if(!debug) INWC_Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
+                            if(!debug) INWC_MergeFactor_Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
 					        INWC_DATARECORD <<"-------------------" << std::endl;
 							
                             if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st1_Tw[0],p);
@@ -751,7 +1308,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st2_Tw[1] = " << st2_Tw[1] << endl;
 					        INWC_DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<< ", st2_Tw[2] = " << st2_Tw[2] << endl;
 					        INWC_DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<< ", st2_Tw[3] = " << st2_Tw[3] << endl;
-                            if(!debug) INWC_Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
+                            if(!debug) INWC_MergeFactor_Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
 					        INWC_DATARECORD <<"-------------------" << std::endl;
 							
                             if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st2_Tw[0],p);
@@ -765,7 +1322,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix4(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<< ", st3_Tw[1] = " << st3_Tw[1] << endl;
 					        INWC_DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<< ", st3_Tw[2] = " << st3_Tw[2] << endl;
 					        INWC_DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<< ", st3_Tw[3] = " << st3_Tw[3] << endl;
-                            if(!debug) INWC_Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
+                            if(!debug) INWC_MergeFactor_Radix4_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp],A_B1R2[ma_tmp],A_B1R3[ma_tmp]);
 					        INWC_DATARECORD <<"-------------------" << std::endl;
 							
 							if(!debug) MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],st3_Tw[0],p);
@@ -1255,7 +1812,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<" A_B0R14["<<ma_tmp<<"]: "<<A_B0R14[ma_tmp] << ", st0_Tw[14] = " << st0_Tw[14] << endl;   
 					        INWC_DATARECORD <<" A_B0R15["<<ma_tmp<<"]: "<<A_B0R15[ma_tmp] << ", st0_Tw[15] = " << st0_Tw[15] << endl;   
 
-							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 							   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 							   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 							   A_B0R15[ma_tmp]);
@@ -1295,7 +1852,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<" A_B0R14["<<ma_tmp<<"]: "<<A_B0R14[ma_tmp] << ", st1_Tw[14] = " << st1_Tw[14] << endl;   
 					        INWC_DATARECORD <<" A_B0R15["<<ma_tmp<<"]: "<<A_B0R15[ma_tmp] << ", st1_Tw[15] = " << st1_Tw[15] << endl;   
                             
-							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 							   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 							   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 							   A_B0R15[ma_tmp]);
@@ -1335,7 +1892,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<" A_B0R14["<<ma_tmp<<"]: "<<A_B0R14[ma_tmp] << ", st2_Tw[14] = " << st2_Tw[14] << endl;   
 					        INWC_DATARECORD <<" A_B0R15["<<ma_tmp<<"]: "<<A_B0R15[ma_tmp] << ", st2_Tw[15] = " << st2_Tw[15] << endl;   
                             
-							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 							   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 							   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 							   A_B0R15[ma_tmp]);
@@ -1375,7 +1932,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<" A_B0R14["<<ma_tmp<<"]: "<<A_B0R14[ma_tmp] << ", st3_Tw[14] = " << st3_Tw[14] << endl;   
 					        INWC_DATARECORD <<" A_B0R15["<<ma_tmp<<"]: "<<A_B0R15[ma_tmp] << ", st3_Tw[15] = " << st3_Tw[15] << endl;   
                             
-							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 							   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 							   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 							   A_B0R15[ma_tmp]);
@@ -1446,7 +2003,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<" A_B1R14["<<ma_tmp<<"]: "<<A_B1R14[ma_tmp] << ", st0_Tw[14] = " << st0_Tw[14] << endl;    
 					        INWC_DATARECORD <<" A_B1R15["<<ma_tmp<<"]: "<<A_B1R15[ma_tmp] << ", st0_Tw[15] = " << st0_Tw[15] << endl;    
                             
-							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 					        		   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 					        		   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 					        		   A_B1R15[ma_tmp]);
@@ -1486,7 +2043,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<" A_B1R14["<<ma_tmp<<"]: "<<A_B1R14[ma_tmp] << ", st1_Tw[14] = " << st1_Tw[14] << endl;    
 					        INWC_DATARECORD <<" A_B1R15["<<ma_tmp<<"]: "<<A_B1R15[ma_tmp] << ", st1_Tw[15] = " << st1_Tw[15] << endl;    
                             
-							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 					        		   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 					        		   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 					        		   A_B1R15[ma_tmp]);
@@ -1526,7 +2083,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<" A_B1R14["<<ma_tmp<<"]: "<<A_B1R14[ma_tmp] << ", st2_Tw[14] = " << st2_Tw[14] << endl;    
 					        INWC_DATARECORD <<" A_B1R15["<<ma_tmp<<"]: "<<A_B1R15[ma_tmp] << ", st2_Tw[15] = " << st2_Tw[15] << endl;    
                             
-							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 					        		   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 					        		   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 					        		   A_B1R15[ma_tmp]);
@@ -1566,7 +2123,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        INWC_DATARECORD <<" A_B1R14["<<ma_tmp<<"]: "<<A_B1R14[ma_tmp] << ", st3_Tw[14] = " << st3_Tw[14] << endl;    
 					        INWC_DATARECORD <<" A_B1R15["<<ma_tmp<<"]: "<<A_B1R15[ma_tmp] << ", st3_Tw[15] = " << st3_Tw[15] << endl;    
                             
-							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 					        		   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 					        		   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 					        		   A_B1R15[ma_tmp]);
@@ -2890,7 +3447,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r2(std::vector<ZZ> &A,std::vector<ZZ> &B
 				    		INWC_DATARECORD << "A_B0R14["<< ma_tmp <<"]: "<< A_B0R14[ma_tmp]<< ", st0_Tw[14] = " << st0_Tw[14] << endl;
 				    		INWC_DATARECORD << "A_B0R15["<< ma_tmp <<"]: "<< A_B0R15[ma_tmp]<< ", st0_Tw[15] = " << st0_Tw[15] << endl;
 							
-							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 									   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 									   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 									   A_B0R15[ma_tmp]);
@@ -2930,7 +3487,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r2(std::vector<ZZ> &A,std::vector<ZZ> &B
 				    		INWC_DATARECORD << "A_B0R14["<< ma_tmp <<"]: "<< A_B0R14[ma_tmp]	<< ", st1_Tw[14] = " << st1_Tw[14] << endl;
 				    		INWC_DATARECORD << "A_B0R15["<< ma_tmp <<"]: "<< A_B0R15[ma_tmp]	<< ", st1_Tw[15] = " << st1_Tw[15] << endl;
 							
-							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 									   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 									   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 									   A_B0R15[ma_tmp]);
@@ -2970,7 +3527,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r2(std::vector<ZZ> &A,std::vector<ZZ> &B
 				    		INWC_DATARECORD << "A_B0R14["<< ma_tmp <<"]: "<< A_B0R14[ma_tmp]	<< ", st2_Tw[14] = " << st2_Tw[14] << endl;
 				    		INWC_DATARECORD << "A_B0R15["<< ma_tmp <<"]: "<< A_B0R15[ma_tmp]	<< ", st2_Tw[15] = " << st2_Tw[15] << endl;
 							
-							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 									   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 									   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 									   A_B0R15[ma_tmp]);
@@ -3040,7 +3597,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r2(std::vector<ZZ> &A,std::vector<ZZ> &B
 				    		INWC_DATARECORD << "A_B1R14["<< ma_tmp <<"]: "<< A_B1R14[ma_tmp]	<< ", st0_Tw[14] = " << st0_Tw[14] << endl;
 				    		INWC_DATARECORD << "A_B1R15["<< ma_tmp <<"]: "<< A_B1R15[ma_tmp]	<< ", st0_Tw[15] = " << st0_Tw[15] << endl;					
 							
-							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 									   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 									   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 									   A_B1R15[ma_tmp]);
@@ -3080,7 +3637,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r2(std::vector<ZZ> &A,std::vector<ZZ> &B
 				    		INWC_DATARECORD << "A_B1R14["<< ma_tmp <<"]: "<< A_B1R14[ma_tmp]	<< ", st1_Tw[14] = " << st1_Tw[14] << endl;
 				    		INWC_DATARECORD << "A_B1R15["<< ma_tmp <<"]: "<< A_B1R15[ma_tmp]	<< ", st1_Tw[15] = " << st1_Tw[15] << endl;					
 							
-							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 									   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 									   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 									   A_B1R15[ma_tmp]);
@@ -3120,7 +3677,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r2(std::vector<ZZ> &A,std::vector<ZZ> &B
 				    		INWC_DATARECORD << "A_B1R14["<< ma_tmp <<"]: "<< A_B1R14[ma_tmp]	<< ", st2_Tw[14] = " << st2_Tw[14] << endl;
 				    		INWC_DATARECORD << "A_B1R15["<< ma_tmp <<"]: "<< A_B1R15[ma_tmp]	<< ", st2_Tw[15] = " << st2_Tw[15] << endl;					
 							
-							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 									   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 									   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 									   A_B1R15[ma_tmp]);
@@ -4365,14 +4922,14 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r2(std::vector<ZZ> &A,std::vector<ZZ> &B
         	if(bn_tmp == 0){
         		if(j < 2)bn0_bc_tmp = BC_tmp;
 				
-        		Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
-        		Radix2_BU(A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
-        		Radix2_BU(A_B0R4[ma_tmp],A_B0R5[ma_tmp]);
-        		Radix2_BU(A_B0R6[ma_tmp],A_B0R7[ma_tmp]);
-        		Radix2_BU(A_B0R8[ma_tmp],A_B0R9[ma_tmp]);
-        		Radix2_BU(A_B0R10[ma_tmp],A_B0R11[ma_tmp]);
-        		Radix2_BU(A_B0R12[ma_tmp],A_B0R13[ma_tmp]);
-        		Radix2_BU(A_B0R14[ma_tmp],A_B0R15[ma_tmp]);
+        		INWC_MergeFactor_Radix2_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp]);
+        		INWC_MergeFactor_Radix2_BU(A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
+        		INWC_MergeFactor_Radix2_BU(A_B0R4[ma_tmp],A_B0R5[ma_tmp]);
+        		INWC_MergeFactor_Radix2_BU(A_B0R6[ma_tmp],A_B0R7[ma_tmp]);
+        		INWC_MergeFactor_Radix2_BU(A_B0R8[ma_tmp],A_B0R9[ma_tmp]);
+        		INWC_MergeFactor_Radix2_BU(A_B0R10[ma_tmp],A_B0R11[ma_tmp]);
+        		INWC_MergeFactor_Radix2_BU(A_B0R12[ma_tmp],A_B0R13[ma_tmp]);
+        		INWC_MergeFactor_Radix2_BU(A_B0R14[ma_tmp],A_B0R15[ma_tmp]);
 				//-----------------------computr for INWC--------------------------
 				if(!debug) MulMod(r2_InvPhi_0t_dot_IW, r2_InvPhi_0t_Order, 1, p);
 				if(!debug) MulMod(r2_InvPhi_1t_dot_IW, r2_InvPhi_1t_Order, 1, p);
@@ -5122,7 +5679,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r4(std::vector<ZZ> &A,std::vector<ZZ> &B
 				    		if(display == 1)DIF_DATARECORD << "A_B0R13["<< ma_tmp <<"]: "<< A_B0R13[ma_tmp]	<< ", st0_Tw[13] = " << st0_Tw[13] << endl;	
 				    		if(display == 1)DIF_DATARECORD << "A_B0R14["<< ma_tmp <<"]: "<< A_B0R14[ma_tmp]	<< ", st0_Tw[14] = " << st0_Tw[14] << endl;	
 				    		if(display == 1)DIF_DATARECORD << "A_B0R15["<< ma_tmp <<"]: "<< A_B0R15[ma_tmp]	<< ", st0_Tw[15] = " << st0_Tw[15] << endl;						
-							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 									   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 									   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 									   A_B0R15[ma_tmp]);
@@ -5161,7 +5718,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r4(std::vector<ZZ> &A,std::vector<ZZ> &B
 				    		if(display == 1)DIF_DATARECORD << "A_B0R13["<< ma_tmp <<"]: "<< A_B0R13[ma_tmp]	<< ", st1_Tw[13] = " << st1_Tw[13] << endl;	
 				    		if(display == 1)DIF_DATARECORD << "A_B0R14["<< ma_tmp <<"]: "<< A_B0R14[ma_tmp]	<< ", st1_Tw[14] = " << st1_Tw[14] << endl;	
 				    		if(display == 1)DIF_DATARECORD << "A_B0R15["<< ma_tmp <<"]: "<< A_B0R15[ma_tmp]	<< ", st1_Tw[15] = " << st1_Tw[15] << endl;						
-							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 									   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 									   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 									   A_B0R15[ma_tmp]);
@@ -5200,7 +5757,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r4(std::vector<ZZ> &A,std::vector<ZZ> &B
 				    		if(display == 1)DIF_DATARECORD << "A_B0R13["<< ma_tmp <<"]: "<< A_B0R13[ma_tmp]	<< ", st2_Tw[13] = " << st2_Tw[13] << endl;	
 				    		if(display == 1)DIF_DATARECORD << "A_B0R14["<< ma_tmp <<"]: "<< A_B0R14[ma_tmp]	<< ", st2_Tw[14] = " << st2_Tw[14] << endl;	
 				    		if(display == 1)DIF_DATARECORD << "A_B0R15["<< ma_tmp <<"]: "<< A_B0R15[ma_tmp]	<< ", st2_Tw[15] = " << st2_Tw[15] << endl;						
-							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 									   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 									   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 									   A_B0R15[ma_tmp]);
@@ -5270,7 +5827,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r4(std::vector<ZZ> &A,std::vector<ZZ> &B
 							if(display == 1)DIF_DATARECORD << "A_B1R13["<< ma_tmp <<"]: "<< A_B1R13[ma_tmp]	<<	", st0_Tw[13] = " << st0_Tw[13] << endl;
 							if(display == 1)DIF_DATARECORD << "A_B1R14["<< ma_tmp <<"]: "<< A_B1R14[ma_tmp]	<<	", st0_Tw[14] = " << st0_Tw[14] << endl;
 							if(display == 1)DIF_DATARECORD << "A_B1R15["<< ma_tmp <<"]: "<< A_B1R15[ma_tmp]	<<	", st0_Tw[15] = " << st0_Tw[15] << endl;				
-							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 									A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 									A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 									A_B1R15[ma_tmp]);
@@ -5309,7 +5866,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r4(std::vector<ZZ> &A,std::vector<ZZ> &B
 							if(display == 1)DIF_DATARECORD << "A_B1R13["<< ma_tmp <<"]: "<< A_B1R13[ma_tmp]	<<	", st1_Tw[13] = " << st1_Tw[13] << endl;
 							if(display == 1)DIF_DATARECORD << "A_B1R14["<< ma_tmp <<"]: "<< A_B1R14[ma_tmp]	<<	", st1_Tw[14] = " << st1_Tw[14] << endl;
 							if(display == 1)DIF_DATARECORD << "A_B1R15["<< ma_tmp <<"]: "<< A_B1R15[ma_tmp]	<<	", st1_Tw[15] = " << st1_Tw[15] << endl;				
-							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 									A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 									A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 									A_B1R15[ma_tmp]);
@@ -5348,7 +5905,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r4(std::vector<ZZ> &A,std::vector<ZZ> &B
 							if(display == 1)DIF_DATARECORD << "A_B1R13["<< ma_tmp <<"]: "<< A_B1R13[ma_tmp]	<<	", st2_Tw[13] = " << st2_Tw[13] << endl;
 							if(display == 1)DIF_DATARECORD << "A_B1R14["<< ma_tmp <<"]: "<< A_B1R14[ma_tmp]	<<	", st2_Tw[14] = " << st2_Tw[14] << endl;
 							if(display == 1)DIF_DATARECORD << "A_B1R15["<< ma_tmp <<"]: "<< A_B1R15[ma_tmp]	<<	", st2_Tw[15] = " << st2_Tw[15] << endl;				
-							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 									A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 									A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 									A_B1R15[ma_tmp]);
@@ -6827,10 +7384,10 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r4(std::vector<ZZ> &A,std::vector<ZZ> &B
 				if(display == 1)DIF_DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<< A_B0R13[ma_tmp]<<"\n";
 				if(display == 1)DIF_DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<< A_B0R14[ma_tmp]<<"\n";
 				if(display == 1)DIF_DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<< A_B0R15[ma_tmp]<<"\n";					
-                INWC_Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
-        		INWC_Radix4_BU(A_B0R4[ma_tmp],A_B0R5[ma_tmp],A_B0R6[ma_tmp],A_B0R7[ma_tmp]);
-        		INWC_Radix4_BU(A_B0R8[ma_tmp],A_B0R9[ma_tmp],A_B0R10[ma_tmp],A_B0R11[ma_tmp]);
-        		INWC_Radix4_BU(A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],A_B0R15[ma_tmp]);
+                INWC_MergeFactor_Radix4_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp]);
+        		INWC_MergeFactor_Radix4_BU(A_B0R4[ma_tmp],A_B0R5[ma_tmp],A_B0R6[ma_tmp],A_B0R7[ma_tmp]);
+        		INWC_MergeFactor_Radix4_BU(A_B0R8[ma_tmp],A_B0R9[ma_tmp],A_B0R10[ma_tmp],A_B0R11[ma_tmp]);
+        		INWC_MergeFactor_Radix4_BU(A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],A_B0R15[ma_tmp]);
 				//------------compute for INWC---------------
 				if(!debug) MulMod(r4_InvPhi_0t_dot_IW, r4_InvPhi_0t_Order, 1, p);
 				if(!debug) MulMod(r4_InvPhi_1t_dot_IW, r4_InvPhi_1t_Order, 1, p);
@@ -7841,7 +8398,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r8(std::vector<ZZ> &A,std::vector<ZZ> &B
                     		if(display == 1)DIF_DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<< A_B0R13[ma_tmp] << ", st0_Tw[13] = " << st0_Tw[13] << endl;					
                     		if(display == 1)DIF_DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<< A_B0R14[ma_tmp] << ", st0_Tw[14] = " << st0_Tw[14] << endl;					
                     		if(display == 1)DIF_DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<< A_B0R15[ma_tmp] << ", st0_Tw[15] = " << st0_Tw[15] << endl;			
-							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 									   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 									   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 									   A_B0R15[ma_tmp]);
@@ -7879,7 +8436,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r8(std::vector<ZZ> &A,std::vector<ZZ> &B
                     		if(display == 1)DIF_DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<< A_B0R13[ma_tmp] << ", st1_Tw[13] = " << st1_Tw[13] << endl;					
                     		if(display == 1)DIF_DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<< A_B0R14[ma_tmp] << ", st1_Tw[14] = " << st1_Tw[14] << endl;					
                     		if(display == 1)DIF_DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<< A_B0R15[ma_tmp] << ", st1_Tw[15] = " << st1_Tw[15] << endl;			
-							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 									   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 									   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 									   A_B0R15[ma_tmp]);
@@ -7918,7 +8475,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r8(std::vector<ZZ> &A,std::vector<ZZ> &B
                     		if(display == 1)DIF_DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<< A_B0R13[ma_tmp] << ", st2_Tw[13] = " << st2_Tw[13] << endl;					
                     		if(display == 1)DIF_DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<< A_B0R14[ma_tmp] << ", st2_Tw[14] = " << st2_Tw[14] << endl;					
                     		if(display == 1)DIF_DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<< A_B0R15[ma_tmp] << ", st2_Tw[15] = " << st2_Tw[15] << endl;			
-							INWC_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp], A_B0R2[ma_tmp], A_B0R3[ma_tmp],A_B0R4[ma_tmp],
 									   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 									   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 									   A_B0R15[ma_tmp]);
@@ -7988,7 +8545,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r8(std::vector<ZZ> &A,std::vector<ZZ> &B
                     		if(display == 1)DIF_DATARECORD <<"A_B1R13["<<ma_tmp<<"]: "<< A_B1R13[ma_tmp] << ", st0_Tw[13] = " << st0_Tw[13] << endl;					
                     		if(display == 1)DIF_DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<< A_B1R14[ma_tmp] << ", st0_Tw[14] = " << st0_Tw[14] << endl;					
                     		if(display == 1)DIF_DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<< A_B1R15[ma_tmp] << ", st0_Tw[15] = " << st0_Tw[15] << endl;						
-							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 									   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 									   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 									   A_B1R15[ma_tmp]);
@@ -8027,7 +8584,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r8(std::vector<ZZ> &A,std::vector<ZZ> &B
                     		if(display == 1)DIF_DATARECORD <<"A_B1R13["<<ma_tmp<<"]: "<< A_B1R13[ma_tmp] << ", st1_Tw[13] = " << st1_Tw[13] << endl;					
                     		if(display == 1)DIF_DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<< A_B1R14[ma_tmp] << ", st1_Tw[14] = " << st1_Tw[14] << endl;					
                     		if(display == 1)DIF_DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<< A_B1R15[ma_tmp] << ", st1_Tw[15] = " << st1_Tw[15] << endl;						
-							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 									   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 									   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 									   A_B1R15[ma_tmp]);
@@ -8066,7 +8623,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r8(std::vector<ZZ> &A,std::vector<ZZ> &B
                     		if(display == 1)DIF_DATARECORD <<"A_B1R13["<<ma_tmp<<"]: "<< A_B1R13[ma_tmp] << ", st2_Tw[13] = " << st2_Tw[13] << endl;					
                     		if(display == 1)DIF_DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<< A_B1R14[ma_tmp] << ", st2_Tw[14] = " << st2_Tw[14] << endl;					
                     		if(display == 1)DIF_DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<< A_B1R15[ma_tmp] << ", st2_Tw[15] = " << st2_Tw[15] << endl;						
-							INWC_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
+							INWC_MergeFactor_Radix16_BU(A_B1R0[ma_tmp],A_B1R1[ma_tmp], A_B1R2[ma_tmp], A_B1R3[ma_tmp],A_B1R4[ma_tmp],
 									   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 									   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 									   A_B1R15[ma_tmp]);
@@ -9635,8 +10192,8 @@ void DIF_INWC::DIF_INWC_MergeFactor_r16_r8(std::vector<ZZ> &A,std::vector<ZZ> &B
 			r8_InvPhi_7t_Order = PowerMod(r8_InvPhi_7t, r8_InvPhi_deg, p);
 			//-------------------------------------------------
         	if(bn_tmp == 0){
-                INWC_Radix8_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp],A_B0R4[ma_tmp],A_B0R5[ma_tmp],A_B0R6[ma_tmp],A_B0R7[ma_tmp]);
-        		INWC_Radix8_BU(A_B0R8[ma_tmp],A_B0R9[ma_tmp],A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],A_B0R15[ma_tmp]);
+                INWC_MergeFactor_Radix8_BU(A_B0R0[ma_tmp],A_B0R1[ma_tmp],A_B0R2[ma_tmp],A_B0R3[ma_tmp],A_B0R4[ma_tmp],A_B0R5[ma_tmp],A_B0R6[ma_tmp],A_B0R7[ma_tmp]);
+        		INWC_MergeFactor_Radix8_BU(A_B0R8[ma_tmp],A_B0R9[ma_tmp],A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],A_B0R15[ma_tmp]);
 				//------------compute for INWC---------------
 				if(!debug) MulMod(r8_InvPhi_0t_dot_IW, r8_InvPhi_0t_Order, 1, p);
 				if(!debug) MulMod(r8_InvPhi_1t_dot_IW, r8_InvPhi_1t_Order, 1, p);
