@@ -18,6 +18,10 @@ void DTFAG::DTFAG_INWC_MergeFactor_ROM_init(
     std::ofstream DTFAG_ROM0_2_init("./NWC_PrintData/ROM_Data/DTFAG_INWC_ROM0_2_init.txt");
     std::ofstream DTFAG_ROM0_3_init("./NWC_PrintData/ROM_Data/DTFAG_INWC_ROM0_3_init.txt");
 
+    std::ofstream DTFAG_ROM1_init("./NWC_PrintData/ROM_Data/DTFAG_INWC_ROM1_init.txt");
+    std::ofstream DTFAG_ROM2_init("./NWC_PrintData/ROM_Data/DTFAG_INWC_ROM2_init.txt");
+
+
     ZZ InvPhi_deg_st0 = PowerMod((ZZ)radix_r1, 0, fft_prime);
     ZZ InvPhi_deg_st1 = PowerMod((ZZ)radix_r1, 1, fft_prime);
     ZZ InvPhi_deg_st2 = PowerMod((ZZ)radix_r1, 2, fft_prime);
@@ -110,6 +114,7 @@ void DTFAG::DTFAG_INWC_MergeFactor_ROM_init(
             ROM1_dg = (radix_r1) * k * n * 2;
             if(!debug) PowerMod(ROM1[k][n], InvPhi, ROM1_dg, fft_prime);
             DTFAG_ROM_init << ROM1[k][n] << ", ";
+            DTFAG_ROM1_init << "ROM1_arr[" << k << "][" << n << "] <= 64'd" << ROM1[k][n] << ";\n";
         }
         DTFAG_ROM_init << "]\n";
     }
@@ -123,6 +128,7 @@ void DTFAG::DTFAG_INWC_MergeFactor_ROM_init(
             ROM2_dg = k * n * 2;
             if(!debug) PowerMod(ROM2[k][n], InvPhi, ROM2_dg, fft_prime);
             DTFAG_ROM_init << ROM2[k][n] << ", ";
+            DTFAG_ROM2_init << "ROM2_arr[" << k << "][" << n << "] <= 64'd" << ROM2[k][n] << ";\n";
         }
         DTFAG_ROM_init << "]\n";
     }

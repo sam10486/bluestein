@@ -112,7 +112,6 @@ void DTFAG::DTFAG_INWC_SPMB_DIF_MR (
     for(int i=0; i<radix_r1; i++){
         v3_st3[i] = ROM0[MA0][i];
     }
-    
     //----------TW compute-----------
     for(int i=0; i<radix_r1; i++){
         //-----------for debug-------------------
@@ -126,6 +125,9 @@ void DTFAG::DTFAG_INWC_SPMB_DIF_MR (
         if(!debug) MulMod(tmp, v1[i], v2[i], fft_prime);
         if(!debug) MulMod(Tw0[i], v0[i], tmp, fft_prime);
         if(!debug) DTFAG_SPMB_DIF_MR << ", Tw0[" << i << "] = " << Tw0[i] << endl;
+       
+        //cout << "v0[" << i << "] = " << v0[i] << ", v1[" << i << "] = " << v1[i] << ", v2[" << i << "] = " << v2[i];
+        //cout << ", Tw0[" << i << "] = " << Tw0[i] << endl;
         //---------------------------------
         if(stage == 0){
             st0_Tw[i] = Tw0[i];

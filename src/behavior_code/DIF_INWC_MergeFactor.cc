@@ -277,6 +277,25 @@ ZZ &a_r8,ZZ &a_r9,ZZ &a_r10,ZZ &a_r11,ZZ &a_r12,ZZ &a_r13,ZZ &a_r14,ZZ &a_r15){
     PowerMod(twiddle_6, IW_1_16, 6, p);
     PowerMod(twiddle_7, IW_1_16, 7, p);
 
+	ZZ W_twiddle_0;
+    ZZ W_twiddle_1;
+    ZZ W_twiddle_2;
+    ZZ W_twiddle_3;
+    ZZ W_twiddle_4;
+    ZZ W_twiddle_5;
+    ZZ W_twiddle_6;
+    ZZ W_twiddle_7;
+	ZZ W_1_16;
+	PowerMod(W_1_16,W,len_1_16,p);
+	PowerMod(W_twiddle_0, W_1_16, 0, p);
+    PowerMod(W_twiddle_1, W_1_16, 1, p);
+    PowerMod(W_twiddle_2, W_1_16, 2, p);
+    PowerMod(W_twiddle_3, W_1_16, 3, p);
+    PowerMod(W_twiddle_4, W_1_16, 4, p);
+    PowerMod(W_twiddle_5, W_1_16, 5, p);
+    PowerMod(W_twiddle_6, W_1_16, 6, p);
+    PowerMod(W_twiddle_7, W_1_16, 7, p);
+
     //cout << "twiddle_0 = " << twiddle_0 << endl;
     //cout << "twiddle_1 = " << twiddle_1 << endl;
     //cout << "twiddle_2 = " << twiddle_2 << endl;
@@ -285,6 +304,15 @@ ZZ &a_r8,ZZ &a_r9,ZZ &a_r10,ZZ &a_r11,ZZ &a_r12,ZZ &a_r13,ZZ &a_r14,ZZ &a_r15){
     //cout << "twiddle_5 = " << twiddle_5 << endl;
     //cout << "twiddle_6 = " << twiddle_6 << endl;
     //cout << "twiddle_7 = " << twiddle_7 << endl;
+
+	//cout << "W_twiddle_0 = " << W_twiddle_0 << endl;
+    //cout << "W_twiddle_1 = " << W_twiddle_1 << endl;
+    //cout << "W_twiddle_2 = " << W_twiddle_2 << endl;
+    //cout << "W_twiddle_3 = " << W_twiddle_3 << endl;
+    //cout << "W_twiddle_4 = " << W_twiddle_4 << endl;
+    //cout << "W_twiddle_5 = " << W_twiddle_5 << endl;
+    //cout << "W_twiddle_6 = " << W_twiddle_6 << endl;
+    //cout << "W_twiddle_7 = " << W_twiddle_7 << endl;
     //------------------------------------------
 
     // stage0
@@ -1752,6 +1780,7 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 				INWC_DATARECORD << "bn_tmp: "<<bn_tmp<<"\n";
 
                 //-----------DTFAG generator-------------
+				//cout << "stage = " << s << ", DTFAG_i = " << DTFAG_i << ", DTFAG_t = " << DTFAG_t << ", DTFAG_j = " << DTFAG_j << endl;
                 DTFAG.DTFAG_INWC_SPMB_DIF_MR(
                     s, fft_point, radix_r1, radix_r2, debug,
 					ROM0, ROM1, ROM2,
@@ -1817,6 +1846,25 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 							   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 							   A_B0R15[ma_tmp]);
 							
+							INWC_DATARECORD <<" ------after BU compute-------" << std::endl;
+				    		INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp]<<"\n";
+				    		INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<<A_B0R2[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<<A_B0R3[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R4["<<ma_tmp<<"]: "<<A_B0R4[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R5["<<ma_tmp<<"]: "<<A_B0R5[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R6["<<ma_tmp<<"]: "<<A_B0R6[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R7["<<ma_tmp<<"]: "<<A_B0R7[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R8["<<ma_tmp<<"]: "<<A_B0R8[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R9["<<ma_tmp<<"]: "<<A_B0R9[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R10["<<ma_tmp<<"]: "<<A_B0R10[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R11["<<ma_tmp<<"]: "<<A_B0R11[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R12["<<ma_tmp<<"]: "<<A_B0R12[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<<A_B0R13[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<<A_B0R14[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<<A_B0R15[ma_tmp]<<"\n";
+
+
 							MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],  st0_Tw[0] ,p);
                             MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],  st0_Tw[1] ,p);
 					        MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],  st0_Tw[2] ,p);
@@ -1856,7 +1904,25 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 							   A_B0R5[ma_tmp],A_B0R6[ma_tmp], A_B0R7[ma_tmp], A_B0R8[ma_tmp],A_B0R9[ma_tmp],
 							   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 							   A_B0R15[ma_tmp]);
-							
+
+							INWC_DATARECORD <<" ------after BU compute-------" << std::endl;
+				    		INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp]<<"\n";
+				    		INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<<A_B0R2[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<<A_B0R3[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R4["<<ma_tmp<<"]: "<<A_B0R4[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R5["<<ma_tmp<<"]: "<<A_B0R5[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R6["<<ma_tmp<<"]: "<<A_B0R6[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R7["<<ma_tmp<<"]: "<<A_B0R7[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R8["<<ma_tmp<<"]: "<<A_B0R8[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R9["<<ma_tmp<<"]: "<<A_B0R9[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R10["<<ma_tmp<<"]: "<<A_B0R10[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R11["<<ma_tmp<<"]: "<<A_B0R11[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R12["<<ma_tmp<<"]: "<<A_B0R12[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<<A_B0R13[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<<A_B0R14[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<<A_B0R15[ma_tmp]<<"\n";
+
                             MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],  st1_Tw[0] ,p);
                             MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],  st1_Tw[1] ,p);
 					        MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],  st1_Tw[2] ,p);
@@ -1897,6 +1963,24 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 							   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 							   A_B0R15[ma_tmp]);
 							
+							INWC_DATARECORD <<" ------after BU compute-------" << std::endl;
+				    		INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp]<<"\n";
+				    		INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<<A_B0R2[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<<A_B0R3[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R4["<<ma_tmp<<"]: "<<A_B0R4[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R5["<<ma_tmp<<"]: "<<A_B0R5[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R6["<<ma_tmp<<"]: "<<A_B0R6[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R7["<<ma_tmp<<"]: "<<A_B0R7[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R8["<<ma_tmp<<"]: "<<A_B0R8[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R9["<<ma_tmp<<"]: "<<A_B0R9[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R10["<<ma_tmp<<"]: "<<A_B0R10[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R11["<<ma_tmp<<"]: "<<A_B0R11[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R12["<<ma_tmp<<"]: "<<A_B0R12[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<<A_B0R13[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<<A_B0R14[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<<A_B0R15[ma_tmp]<<"\n";
+
                             MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],  st2_Tw[0] ,p);
                             MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],  st2_Tw[1] ,p);
 					        MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],  st2_Tw[2] ,p);
@@ -1937,6 +2021,24 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 							   A_B0R10[ma_tmp],A_B0R11[ma_tmp],A_B0R12[ma_tmp],A_B0R13[ma_tmp],A_B0R14[ma_tmp],
 							   A_B0R15[ma_tmp]);
 							
+							INWC_DATARECORD <<" ------after BU compute-------" << std::endl;
+				    		INWC_DATARECORD <<"A_B0R0["<<ma_tmp<<"]: "<<A_B0R0[ma_tmp]<<"\n";
+				    		INWC_DATARECORD <<"A_B0R1["<<ma_tmp<<"]: "<<A_B0R1[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R2["<<ma_tmp<<"]: "<<A_B0R2[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R3["<<ma_tmp<<"]: "<<A_B0R3[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R4["<<ma_tmp<<"]: "<<A_B0R4[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R5["<<ma_tmp<<"]: "<<A_B0R5[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R6["<<ma_tmp<<"]: "<<A_B0R6[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R7["<<ma_tmp<<"]: "<<A_B0R7[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R8["<<ma_tmp<<"]: "<<A_B0R8[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R9["<<ma_tmp<<"]: "<<A_B0R9[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R10["<<ma_tmp<<"]: "<<A_B0R10[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R11["<<ma_tmp<<"]: "<<A_B0R11[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R12["<<ma_tmp<<"]: "<<A_B0R12[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R13["<<ma_tmp<<"]: "<<A_B0R13[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R14["<<ma_tmp<<"]: "<<A_B0R14[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B0R15["<<ma_tmp<<"]: "<<A_B0R15[ma_tmp]<<"\n";
+
                             MulMod(A_B0R0[ma_tmp],A_B0R0[ma_tmp],  st3_Tw[0] ,p);
                             MulMod(A_B0R1[ma_tmp],A_B0R1[ma_tmp],  st3_Tw[1] ,p);
 					        MulMod(A_B0R2[ma_tmp],A_B0R2[ma_tmp],  st3_Tw[2] ,p);
@@ -2008,6 +2110,24 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        		   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 					        		   A_B1R15[ma_tmp]);
 							
+							INWC_DATARECORD <<" ------after BU compute-------" << std::endl;
+				    		INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<<"\n";
+				    		INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R4["<<ma_tmp<<"]: "<<A_B1R4[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R5["<<ma_tmp<<"]: "<<A_B1R5[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R6["<<ma_tmp<<"]: "<<A_B1R6[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R7["<<ma_tmp<<"]: "<<A_B1R7[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R8["<<ma_tmp<<"]: "<<A_B1R8[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R9["<<ma_tmp<<"]: "<<A_B1R9[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R10["<<ma_tmp<<"]: "<<A_B1R10[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R11["<<ma_tmp<<"]: "<<A_B1R11[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R12["<<ma_tmp<<"]: "<<A_B1R12[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R13["<<ma_tmp<<"]: "<<A_B1R13[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<<A_B1R14[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<<A_B1R15[ma_tmp]<<"\n";
+
                             MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],  st0_Tw[0] ,p);
 					        MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],  st0_Tw[1] ,p);
 					        MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],  st0_Tw[2] ,p);
@@ -2048,6 +2168,24 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        		   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 					        		   A_B1R15[ma_tmp]);
 							
+							INWC_DATARECORD <<" ------after BU compute-------" << std::endl;
+				    		INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<<"\n";
+				    		INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R4["<<ma_tmp<<"]: "<<A_B1R4[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R5["<<ma_tmp<<"]: "<<A_B1R5[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R6["<<ma_tmp<<"]: "<<A_B1R6[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R7["<<ma_tmp<<"]: "<<A_B1R7[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R8["<<ma_tmp<<"]: "<<A_B1R8[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R9["<<ma_tmp<<"]: "<<A_B1R9[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R10["<<ma_tmp<<"]: "<<A_B1R10[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R11["<<ma_tmp<<"]: "<<A_B1R11[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R12["<<ma_tmp<<"]: "<<A_B1R12[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R13["<<ma_tmp<<"]: "<<A_B1R13[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<<A_B1R14[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<<A_B1R15[ma_tmp]<<"\n";
+
                             MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],  st1_Tw[0] ,p);
 					        MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],  st1_Tw[1] ,p);
 					        MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],  st1_Tw[2] ,p);
@@ -2087,7 +2225,25 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        		   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 					        		   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 					        		   A_B1R15[ma_tmp]);
-						
+
+							INWC_DATARECORD <<" ------after BU compute-------" << std::endl;
+				    		INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<<"\n";
+				    		INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R4["<<ma_tmp<<"]: "<<A_B1R4[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R5["<<ma_tmp<<"]: "<<A_B1R5[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R6["<<ma_tmp<<"]: "<<A_B1R6[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R7["<<ma_tmp<<"]: "<<A_B1R7[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R8["<<ma_tmp<<"]: "<<A_B1R8[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R9["<<ma_tmp<<"]: "<<A_B1R9[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R10["<<ma_tmp<<"]: "<<A_B1R10[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R11["<<ma_tmp<<"]: "<<A_B1R11[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R12["<<ma_tmp<<"]: "<<A_B1R12[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R13["<<ma_tmp<<"]: "<<A_B1R13[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<<A_B1R14[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<<A_B1R15[ma_tmp]<<"\n";
+
                             MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],  st2_Tw[0] ,p);
 					        MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],  st2_Tw[1] ,p);
 					        MulMod(A_B1R2[ma_tmp],A_B1R2[ma_tmp],  st2_Tw[2] ,p);
@@ -2127,6 +2283,24 @@ void DIF_INWC::DIF_INWC_MergeFactor_radix16(std::vector<ZZ> &A){
 					        		   A_B1R5[ma_tmp],A_B1R6[ma_tmp], A_B1R7[ma_tmp], A_B1R8[ma_tmp],A_B1R9[ma_tmp],
 					        		   A_B1R10[ma_tmp],A_B1R11[ma_tmp],A_B1R12[ma_tmp],A_B1R13[ma_tmp],A_B1R14[ma_tmp],
 					        		   A_B1R15[ma_tmp]);
+							
+							INWC_DATARECORD <<" ------after BU compute-------" << std::endl;
+				    		INWC_DATARECORD <<"A_B1R0["<<ma_tmp<<"]: "<<A_B1R0[ma_tmp]<<"\n";
+				    		INWC_DATARECORD <<"A_B1R1["<<ma_tmp<<"]: "<<A_B1R1[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R2["<<ma_tmp<<"]: "<<A_B1R2[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R3["<<ma_tmp<<"]: "<<A_B1R3[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R4["<<ma_tmp<<"]: "<<A_B1R4[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R5["<<ma_tmp<<"]: "<<A_B1R5[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R6["<<ma_tmp<<"]: "<<A_B1R6[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R7["<<ma_tmp<<"]: "<<A_B1R7[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R8["<<ma_tmp<<"]: "<<A_B1R8[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R9["<<ma_tmp<<"]: "<<A_B1R9[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R10["<<ma_tmp<<"]: "<<A_B1R10[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R11["<<ma_tmp<<"]: "<<A_B1R11[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R12["<<ma_tmp<<"]: "<<A_B1R12[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R13["<<ma_tmp<<"]: "<<A_B1R13[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R14["<<ma_tmp<<"]: "<<A_B1R14[ma_tmp]<<"\n";
+							INWC_DATARECORD <<"A_B1R15["<<ma_tmp<<"]: "<<A_B1R15[ma_tmp]<<"\n";
 							
                             MulMod(A_B1R0[ma_tmp],A_B1R0[ma_tmp],  st3_Tw[0] ,p);
 					        MulMod(A_B1R1[ma_tmp],A_B1R1[ma_tmp],  st3_Tw[1] ,p);
