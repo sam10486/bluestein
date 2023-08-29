@@ -35,7 +35,7 @@ void test_NTTSPMB()
   int radix_r2;
 
   radix_r1 = 16;
-  radix_r2 = 8;
+  radix_r2 = 16;
   ZZ fft_prime;
   ZZ fft_twiddle;
   ZZ fft_twiddle_16;
